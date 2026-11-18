@@ -46,9 +46,9 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | dushy/home2/tv | done | 0 |  |
 | dushy/home2/phone | done | 0 |  |
 | dushy/home2/sleep | done | 0 |  |
-| dushy/gym/idle | pending | 0 |  |
-| dushy/gym/wave | pending | 0 |  |
-| dushy/gym/workout | pending | 0 |  |
+| dushy/gym/idle | done | 0 |  |
+| dushy/gym/wave | done | 0 |  |
+| dushy/gym/workout | done | 0 |  |
 | dushy/party/idle | pending | 0 |  |
 | dushy/party/wave | pending | 0 |  |
 | dushy/party/dance | pending | 0 |  |

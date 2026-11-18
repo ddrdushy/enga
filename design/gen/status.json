@@ -408,5 +408,20 @@
   "state": "done",
   "retries": 0,
   "note": ""
+ },
+ "dushy/gym/idle": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "dushy/gym/wave": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "dushy/gym/workout": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
  }
 }
