@@ -37,6 +37,7 @@ a { color: #3f4a8a; font-weight: 700; text-decoration: none; }
 @keyframes grow { from { scale: 0 1; } to { scale: 1 1; } }
 @keyframes load { 0%, 100% { width: 6px; } 50% { width: 40px; } }
 @keyframes shake { 0%, 100% { translate: 0 0; } 25% { translate: -8px 0; } 75% { translate: 8px 0; } }
+@keyframes rainfall { to { background-position: -30px 120px, -24px 180px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 
 .app { max-width: 430px; height: 100%; margin: 0 auto; display: flex; flex-direction: column; position: relative; overflow: hidden; }
@@ -110,6 +111,7 @@ button.word::after { content: ''; position: absolute; inset: -5px 0; }
 .slide[aria-disabled='true'] span.txt { color: var(--ink2); }
 .slide .knob { position: absolute; left: 4px; top: 4px; width: 52px; height: 52px; border-radius: 50%; background: var(--ink); color: #fff; display: flex; align-items: center; justify-content: center; }
 .slide.shake { animation: shake 0.3s ease-in-out; }
+.shake-once { animation: shake 0.32s ease-in-out 2; }
 .slide span.txt { font-family: var(--display); font-size: clamp(14px, 4.4vw, 17px); font-weight: 700; padding: 0 12px 0 64px; text-align: center; }
 
 /* face slider */
@@ -190,3 +192,16 @@ button.word::after { content: ''; position: absolute; inset: -5px 0; }
 .err { color: #a12a2a; font-size: 14px; font-weight: 600; text-align: center; min-height: 20px; }
 .sheet > * { flex-shrink: 0; }
 .screen > .err:empty { display: none; }
+
+/* rain over the home screen when it is raining in town (src/lib/weather.ts) */
+.rain {
+  position: absolute; inset: 0; z-index: 4; pointer-events: none; opacity: 0.55;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cg stroke='%235B6BBF' stroke-opacity='.45' stroke-width='1.6' stroke-linecap='round'%3E%3Cpath d='M10 8l-3 14'/%3E%3Cpath d='M50 40l-3 14'/%3E%3Cpath d='M90 15l-3 14'/%3E%3Cpath d='M30 80l-3 14'/%3E%3Cpath d='M75 95l-3 14'/%3E%3Cpath d='M112 60l-3 14'/%3E%3C/g%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cg stroke='%235B6BBF' stroke-opacity='.3' stroke-width='1.2' stroke-linecap='round'%3E%3Cpath d='M20 30l-2 10'/%3E%3Cpath d='M70 110l-2 10'/%3E%3Cpath d='M130 50l-2 10'/%3E%3Cpath d='M160 140l-2 10'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 120px 120px, 180px 180px;
+  animation: rainfall 0.9s linear infinite;
+}
+/* a small spring on press */
+.pill, .round, .spring, .tile, .nav button, .word { transition: scale 0.18s cubic-bezier(0.2, 1.6, 0.4, 1); }
+.pill:active, .round:active, .spring:active, .tile:active, .nav button:active, button.word:active { scale: 0.94; }

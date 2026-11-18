@@ -1,22 +1,22 @@
 import { useEffect, useRef, useState } from 'react'
 import type { LiveRow } from './Entry'
-import { Avatar } from '../ui'
-import sceneMoving from '../assets/scenes/friends.anim.webp'
+import { Avatar, GroupScene, calm, hasGroup } from '../ui'
 import sceneStill from '../assets/scenes/friends.webp'
 
 const BG = ['var(--card)', 'var(--peach)', 'var(--butter)', 'var(--lav)']
 // Fades only the corners and the very edges, so the people at either end stay fully visible.
 const FADE = 'radial-gradient(ellipse 58% 56% at 50% 50%, #000 80%, transparent 100%)'
-const SCENE_MOVES = false
-const calm = () => { try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches } catch { return false } }
 
-/** The clay picture of the three friends, faded into the page so its own background never shows an edge. */
-export function FriendsScene({ height, moving = true }: { height: number; moving?: boolean }) {
-  return (
-    // The moving version shows a second tea glass in some frames, so the still one is used until it is redrawn.
-    <img src={moving && !calm() && SCENE_MOVES ? sceneMoving : sceneStill} alt="" aria-hidden="true" draggable={false}
-      style={{ display: 'block', height, width: 'auto', maxWidth: '100%', objectFit: 'contain', margin: '0 auto', WebkitMaskImage: FADE, maskImage: FADE, animation: 'pop .7s cubic-bezier(.2,1.4,.4,1) both' }} />
-  )
+/**
+ * The clay picture of the three friends, faded into the page so its own background never shows an edge.
+ * The cast's group scene ('hello', or 'birthday' on someone's birthday) when it exists; otherwise the still
+ * scene (its animated version shows a second tea glass in some frames, so it stays off).
+ */
+export function FriendsScene({ height, scene = 'hello' }: { height: number; scene?: string }) {
+  const style = { margin: '0 auto', WebkitMaskImage: FADE, maskImage: FADE, animation: calm() ? undefined : 'pop .7s cubic-bezier(.2,1.4,.4,1) both', borderRadius: 0 }
+  const name = hasGroup(scene) ? scene : hasGroup('hello') ? 'hello' : ''
+  if (name) return <GroupScene name={name} height={height} style={style} />
+  return <img src={sceneStill} alt="" aria-hidden="true" draggable={false} style={{ display: 'block', height, width: 'auto', maxWidth: '100%', objectFit: 'contain', ...style }} />
 }
 
 /**
@@ -24,7 +24,7 @@ export function FriendsScene({ height, moving = true }: { height: number; moving
  * they are right now. Swipe the cards: they tilt and shrink as they slide away, and the face that lands in the
  * middle bounces. It opens the app by itself after a few seconds, unless you start swiping; then it waits.
  */
-export function LiveSplash({ live, onOpen }: { live: LiveRow[]; onOpen?: () => void }) {
+export function LiveSplash({ live, onOpen, scene }: { live: LiveRow[]; onOpen?: () => void; scene?: string }) {
   const strip = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
   const [held, setHeld] = useState(false)
@@ -74,7 +74,7 @@ export function LiveSplash({ live, onOpen }: { live: LiveRow[]; onOpen?: () => v
     <div className="screen" style={{ position: 'relative', overflow: 'hidden', padding: '24px 0 36px', gap: 0, animation: 'none' }} onPointerDown={() => setHeld(true)}>
       <div aria-hidden="true" style={{ position: 'absolute', bottom: 90, left: -90, width: 220, height: 220, borderRadius: '50%', background: 'var(--sage)' }} />
       <div className="eyebrow" style={{ position: 'relative', color: 'var(--ink2)', padding: '0 24px' }}>right now</div>
-      <div style={{ position: 'relative', marginTop: 6 }}><FriendsScene height={250} /></div>
+      <div style={{ position: 'relative', marginTop: 6 }}><FriendsScene height={250} scene={scene} /></div>
 
       <div ref={strip} role="list" aria-label="Where everyone is" onScroll={() => setHeld(true)}
         style={{ position: 'relative', display: 'flex', gap: 14, overflowX: 'auto', scrollSnapType: 'x mandatory', padding: '18px 15% 26px', scrollbarWidth: 'none', marginTop: -10 }}>
@@ -82,7 +82,7 @@ export function LiveSplash({ live, onOpen }: { live: LiveRow[]; onOpen?: () => v
           <div key={r.who} role="listitem" onClick={(e) => { if (i !== active) { e.stopPropagation(); go(i) } }}
             style={{ flex: '0 0 70%', scrollSnapAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, padding: '18px 14px 16px', borderRadius: 30, background: BG[i % 4], border: '2px solid var(--ink)', boxShadow: '0 10px 0 var(--ink)', transition: 'opacity .15s', willChange: 'transform' }}>
             <span key={i === active ? 'on' : 'off'} style={{ display: 'flex', animation: i === active ? 'pop .55s cubic-bezier(.2,1.6,.4,1) both' : undefined }}>
-              <Avatar p={r.face} size={96} moving={i === active} style={{ border: '4px solid var(--mist)' }} />
+              <Avatar p={r.face} size={96} moving={i === active} pick={r.pick} style={{ border: '4px solid var(--mist)' }} />
             </span>
             <div className="display" style={{ fontSize: 20, lineHeight: 1.2, textAlign: 'center', overflowWrap: 'anywhere' }}>{r.who} · {r.headline}</div>
             <div className="small" style={{ textAlign: 'center', color: 'var(--ink2)' }}>{r.sub}</div>

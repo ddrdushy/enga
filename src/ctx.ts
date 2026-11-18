@@ -1,6 +1,7 @@
 import type { Data, ID, Person } from './lib/types'
 import type { Store } from './lib/store'
 import type { EventDemo, TripDemo } from './lib/sample'
+import type { CastPick } from './lib/cast'
 
 export type Overlay =
   | { k: 'trip'; id?: ID; start?: string; demo?: TripDemo }
@@ -24,6 +25,12 @@ export interface Ctx {
   close(): void
   /** Start the how-to-use tour. */
   tour(): void
+  /** Minutes past midnight now, refreshed every minute. */
+  minutes: number
+  /** Raining at home base right now (Open-Meteo, cached). */
+  rain: boolean
+  /** The outfit and pose for a person's clay character right now. */
+  cast(p: Person): CastPick
   /** Run a store change, then reload. Shows any failure. */
   run(action: () => Promise<unknown>): Promise<boolean>
 }

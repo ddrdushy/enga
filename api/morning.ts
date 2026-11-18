@@ -9,7 +9,7 @@ import { createHash, timingSafeEqual } from 'node:crypto'
 import { createClient } from '@supabase/supabase-js'
 import webpush from 'web-push'
 import { digest } from '../src/lib/logic.ts'
-import { plansOf, optsOf, spotOf } from '../src/lib/extras.ts'
+import { personalOf, plansOf, optsOf, spotOf } from '../src/lib/extras.ts'
 import { timeOf } from '../src/lib/when.ts'
 import type { Checkin, Data, EventItem, Keen, Person, Rsvp, SafetyCard, Trip } from '../src/lib/types.ts'
 
@@ -69,7 +69,7 @@ export function toData(rows: Loaded): Data {
       id: r.id, name: r.name, initial: String(r.name ?? '?')[0].toUpperCase(),
       color: r.color ?? '#5B6BBF', ink: r.ink ?? '#FFFFFF',
       home: r.home ?? 'Kuala Lumpur', house: r.house ?? '', office: r.office ?? '', workType: r.work_type ?? '', workPlan: r.work_plan ?? null, spot: spotOf(r.reminder_opts), days: plansOf(r.reminder_opts), emergencyContacts: Array.isArray(r.emergency_contacts) ? r.emergency_contacts : [],
-      reminderTime: r.reminder_time ?? DEFAULT_TIME, reminderOpts: optsOf(r.reminder_opts),
+      reminderTime: r.reminder_time ?? DEFAULT_TIME, reminderOpts: optsOf(r.reminder_opts), ...personalOf(r.reminder_opts),
     })),
     trips: rows.trips.map((r): Trip => ({
       id: r.id, ownerId: r.owner_id, place: r.place, start: r.start_date, end: r.end_date, open: r.open, createdAt: r.created_at,

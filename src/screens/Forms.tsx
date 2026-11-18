@@ -407,7 +407,7 @@ export function MeScreen(ctx: Ctx) {
         </div>
       </div>
       <div className="row" data-tour="details" style={{ gap: 14 }}>
-        <Avatar p={me} size={72} moving style={{ animation: 'breathe 4s ease-in-out infinite' }} />
+        <Avatar p={me} size={96} moving pick={ctx.cast(me)} reactive label="Your character: tap to play" style={{ animation: 'breathe 4s ease-in-out infinite' }} />
         <div className="say sm" style={{ lineHeight: 1.5 }}>
           I'm <Blank value={name} onChange={setName} label="Your name" hint="name" bg="var(--card)" after="." /><br />Home is <button type="button" className="word" style={{ background: 'var(--sage)' }} onClick={() => setEditHome(true)}>{me.home}</button>.
         </div>

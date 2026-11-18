@@ -1,6 +1,7 @@
 import type { Checkin, Contact, Data, EventItem, ID, Keen, Member, Person, Rsvp, SafetyCard, Spot, Stop, Trip } from './types'
 import { withDay } from './day'
-import { plansOf, optsOf, packExtras, spotOf } from './extras'
+import { plansOf, optsOf, packExtras, personalOf, spotOf } from './extras'
+import type { Personal } from './extras'
 import { today as todayIso } from './dates'
 import { timeOf } from './when'
 
@@ -62,6 +63,8 @@ export interface Store {
   /** The list of places for one day ('YYYY-MM-DD', today or later), in order. An empty list clears that day. */
   setDay(date: string, stops: Stop[]): Promise<void>
   saveProfile(patch: ProfilePatch): Promise<void>
+  /** Birthday ('MM-DD' or '') and festivals (keys, or null for the defaults); kept inside reminder_opts like the check-ins. */
+  savePersonal(patch: Partial<Personal>): Promise<void>
   /** This phone's push subscription, for the morning notification. */
   savePush(sub: { endpoint: string; p256dh: string; auth: string }): Promise<void>
   removePush(endpoint: string): Promise<void>
@@ -228,6 +231,14 @@ function demoStore(): Store {
         commit()
       }
     },
+    async savePersonal(patch) {
+      const p = state.people.find((x) => x.id === me())
+      if (p) {
+        if (patch.birthday !== undefined) p.birthday = personalOf({ birthday: patch.birthday }).birthday
+        if (patch.festivals !== undefined) p.festivals = patch.festivals === null ? null : personalOf({ festivals: patch.festivals }).festivals
+        commit()
+      }
+    },
     async savePush() { /* demo: nothing to save */ },
     async removePush() { /* demo: nothing to remove */ },
     subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn) },
@@ -308,6 +319,7 @@ async function cloudStore(url: string, anonKey: string): Promise<Store> {
           id: r.id, name: r.name, initial: String(r.name ?? '?')[0].toUpperCase(),
           color: r.color ?? paint.color, ink: r.ink ?? paint.ink,
           home: r.home ?? 'Kuala Lumpur', house: r.house ?? '', office: r.office ?? '', workType: r.work_type ?? '', workPlan: r.work_plan ?? null, spot: spotOf(r.reminder_opts), days: plansOf(r.reminder_opts), emergencyContacts: contactsOf(r),
+          ...personalOf(r.reminder_opts),
           reminderTime: r.reminder_time ?? '08:00', reminderOpts: optsOf(r.reminder_opts),
           }
         }),
@@ -375,13 +387,13 @@ async function cloudStore(url: string, anonKey: string): Promise<Store> {
       const id = await myId()
       const spot: Spot | null = kind ? { kind, at: new Date().toISOString() } : null
       const saved = await savedOpts(id)
-      check(await sb.from('profiles').update({ reminder_opts: packExtras(optsOf(saved), spot, plansOf(saved), todayIso()) }).eq('id', id))
+      check(await sb.from('profiles').update({ reminder_opts: packExtras(optsOf(saved), spot, plansOf(saved), todayIso(), personalOf(saved)) }).eq('id', id))
     },
     async setDay(date, stops) {
       const id = await myId()
       const saved = await savedOpts(id)
       const t = todayIso()
-      check(await sb.from('profiles').update({ reminder_opts: packExtras(optsOf(saved), spotOf(saved), withDay(plansOf(saved), date, stops, t), t) }).eq('id', id))
+      check(await sb.from('profiles').update({ reminder_opts: packExtras(optsOf(saved), spotOf(saved), withDay(plansOf(saved), date, stops, t), t, personalOf(saved)) }).eq('id', id))
     },
     async saveProfile(patch) {
       const row: Row = {}
@@ -400,8 +412,18 @@ async function cloudStore(url: string, anonKey: string): Promise<Store> {
       if (patch.reminderTime !== undefined) row.reminder_time = patch.reminderTime
       const id = await myId()
       // The check-ins and day lists share this column (see extras.ts), so changing the reminder words must not wipe them.
-      if (patch.reminderOpts !== undefined) { const saved = await savedOpts(id); row.reminder_opts = packExtras(optsOf(patch.reminderOpts), spotOf(saved), plansOf(saved), todayIso()) }
+      if (patch.reminderOpts !== undefined) { const saved = await savedOpts(id); row.reminder_opts = packExtras(optsOf(patch.reminderOpts), spotOf(saved), plansOf(saved), todayIso(), personalOf(saved)) }
       check(await sb.from('profiles').update(row).eq('id', id))
+    },
+    async savePersonal(patch) {
+      const id = await myId()
+      const saved = await savedOpts(id)
+      const was = personalOf(saved)
+      const next: Personal = {
+        birthday: patch.birthday !== undefined ? personalOf({ birthday: patch.birthday }).birthday : was.birthday,
+        festivals: patch.festivals !== undefined ? (patch.festivals === null ? null : personalOf({ festivals: patch.festivals }).festivals) : was.festivals,
+      }
+      check(await sb.from('profiles').update({ reminder_opts: packExtras(optsOf(saved), spotOf(saved), plansOf(saved), todayIso(), next) }).eq('id', id))
     },
     async savePush(sub) {
       check(await sb.rpc('save_push_subscription', { p_endpoint: sub.endpoint, p_p256dh: sub.p256dh, p_auth: sub.auth }))

@@ -3,17 +3,20 @@ import type { Member } from '../lib/types'
 import { Avatar } from '../ui'
 import { FriendsScene, LiveSplash } from './LiveSplash'
 import type { Face } from '../ui'
+import type { CastPick } from '../lib/cast'
 
-/** One line of the live splash: where a person is right now. */
-export interface LiveRow { face: Face; who: string; headline: string; sub: string }
+/** One line of the live splash: where a person is right now, and their character's outfit and pose. */
+export interface LiveRow { face: Face; who: string; headline: string; sub: string; pick?: CastPick }
+
+const WAVE = [{ outfit: 'out', pose: 'wave' }, { outfit: 'out', pose: 'idle' }]
 
 
 /**
  * The opening screen. Before sign-in it is the brand with a few sample tags.
  * Once signed in it shows, live, where each person is: a glance is enough, and a tap opens the app.
  */
-export function Splash({ members, live, onOpen }: { members: Member[]; live?: LiveRow[]; onOpen?: () => void }) {
-  if (live?.length) return <LiveSplash live={live} onOpen={onOpen} />
+export function Splash({ members, live, onOpen, scene }: { members: Member[]; live?: LiveRow[]; onOpen?: () => void; scene?: string }) {
+  if (live?.length) return <LiveSplash live={live} onOpen={onOpen} scene={scene} />
   return (
     <div className="screen pad" style={{ position: 'relative', overflow: 'hidden', justifyContent: 'flex-end', padding: '0 28px 56px', animation: 'none' }}>
       <div aria-hidden="true" style={{ position: 'absolute', top: 330, left: -80, width: 200, height: 200, borderRadius: '50%', background: 'var(--sage)' }} />
@@ -59,11 +62,13 @@ export function Login({ members, demo, claimed, inviteCode, onSignIn, onClaim }:
   const [code, setCode] = useState(inviteCode)
   const [codeRejected, setCodeRejected] = useState(false)
   const [firstPin, setFirstPin] = useState('')
+  const [shake, setShake] = useState(0)
   const locked = lockedUntil > now
   // First time for this name? Then they set their own PIN right here.
   const first = claimed ? !claimed.includes(who) : manualFirst
   const askCode = first && !demo && (!inviteCode || codeRejected)
-  const name = members.find((m) => m.slug === who)?.name ?? ''
+  const member = members.find((m) => m.slug === who)
+  const name = member?.name ?? ''
 
   useEffect(() => {
     if (!locked) return
@@ -95,6 +100,7 @@ export function Login({ members, demo, claimed, inviteCode, onSignIn, onClaim }:
       .then(remember)
       .catch(() => {
         const n = tries + 1
+        setShake((x) => x + 1)
         if (n >= MAX_TRIES) { setLockedUntil(Date.now() + LOCK_MS); setNow(Date.now()); setTries(0); reset('Too many tries. Wait a minute.') } else { setTries(n); reset(`Wrong PIN. ${MAX_TRIES - n} tries left.`) }
       })
       .finally(() => setBusy(false))
@@ -114,8 +120,20 @@ export function Login({ members, demo, claimed, inviteCode, onSignIn, onClaim }:
 
   return (
     <div className="screen pad" style={{ padding: '40px 28px 24px', gap: 18 }}>
-      <div className="display" style={{ fontSize: 44, lineHeight: 1, letterSpacing: -2 }}>enga<span className="q">?</span></div>
-      <div className="display" style={{ fontSize: 22, fontWeight: 600 }}>{first ? `welcome, ${name}. first time?` : 'hey, who is this?'}</div>
+      <div className="between" style={{ alignItems: 'flex-end' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, minWidth: 0 }}>
+          <div className="display" style={{ fontSize: 44, lineHeight: 1, letterSpacing: -2 }}>enga<span className="q">?</span></div>
+          <div className="display" style={{ fontSize: 22, fontWeight: 600 }}>{first ? `welcome, ${name}. first time?` : 'hey, who is this?'}</div>
+        </div>
+        {/* the chosen person's character waves; a wrong PIN shakes it */}
+        {member && (
+          <span key={`${who}-${shake}`} className={shake ? 'shake-once' : undefined} style={{ display: 'flex', flexShrink: 0 }}>
+            <span key={who} style={{ display: 'flex', animation: 'pop .5s cubic-bezier(.2,1.5,.4,1) both' }}>
+              <Avatar p={member} size={108} moving pick={WAVE} style={{ border: '4px solid var(--card)' }} />
+            </span>
+          </span>
+        )}
+      </div>
       <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(members.length, 4)}, minmax(0, 1fr))`, gap: 10 }}>
         {members.map((m) => (
           <button key={m.slug} type="button" aria-pressed={who === m.slug} onClick={() => { setWho(m.slug); reset() }}

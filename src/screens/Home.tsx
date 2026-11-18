@@ -3,10 +3,12 @@ import type { CSSProperties, ReactNode } from 'react'
 import type { Ctx } from '../ctx'
 import { person } from '../ctx'
 import type { EventItem, Keen, Person, Spot, Trip } from '../lib/types'
-import { addDays, addMonths, dayNum, daysInMonth, dow, firstOfMonth, fmt, fmtRange, fmtShort, inDays, mondayIndex, monthName, today } from '../lib/dates'
+import { addDays, addMonths, dayNum, diffDays, daysInMonth, dow, firstOfMonth, fmt, fmtRange, fmtShort, inDays, mondayIndex, monthName, today } from '../lib/dates'
 import { allHomeRuns, currentTrip, digest, isFree, laneSegments, nextTrip, openPlansFor, tripPeople, upcomingEvents, whereDetail, whereIs } from '../lib/logic'
 import { clock, daysOf, duration, goesToOffice, rightNow } from '../lib/work'
-import { Avatar, FaceSlider, Icon, Sheet } from '../ui'
+import { Avatar, FaceSlider, GroupScene, Icon, Sheet, hasGroup } from '../ui'
+import { greeting, headerMoment, slugOf } from '../lib/cast'
+import type { CastPick } from '../lib/cast'
 import { MyDay, StopList } from './Day'
 import { eventWhen, occursOn, timeOf, timeRange, weekday } from '../lib/when'
 
@@ -135,6 +137,8 @@ export function OrbitScreen(ctx: Ctx) {
           : <button type="button" className="pill" onClick={() => ctx.setTab('next')}>where next</button>}
       </div>
 
+      {date === t && <Greeting ctx={ctx} />}
+
       {brief.length > 0 && (
         <div className="bubble" style={{ maxWidth: '100%' }}>
           <div className="eyebrow" style={{ color: '#C9CEDD' }}>this morning</div>
@@ -170,7 +174,7 @@ export function OrbitScreen(ctx: Ctx) {
             return (
               <button key={s.p.id} type="button" className="abs" style={{ left: pos.x - 29, top: pos.y - 29, borderRadius: '50%', animation: s.w.home ? undefined : 'float 5s ease-in-out infinite' }}
                 aria-label={`${s.p.name}, ${town.includes(s) ? nowOf.get(s.p.id)?.head ?? s.w.place : s.w.place}`} onClick={() => setPersonId(s.p.id)}>
-                <Avatar p={s.p} size={58} moving style={{ border: `4px solid ${town.includes(s) ? 'var(--butter)' : s.w.home ? 'var(--sage)' : 'var(--mist)'}` }} />
+                <Avatar p={s.p} size={58} moving pick={date === t ? ctx.cast(s.p) : undefined} style={{ border: `4px solid ${town.includes(s) ? 'var(--butter)' : s.w.home ? 'var(--sage)' : 'var(--mist)'}` }} />
               </button>
             )
           })}
@@ -220,7 +224,7 @@ export function OrbitScreen(ctx: Ctx) {
             return (
               <div key={p.id} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 <button type="button" className="pill" style={{ paddingLeft: 4, height: 'auto', minHeight: 44, whiteSpace: 'normal', textAlign: 'left', justifyContent: 'flex-start', background: here ? 'var(--butter)' : moving ? 'var(--peach)' : 'var(--card)' }} onClick={() => setPersonId(p.id)}>
-                  <Avatar p={p} size={34} />
+                  <Avatar p={p} size={34} pick={ctx.cast(p)} />
                   <span><b>{isMe ? 'you' : p.name}</b> · {w ? w.text : 'not checked in today'}</span>
                 </button>
                 {isMe && (
@@ -275,6 +279,67 @@ export function OrbitScreen(ctx: Ctx) {
   )
 }
 
+/** A few words under the greeting, from what your character is doing. */
+function castLine(pick: CastPick, days: number | null): string {
+  switch (pick.state) {
+    case 'sleep': return 'sleep well'
+    case 'work': return 'have a good work day'
+    case 'home': return 'cosy at home'
+    case 'walk': return 'on the move'
+    case 'rain': return 'it is raining in town, take an umbrella'
+    case 'trip': return 'enjoy the trip'
+    case 'travel': return 'safe travels today'
+    case 'pack': return days === 0 ? 'trip today, all packed?' : days === 1 ? 'trip tomorrow, time to pack' : `trip in ${days} days, time to pack`
+    case 'cheer': return 'you made it!'
+    case 'birthday': return 'happy birthday!'
+    default: return 'out and about'
+  }
+}
+
+const listNames = (names: string[]) => (names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}` : names[0] ?? '')
+
+/**
+ * The top of the home screen: one moment at a time. A birthday, then someone back from a trip today,
+ * then everyone home together in the evening, else a greeting with your own character (tap it).
+ */
+function Greeting({ ctx }: { ctx: Ctx }) {
+  const { data, me, minutes } = ctx
+  const t = today()
+  const moment = headerMoment(data, t, minutes)
+  const nameOf = (p: Person) => (p.id === me.id ? 'you' : p.name)
+  if (moment.kind !== 'greet') {
+    const scene = moment.kind === 'birthday' ? 'birthday' : moment.kind === 'hug' ? 'hug' : `welcome-${slugOf(moment.who.name)}`
+    const line = moment.kind === 'birthday'
+      ? (moment.who.length === 1 && moment.who[0].id === me.id ? `happy birthday, ${me.name}!` : `happy birthday, ${listNames(moment.who.map(nameOf))}!`)
+      : moment.kind === 'welcome'
+      ? (moment.who.id === me.id ? `welcome home, ${me.name}` : `welcome back, ${moment.who.name}`)
+      : "everyone's home tonight"
+    const sub = moment.kind === 'birthday' ? 'a whole day of cake' : moment.kind === 'welcome' ? 'back from the trip today' : 'all three at home base'
+    const faces = moment.kind === 'birthday' ? moment.who : moment.kind === 'welcome' ? [moment.who] : data.people
+    return (
+      <div className="card moment" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: '12px 14px 14px', textAlign: 'center', animation: 'pop .5s cubic-bezier(.2,1.4,.4,1) both' }}>
+        {hasGroup(scene)
+          ? <GroupScene name={scene} height={150} />
+          : <div className="row" style={{ gap: 0 }}>{faces.map((p, i) => <Avatar key={p.id} p={p} size={faces.length > 1 ? 72 : 96} moving pick={ctx.cast(p)} reactive={p.id === me.id} style={{ border: '4px solid var(--card)', marginLeft: i ? -12 : 0 }} />)}</div>}
+        <div className="display" style={{ fontSize: 22, lineHeight: 1.15 }}>{line}</div>
+        <div className="small">{sub}</div>
+      </div>
+    )
+  }
+  const pick = ctx.cast(me)
+  const next = nextTrip(data, me.id, t)
+  const days = next ? Math.max(0, diffDays(t, next.start)) : null
+  return (
+    <div className="row" style={{ gap: 12 }}>
+      <Avatar p={me} size={64} moving pick={pick} reactive label="Your character: tap to play" />
+      <div style={{ minWidth: 0 }}>
+        <div className="display" style={{ fontSize: 21, lineHeight: 1.15 }}>{greeting(minutes)}, {me.name}</div>
+        <div className="small">{castLine(pick, days)}</div>
+      </div>
+    </div>
+  )
+}
+
 /** The one-tap check-ins on your own "right now" row. Tapping the one that is on turns it off. */
 const SPOTS: { kind: Spot['kind']; label: string; say: string }[] = [
   { kind: 'home', label: 'at home', say: 'Check in: I am at home' },
@@ -303,7 +368,7 @@ function PersonSheet({ ctx, id, onClose }: { ctx: Ctx; id: string; onClose: () =
   return (
     <Sheet title={isMe ? 'you' : p.name} onClose={onClose}>
       <div className="row" style={{ gap: 12 }}>
-        <Avatar p={p} size={72} moving />
+        <Avatar p={p} size={88} moving pick={date === today() ? ctx.cast(p) : undefined} reactive={isMe} />
         <div style={{ minWidth: 0 }}>
           <div className="display" style={{ fontSize: 22, overflowWrap: 'anywhere' }}>{where.headline}</div>
           <div className="small">{where.sub}</div>

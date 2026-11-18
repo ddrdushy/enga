@@ -1,7 +1,10 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { addDays, dayNum, dow, monthShort, today } from './lib/dates'
+import type { CastPick, CastStep } from './lib/cast'
+import { CAST_BG, REACTION_MS, castCandidates, groupArt, nextReaction, slugOf } from './lib/cast'
+import { CAST_FILES } from './lib/castFiles'
 
 /* ---------- icons ---------- */
 const svg = (d: ReactNode, size = 22, w = 2.2) => (
@@ -21,13 +24,22 @@ export const Icon = {
   lock: () => svg(<><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></>, 16, 2),
 }
 
-/* ---------- avatar ---------- */
+/* ---------- avatar: the clay character ---------- */
 export interface Face { initial: string; color: string; ink: string; name?: string }
 
 // Pictures in src/assets/avatars, by file name: "<name>.webp" is the still and "<name>.anim.webp" the animation.
-// They are put there by scripts/fetch-avatars.mjs from avatars.json. Anyone without a picture keeps their initial.
+// They are put there by scripts/fetch-avatars.mjs from avatars.json. They are the fallback for the clay cast
+// (src/assets/cast, see src/lib/cast.ts); anyone with neither keeps their initial.
 const ART = import.meta.glob('./assets/avatars/*.webp', { eager: true, query: '?url', import: 'default' }) as Record<string, string>
-const calm = () => { try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches } catch { return false } }
+export const calm = () => { try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches } catch { return false } }
+const CAST_URLS = new Set(Object.values(CAST_FILES))
+/** Addresses that failed to load: skipped from then on, so a missing file never shows as a broken picture. */
+const BROKEN = new Set<string>()
+/** The last reaction each person played, so a tap never plays the same one twice in a row. */
+const LAST_REACTION: Record<string, string | null> = {}
+const IDLE: CastStep[] = [{ outfit: 'out', pose: 'idle' }]
+/** Faces smaller than this always use the still picture. */
+export const MOVING_MIN = 56
 
 /** The picture for a name, if there is one. `moving` asks for the animated one. */
 export function avatarArt(name: string | undefined, moving: boolean): string | undefined {
@@ -36,15 +48,54 @@ export function avatarArt(name: string | undefined, moving: boolean): string | u
   return (moving && !calm() ? ART[`./assets/avatars/${slug}.anim.webp`] : undefined) ?? ART[`./assets/avatars/${slug}.webp`]
 }
 
-/** `moving`: use the animated picture where there is one (kept for the few big faces, so the screen stays calm). */
-export function Avatar({ p, size = 40, style, moving = false }: { p: Face; size?: number; style?: CSSProperties; moving?: boolean }) {
-  const src = avatarArt(p.name, moving)
-  return (
-    <span className="avatar" style={{ width: size, height: size, background: p.color, color: p.ink, fontSize: Math.round(size * 0.42), overflow: 'hidden', ...style }}>
-      {src ? <img src={src} alt="" draggable={false} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} /> : p.initial}
-    </span>
-  )
+/**
+ * A person's face: their clay character in the outfit and pose of `pick` (out/idle when not given), falling
+ * back to their avatar picture and then their initial. `moving` animates it, only at 56 px and up and never
+ * with reduced motion. `reactive`: tapping it plays a short reaction (laugh, dance, wave or cheer), then goes back.
+ */
+export function Avatar({ p, size = 40, style, moving = false, pick, reactive = false, label }: { p: Face; size?: number; style?: CSSProperties; moving?: boolean; pick?: CastPick | CastStep[]; reactive?: boolean; label?: string }) {
+  const slug = slugOf(p.name)
+  const [react, setReact] = useState<string | null>(null)
+  const [, setBroken] = useState(0)
+  const timer = useRef(0)
+  useEffect(() => () => window.clearTimeout(timer.current), [])
+  const animate = moving && size >= MOVING_MIN && !calm()
+  const base = pick ? (Array.isArray(pick) ? pick : pick.chain) : IDLE
+  const chain = react ? [{ outfit: 'out', pose: react }, ...base] : base
+  const key = chain.map((c) => `${c.outfit}/${c.pose}${c.loose ? '*' : ''}`).join(',')
+  const candidates = useMemo(() => {
+    const list = slug ? castCandidates(CAST_FILES, slug, chain, animate || (!!react && size >= MOVING_MIN && !calm())) : []
+    const art = avatarArt(p.name, animate)
+    const still = avatarArt(p.name, false)
+    return [...list, ...[art, still].filter((x): x is string => !!x)]
+  }, [slug, key, animate, react, size, p.name]) // eslint-disable-line react-hooks/exhaustive-deps
+  const src = candidates.find((u) => !BROKEN.has(u))
+  const bg = src && CAST_URLS.has(src) ? CAST_BG[slug] ?? p.color : p.color
+  const play = () => {
+    const r = nextReaction(LAST_REACTION[slug] ?? null, Math.random())
+    LAST_REACTION[slug] = r
+    setReact(r)
+    window.clearTimeout(timer.current)
+    timer.current = window.setTimeout(() => setReact(null), REACTION_MS)
+  }
+  const body = src
+    ? <img key={src} src={src} alt="" draggable={false} decoding="async" onError={() => { BROKEN.add(src); setBroken((n) => n + 1) }} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', animation: react ? 'pop .45s cubic-bezier(.2,1.6,.4,1) both' : undefined }} />
+    : p.initial
+  const look: CSSProperties = { width: size, height: size, background: bg, color: p.ink, fontSize: Math.round(size * 0.42), overflow: 'hidden', ...style }
+  if (reactive) return <button type="button" className="avatar spring" aria-label={label ?? `${p.name ?? 'your character'}: tap to play`} style={look} onClick={play}>{body}</button>
+  return <span className="avatar" style={look}>{body}</span>
 }
+
+/** A group scene of the three friends ('hello', 'hug', 'welcome-ali', 'birthday'), or null when there is none. */
+export function GroupScene({ name, height, style }: { name: string; height: number; style?: CSSProperties }) {
+  const [, setBroken] = useState(0)
+  const moving = !calm()
+  const list = [groupArt(CAST_FILES, name, moving), groupArt(CAST_FILES, name, false)].filter((x): x is string => !!x && !BROKEN.has(x))
+  const src = list[0]
+  if (!src) return null
+  return <img src={src} alt="" aria-hidden="true" draggable={false} decoding="async" onError={() => { BROKEN.add(src); setBroken((n) => n + 1) }} style={{ display: 'block', height, width: 'auto', maxWidth: '100%', objectFit: 'contain', borderRadius: 24, ...style }} />
+}
+export const hasGroup = (name: string) => !!groupArt(CAST_FILES, name, false) || !!groupArt(CAST_FILES, name, true)
 
 /* ---------- slide to confirm ---------- */
 export function SlideButton({ label, onDone, sage, icon, disabled }: { label: string; onDone: () => void; sage?: boolean; icon?: ReactNode; disabled?: boolean }) {

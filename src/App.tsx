@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Ctx, Overlay, Tab } from './ctx'
-import type { Data, ID } from './lib/types'
+import type { Data, ID, Person } from './lib/types'
 import type { Store } from './lib/store'
 import { MEMBERS, createStore } from './lib/store'
-import { today } from './lib/dates'
+import { toIso, today } from './lib/dates'
 import { eventDemo, tripDemo, withSamples } from './lib/sample'
 import { whereDetail } from './lib/logic'
+import { castMoment, castPick } from './lib/cast'
+import type { CastPick } from './lib/cast'
+import { WEATHER_TTL, rainingNow } from './lib/weather'
 import { Icon } from './ui'
 import { Login, Splash } from './screens/Entry'
 import type { LiveRow } from './screens/Entry'
@@ -30,6 +33,9 @@ export default function App() {
   const [date, setDate] = useState(today())
   const [toast, setToast] = useState('')
   const storeRef = useRef<Store | null>(null)
+  // The clock, ticked every minute: the characters, the sky and "right now" follow it.
+  const [clockNow, setClockNow] = useState(() => Date.now())
+  const [rain, setRain] = useState(false)
   const [claimed, setClaimed] = useState<string[] | null>(null)
   const [onboarding, setOnboarding] = useState(false)
   const [tour, setTour] = useState(false)
@@ -49,6 +55,25 @@ export default function App() {
     } catch { return '' }
   })
 
+  useEffect(() => {
+    const tick = () => setClockNow(Date.now())
+    const id = window.setInterval(tick, 60_000)
+    const wake = () => { if (document.visibilityState === 'visible') tick() }
+    document.addEventListener('visibilitychange', wake)
+    return () => { window.clearInterval(id); document.removeEventListener('visibilitychange', wake) }
+  }, [])
+
+  // Rain at home base, for the rain outfit and the rain on the home screen. Fails quietly.
+  useEffect(() => {
+    if (!meId) return
+    let live = true
+    const check = () => void rainingNow().then((r) => { if (live) setRain(r) })
+    check()
+    const id = window.setInterval(check, WEATHER_TTL)
+    return () => { live = false; window.clearInterval(id) }
+  }, [meId])
+
+
   const reload = useCallback(async () => {
     if (storeRef.current) setData(await storeRef.current.load())
   }, [])
@@ -64,6 +89,14 @@ export default function App() {
     return () => window.clearTimeout(timer)
   }, [])
 
+  const shown = useMemo(() => (data && meId && tour && stage !== null ? withSamples(data, meId, today(), stage) : data), [data, meId, tour, stage])
+
+  const cast = useCallback((p: Person): CastPick => {
+    const d = new Date(clockNow)
+    const date = toIso(d)
+    return castPick(castMoment(shown ?? data ?? { people: [], trips: [], events: [], cards: [], checkins: [] }, p, { date, minutes: d.getHours() * 60 + d.getMinutes(), nowMs: clockNow, rain }))
+  }, [shown, data, clockNow, rain])
+
   // Signed in: the splash shows where everyone is right now, for a few seconds or until a tap.
   const live = useMemo<LiveRow[] | undefined>(() => {
     if (!splash || !data || !meId || pendingOnboard(meId)) return undefined
@@ -72,9 +105,10 @@ export default function App() {
     const minutes = now.getHours() * 60 + now.getMinutes()
     return data.people.map((p) => {
       const d = whereDetail(data, p, meId, t, t, minutes)
-      return { face: p, who: p.id === meId ? 'you' : p.name, headline: d.headline, sub: d.sub }
+      return { face: p, who: p.id === meId ? 'you' : p.name, headline: d.headline, sub: d.sub, pick: cast(p) }
     })
-  }, [splash, data, meId])
+  }, [splash, data, meId, cast])
+  const splashScene = data?.people.some((p) => p.birthday && p.birthday === today().slice(5)) ? 'birthday' : 'hello'
   const hasLive = !!live?.length
 
   useEffect(() => {
@@ -92,11 +126,11 @@ export default function App() {
     return () => window.clearTimeout(id)
   }, [toast])
 
-  const shown = useMemo(() => (data && meId && tour && stage !== null ? withSamples(data, meId, today(), stage) : data), [data, meId, tour, stage])
+
 
   const openApp = useCallback(() => { if (store) setSplash(false) }, [store])
 
-  if (splash || !store) return <div className="app"><Splash members={MEMBERS} live={live} onOpen={openApp} /></div>
+  if (splash || !store) return <div className="app"><Splash members={MEMBERS} live={live} onOpen={openApp} scene={splashScene} /></div>
 
   if (!meId || !data) {
     return (
@@ -137,6 +171,7 @@ export default function App() {
 
   const ctx: Ctx = {
     data: shown ?? data, me, store, date,
+    minutes: new Date(clockNow).getHours() * 60 + new Date(clockNow).getMinutes(), rain, cast,
     setDate, setTab: (t) => { setOverlay(null); setTab(t) },
     open: setOverlay, close: () => setOverlay(null),
     tour: () => { setOverlay(null); setTour(true) },
@@ -148,6 +183,7 @@ export default function App() {
   return (
     <div className="app">
       {tab === 'now' && <OrbitScreen {...ctx} />}
+      {tab === 'now' && rain && !overlay && <div className="rain" aria-hidden="true" />}
       {tab === 'next' && <NextScreen {...ctx} />}
       {tab === 'me' && <MeScreen {...ctx} />}
       {store.mode === 'demo' && !overlay && <div className="demo">demo mode · sample data on this phone only</div>}

@@ -1,5 +1,6 @@
 // The small things kept inside a profile's reminder_opts JSON beside the three reminder switches:
-// the one-tap check-in ("spot") and the lists of places for today and the coming days ("plans").
+// the one-tap check-in ("spot"), the lists of places for today and the coming days ("plans"), and two
+// small personal settings: the birthday (day and month only) and which festivals are theirs.
 // They live there so that they needed no database change; columns of their own can replace this
 // later without touching the rest of the app. Anything malformed is dropped on reading.
 import { MAX_NAME, MAX_STOPS } from './day.ts'
@@ -55,8 +56,30 @@ export function plansOf(raw: unknown): DayPlan[] {
   return [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date))
 }
 
-/** What to store: the switches, the check-in, and the lists from `today` on. "day" carries today's list for older copies of the app. */
-export function packExtras(opts: ReminderOpts, spot: Spot | null, days: DayPlan[], today: string): Bag {
+/** Personal settings kept beside the rest: birthday and festivals. */
+export interface Personal {
+  /** 'MM-DD', or '' when not set. */
+  birthday: string
+  /** Festival keys this person marks as theirs; null = the defaults. */
+  festivals: string[] | null
+}
+
+const MMDD = /^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/
+/** A usable 'MM-DD' birthday, or ''. */
+export const birthdayOf = (raw: unknown): string => { const b = bag(raw).birthday; return typeof b === 'string' && MMDD.test(b) ? b : '' }
+/** The festivals someone picked, or null when they never picked (then the defaults apply). */
+export function festivalsOf(raw: unknown): string[] | null {
+  const f = bag(raw).festivals
+  if (!Array.isArray(f)) return null
+  return [...new Set(f.filter((x): x is string => typeof x === 'string' && /^[a-z0-9-]{1,32}$/.test(x)))].slice(0, 32)
+}
+export const personalOf = (raw: unknown): Personal => ({ birthday: birthdayOf(raw), festivals: festivalsOf(raw) })
+
+/** What to store: the switches, the check-in, the lists from `today` on, and the personal settings. "day" carries today's list for older copies of the app. */
+export function packExtras(opts: ReminderOpts, spot: Spot | null, days: DayPlan[], today: string, personal: Personal = { birthday: '', festivals: null }): Bag {
   const plans = days.filter((d) => d.date >= today && d.stops.length > 0).sort((a, b) => a.date.localeCompare(b.date)).slice(0, MAX_PLANS)
-  return { mine: opts.mine, friends: opts.friends, news: opts.news, spot, day: plans.find((d) => d.date === today) ?? null, plans }
+  const out: Bag = { mine: opts.mine, friends: opts.friends, news: opts.news, spot, day: plans.find((d) => d.date === today) ?? null, plans }
+  if (personal.birthday && MMDD.test(personal.birthday)) out.birthday = personal.birthday
+  if (personal.festivals) out.festivals = personal.festivals
+  return out
 }
