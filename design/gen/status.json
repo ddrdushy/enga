@@ -493,5 +493,20 @@
   "state": "done",
   "retries": 0,
   "note": ""
+ },
+ "ali/work2/idle": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "ali/work2/wave": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "ali/work2/type": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
  }
 }
