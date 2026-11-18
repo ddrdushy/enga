@@ -33,7 +33,7 @@ self.addEventListener('push', (event) => {
   event.waitUntil(
     self.registration.showNotification('enga?', {
       body: msg.body || 'Open enga? to see who is where today.',
-      icon: '/icon-192.png',
+      icon: '/icon-192-v2.png',
       // Same tag: today's message replaces yesterday's if it is still sitting there.
       // renotify: the replacement still buzzes (Android stays quiet on a replace otherwise).
       tag: msg.tag || 'enga-morning',
