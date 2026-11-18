@@ -166,7 +166,7 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/travel/idle | pending | 0 |  |
 | kiru/travel/wave | pending | 0 |  |
 | kiru/travel/travel | pending | 0 |  |
-| group/hello | pending | 0 |  |
+| group/hello | done | 0 | 16 frames; Kiru checked frame by frame: one glass in every frame; source GIF 311x299, upscaled to 480 wide |
 | group/hug | pending | 0 |  |
 | group/welcome-dushy | pending | 0 |  |
 | group/welcome-ali | pending | 0 |  |
