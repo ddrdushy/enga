@@ -10,6 +10,7 @@ import { createClient } from '@supabase/supabase-js'
 import webpush from 'web-push'
 import { digest } from '../src/lib/logic.ts'
 import { plansOf, optsOf, spotOf } from '../src/lib/extras.ts'
+import { timeOf } from '../src/lib/when.ts'
 import type { Checkin, Data, EventItem, Keen, Person, Rsvp, SafetyCard, Trip } from '../src/lib/types.ts'
 
 export const DEFAULT_TZ = 'Asia/Kuala_Lumpur'
@@ -72,10 +73,12 @@ export function toData(rows: Loaded): Data {
     })),
     trips: rows.trips.map((r): Trip => ({
       id: r.id, ownerId: r.owner_id, place: r.place, start: r.start_date, end: r.end_date, open: r.open, createdAt: r.created_at,
+      leaveAt: timeOf(r.leave_at), backAt: timeOf(r.back_at),
       rsvps: Object.fromEntries(rows.rsvps.filter((x) => x.trip_id === r.id).map((x) => [x.user_id, x.answer as Rsvp])),
     })),
     events: rows.events.map((r): EventItem => ({
       id: r.id, ownerId: r.owner_id, title: r.title, place: r.place, date: r.event_date, link: r.link ?? '', createdAt: r.created_at,
+      startTime: timeOf(r.start_time), endTime: timeOf(r.end_time), repeat: r.repeat === 'weekly' ? 'weekly' : undefined,
       keen: Object.fromEntries(rows.keen.filter((x) => x.event_id === r.id).map((x) => [x.user_id, x.level as Keen])),
     })),
     cards: rows.cards.map((r): SafetyCard => ({

@@ -4,7 +4,7 @@ import type { EventDemo, TripDemo } from './lib/sample'
 
 export type Overlay =
   | { k: 'trip'; id?: ID; start?: string; demo?: TripDemo }
-  | { k: 'event'; date?: string; demo?: EventDemo }
+  | { k: 'event'; id?: ID; date?: string; demo?: EventDemo }
   | { k: 'plan'; id: ID }
   | { k: 'pass'; id: ID }
   | { k: 'safety'; tripId: ID }

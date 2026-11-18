@@ -92,6 +92,10 @@ export interface Trip {
   open: boolean
   rsvps: Record<ID, Rsvp>
   createdAt: string
+  /** 'HH:MM' leaving on the first day; optional. */
+  leaveAt?: string
+  /** 'HH:MM' back on the last day; optional. */
+  backAt?: string
 }
 
 export type Keen = 'going' | 'maybe' | 'interested'
@@ -105,6 +109,12 @@ export interface EventItem {
   link: string
   keen: Record<ID, Keen>
   createdAt: string
+  /** 'HH:MM'; optional. */
+  startTime?: string
+  /** 'HH:MM'; optional. */
+  endTime?: string
+  /** 'weekly': repeats on the weekday of `date`, from `date` on. */
+  repeat?: 'weekly'
 }
 
 export interface SafetyCard {

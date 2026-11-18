@@ -2,6 +2,7 @@ import type { Checkin, Contact, Data, EventItem, ID, Keen, Member, Person, Rsvp,
 import { withDay } from './day'
 import { plansOf, optsOf, packExtras, spotOf } from './extras'
 import { today as todayIso } from './dates'
+import { timeOf } from './when'
 
 export { plansOf, optsOf, spotOf }
 import { addDays, today } from './dates'
@@ -12,13 +13,20 @@ export interface TripInput {
   start: string
   end: string
   open: boolean
+  leaveAt?: string
+  backAt?: string
 }
 export interface EventInput {
+  /** Set to change an event you added. */
+  id?: ID
   title: string
   place: string
   date: string
   link: string
   keen: Keen
+  startTime?: string
+  endTime?: string
+  repeat?: 'weekly'
 }
 export type ProfilePatch = Partial<Pick<Person, 'name' | 'home' | 'house' | 'office' | 'workType' | 'workPlan' | 'emergencyContacts' | 'reminderTime' | 'reminderOpts'>>
 
@@ -150,12 +158,12 @@ function demoStore(): Store {
     async saveTrip(input) {
       const existing = input.id ? state.trips.find((t) => t.id === input.id) : undefined
       if (existing) {
-        Object.assign(existing, { place: input.place, start: input.start, end: input.end, open: input.open })
+        Object.assign(existing, { place: input.place, start: input.start, end: input.end, open: input.open, leaveAt: timeOf(input.leaveAt), backAt: timeOf(input.backAt) })
         commit()
         return existing.id
       }
       const id = uid()
-      state.trips.push({ id, ownerId: me(), place: input.place, start: input.start, end: input.end, open: input.open, rsvps: {}, createdAt: new Date().toISOString() })
+      state.trips.push({ id, ownerId: me(), place: input.place, start: input.start, end: input.end, open: input.open, leaveAt: timeOf(input.leaveAt), backAt: timeOf(input.backAt), rsvps: {}, createdAt: new Date().toISOString() })
       commit()
       return id
     },
@@ -170,7 +178,10 @@ function demoStore(): Store {
       if (t) { t.rsvps[me()] = value; commit() }
     },
     async saveEvent(input) {
-      state.events.push({ id: uid(), ownerId: me(), title: input.title, place: input.place, date: input.date, link: input.link, keen: { [me()]: input.keen }, createdAt: new Date().toISOString() })
+      const fields = { title: input.title, place: input.place, date: input.date, link: input.link, startTime: timeOf(input.startTime), endTime: timeOf(input.endTime), repeat: input.repeat }
+      const existing = input.id ? state.events.find((e) => e.id === input.id && e.ownerId === me()) : undefined
+      if (existing) { Object.assign(existing, fields); existing.keen[me()] = input.keen }
+      else state.events.push({ id: uid(), ownerId: me(), ...fields, keen: { [me()]: input.keen }, createdAt: new Date().toISOString() })
       commit()
     },
     async deleteEvent(id) { state.events = state.events.filter((e) => e.id !== id); commit() },
@@ -289,10 +300,12 @@ async function cloudStore(url: string, anonKey: string): Promise<Store> {
         }),
         trips: (check<Row[] | null>(trips) ?? []).map((r): Trip => ({
           id: r.id, ownerId: r.owner_id, place: r.place, start: r.start_date, end: r.end_date, open: r.open, createdAt: r.created_at,
+          leaveAt: timeOf(r.leave_at), backAt: timeOf(r.back_at),
           rsvps: Object.fromEntries(rsvpRows.filter((x) => x.trip_id === r.id).map((x) => [x.user_id, x.answer as Rsvp])),
         })),
         events: (check<Row[] | null>(events) ?? []).map((r): EventItem => ({
           id: r.id, ownerId: r.owner_id, title: r.title, place: r.place, date: r.event_date, link: r.link ?? '', createdAt: r.created_at,
+          startTime: timeOf(r.start_time), endTime: timeOf(r.end_time), repeat: r.repeat === 'weekly' ? 'weekly' : undefined,
           keen: Object.fromEntries(keenRows.filter((x) => x.event_id === r.id).map((x) => [x.user_id, x.level as Keen])),
         })),
         cards: (check<Row[] | null>(cards) ?? []).map((r): SafetyCard => ({
@@ -303,7 +316,7 @@ async function cloudStore(url: string, anonKey: string): Promise<Store> {
       }
     },
     async saveTrip(input) {
-      const row = { place: input.place, start_date: input.start, end_date: input.end, open: input.open }
+      const row = { place: input.place, start_date: input.start, end_date: input.end, open: input.open, leave_at: timeOf(input.leaveAt) || null, back_at: timeOf(input.backAt) || null }
       if (input.id) {
         check(await sb.from('trips').update(row).eq('id', input.id))
         return input.id
@@ -317,8 +330,11 @@ async function cloudStore(url: string, anonKey: string): Promise<Store> {
     },
     async saveEvent(input) {
       const me = await myId()
-      const created = check<Row | null>(await sb.from('events').insert({ owner_id: me, title: input.title, place: input.place, event_date: input.date, link: input.link }).select('id').single())
-      if (created) check(await sb.from('event_keen').upsert({ event_id: created.id, user_id: me, level: input.keen }))
+      const row = { title: input.title, place: input.place, event_date: input.date, link: input.link, start_time: timeOf(input.startTime) || null, end_time: timeOf(input.endTime) || null, repeat: input.repeat ?? '' }
+      let eventId: ID | undefined = input.id
+      if (eventId) check(await sb.from('events').update(row).eq('id', eventId))
+      else eventId = check<Row | null>(await sb.from('events').insert({ ...row, owner_id: me }).select('id').single())?.id
+      if (eventId) check(await sb.from('event_keen').upsert({ event_id: eventId, user_id: me, level: input.keen }))
     },
     async deleteEvent(id) { check(await sb.from('events').delete().eq('id', id)) },
     async setKeen(eventId, value) {

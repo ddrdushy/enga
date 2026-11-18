@@ -2,6 +2,7 @@ import type { Data, EventItem, ID, Person, Stop, Trip } from './types.ts'
 import { dayProgress, dayToday, myDayRows } from './day.ts'
 import { addDays, diffDays, fmt, fmtRange, inDays, mondayIndex, toIso } from './dates.ts'
 import { clock, rightNow, workLine } from './work.ts'
+import { awayAt, occursOn, timeOf, timeRange, tripTimes, upcoming, weekday } from './when.ts'
 
 /** Owner plus everyone who answered "in". */
 export function tripPeople(t: Trip): ID[] {
@@ -29,10 +30,17 @@ export interface Whereabouts {
   place: string
   home: boolean
   trip?: Trip
+  /** A trip that starts today, that they have not left for yet. */
+  later?: Trip
 }
 
-export function whereIs(data: Data, person: Person, date: string): Whereabouts {
+/**
+ * Where someone is on `date`. Give `minutes` (past midnight, today) to count a trip's times:
+ * before leaving on its first day, or after getting back on its last, the person is at home.
+ */
+export function whereIs(data: Data, person: Person, date: string, minutes?: number): Whereabouts {
   const trip = currentTrip(data, person.id, date)
+  if (trip && minutes !== undefined && !awayAt(trip, date, minutes)) return { place: person.home, home: true, later: date === trip.start ? trip : undefined }
   return trip ? { place: trip.place, home: false, trip } : { place: person.home, home: true }
 }
 
@@ -79,8 +87,9 @@ export function openPlansFor(data: Data, meId: ID, date: string): Trip[] {
     .sort((a, b) => a.start.localeCompare(b.start))
 }
 
+/** Events at their next date from `date` on (a weekly event appears once, at its next time). */
 export function upcomingEvents(data: Data, date: string): EventItem[] {
-  return data.events.filter((e) => e.date >= date).sort((a, b) => a.date.localeCompare(b.date))
+  return upcoming(data.events, date)
 }
 
 export function placesUsed(data: Data): string[] {
@@ -109,12 +118,12 @@ export function digest(data: Data, meId: ID, date: string): string[] {
   if (opts.mine) {
     const mine = currentTrip(data, meId, date)
     const next = nextTrip(data, meId, date)
-    if (mine && mine.start === date) lines.push(`Travel day: you go to ${mine.place} today. Slide "I reached safely" when you land.`)
-    else if (mine && mine.end === date) lines.push(`You head home from ${mine.place} today.`)
+    if (mine && mine.start === date) lines.push(`Travel day: you go to ${mine.place} today${timeOf(mine.leaveAt) ? `, leaving ${clock(timeOf(mine.leaveAt))}` : ''}. Slide "I reached safely" when you land.`)
+    else if (mine && mine.end === date) lines.push(`You head home from ${mine.place} today${timeOf(mine.backAt) ? `, back about ${clock(timeOf(mine.backAt))}` : ''}.`)
     else if (mine) lines.push(`You are in ${mine.place} until ${fmt(mine.end)}.`)
     else if (next && diffDays(date, next.start) === 1) {
       const hasCard = data.cards.some((c) => c.tripId === next.id && c.ownerId === meId && (c.stay || c.flightOut))
-      lines.push(`${next.place} tomorrow.${hasCard ? '' : ' Your safety card is still empty.'}`)
+      lines.push(`${next.place} tomorrow${timeOf(next.leaveAt) ? `, leaving ${clock(timeOf(next.leaveAt))}` : ''}.${hasCard ? '' : ' Your safety card is still empty.'}`)
     } else if (next) lines.push(`No travel for you today. Next: ${next.place}, ${inDays(date, next.start)}.`)
     else lines.push('No travel for you today, and nothing planned yet.')
     // On an ordinary day at home base, add what the work day looks like.
@@ -128,14 +137,21 @@ export function digest(data: Data, meId: ID, date: string): string[] {
       return extra ? `${r.stop.name} (${extra})` : r.stop.name
     })
     if (places.length) lines.push(`Your places today: ${places.join(', ')}.`)
+    // Events today you added or said you are going to (or might).
+    const mineToday = data.events.filter((e) => occursOn(e, date) && (e.ownerId === meId || e.keen[meId] === 'going' || e.keen[meId] === 'maybe'))
+      .sort((a, b) => (timeOf(a.startTime) || '99').localeCompare(timeOf(b.startTime) || '99'))
+    for (const e of mineToday) {
+      const when = timeRange(e.startTime, e.endTime)
+      lines.push(`Today: ${e.title}${when ? `, ${when}` : ''}${e.place && e.place !== me.home ? ` in ${e.place}` : ''}.`)
+    }
   }
 
   if (opts.friends) {
     for (const p of data.people) {
       if (p.id === meId) continue
       const t = currentTrip(data, p.id, date)
-      if (t && t.start === date) lines.push(`${p.name} goes to ${t.place} today, back ${fmt(t.end)}.`)
-      else if (t && t.end === date) lines.push(`${p.name} is back from ${t.place} today.`)
+      if (t && t.start === date) lines.push(`${p.name} goes to ${t.place} today${timeOf(t.leaveAt) ? ` at ${clock(timeOf(t.leaveAt))}` : ''}, back ${fmt(t.end)}.`)
+      else if (t && t.end === date) lines.push(`${p.name} is back from ${t.place} today${timeOf(t.backAt) ? `, about ${clock(timeOf(t.backAt))}` : ''}.`)
       else if (t) lines.push(`${p.name} is in ${t.place}, back ${fmt(t.end)}.`)
     }
   }
@@ -148,7 +164,7 @@ export function digest(data: Data, meId: ID, date: string): string[] {
       }
     }
     for (const e of data.events) {
-      if (e.ownerId !== meId && since(e.createdAt)) lines.push(`New: ${nameOf(data, e.ownerId, meId)} added ${e.title} on ${fmt(e.date)}.`)
+      if (e.ownerId !== meId && since(e.createdAt)) lines.push(`New: ${nameOf(data, e.ownerId, meId)} added ${e.title} ${e.repeat === 'weekly' ? `every ${weekday(e.date)}` : `on ${fmt(e.date)}`}${timeOf(e.startTime) ? `, ${clock(timeOf(e.startTime))}` : ''}.`)
     }
   }
   return lines
@@ -180,17 +196,17 @@ export interface WhereDetail {
  * Either way, today's list of places and where on it they last checked in.
  */
 export function whereDetail(data: Data, p: Person, viewerId: ID, date: string, today: string, minutes: number): WhereDetail {
-  const w = whereIs(data, p, date)
-  const rows: [string, string][] = []
   const isToday = date === today
+  const w = whereIs(data, p, date, isToday ? minutes : undefined)
+  const rows: [string, string][] = []
   const stops = date >= today ? dayToday(p.days, date)?.stops : undefined
-  const now = isToday ? rightNow(p, date, mondayIndex(date), minutes) : null
+  const now = isToday ? rightNow(p, date, mondayIndex(date), minutes, data.events) : null
   const progress = stops ? dayProgress(stops) : null
   const today_ = !progress ? '' : isToday ? `${progress.done} of ${progress.total} places done${progress.skipped ? `, ${progress.skipped} skipped` : ''}` : `${progress.total} place${progress.total === 1 ? '' : 's'} planned`
   if (w.trip) {
     const t = w.trip
     const total = diffDays(t.start, t.end) + 1
-    rows.push(['trip', fmtRange(t.start, t.end)])
+    rows.push(['trip', [fmtRange(t.start, t.end), tripTimes(t)].filter(Boolean).join(' \u00b7 ')])
     const company = tripPeople(t).filter((id) => id !== p.id).map((id) => (id === viewerId ? 'you' : data.people.find((x) => x.id === id)?.name)).filter(Boolean)
     if (company.length) rows.push(['with', company.join(' and ')])
     if (now?.kind === 'stop') rows.push(['right now', now.text])
@@ -216,5 +232,6 @@ export function whereDetail(data: Data, p: Person, viewerId: ID, date: string, t
   if (now?.sure && now.kind === 'stop') return { headline: now.head ?? '', sub: now.tail ?? '', rows, stops }
   if (now?.sure && now.kind === 'home') return { headline: 'at home', sub: [now.tail, p.house].filter(Boolean).join(' \u00b7 '), rows, stops }
   if (now?.sure && now.kind === 'left') return { headline: `in ${p.home}`, sub: now.text, rows, stops }
+  if (w.later) rows.push(['today', `leaves for ${w.later.place} at ${clock(timeOf(w.later.leaveAt))}`])
   return { headline: `in ${p.home}`, sub: now ? `home base \u00b7 ${now.text}` : isToday ? 'home base \u00b7 no check-in today' : 'home base', rows, stops }
 }

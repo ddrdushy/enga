@@ -110,3 +110,11 @@ A place on "my day" can carry a time and friends ("Lunch at Nando\u2019s, 1:00 p
 ## Around town on the home circle
 
 Someone in the home city who has checked in away from home (at the office, at a place on their day, or on the move) is drawn on the inner ring with a yellow label ("at office · KL Sentral", "Mid Valley · since 1:31 pm") instead of inside the green home-base circle. Up to three people are placed this way; a fourth stays in the middle. Without a check-in a person is shown at home base as before.
+
+## Times, and weekly events
+
+Trips can carry the time you leave on the first day and the time you are back on the last ("leaving Thu 9:00 am", "back Sat 6:00 pm"). On those days the home circle counts them: before leaving you are still at home base, with a line to where you are going at that time; after getting back you are home again.
+
+Events can have a start and an end time, and "every week" makes one repeat on its weekday from its first date on (FTN NGO work, every Thursday 7:30 pm to 9:00 pm). A weekly event shows once in "what's on", at its next date, and on every one of its days in the month view. If you said you are going, "right now" shows it while it is on ("FTN NGO work till 9:00 pm · planned, not checked in"), and that morning's message lists it. The person who added an event can now edit it.
+
+Logic is in `src/lib/when.ts`; the columns are added by `supabase/migrations/0008_times.sql`.

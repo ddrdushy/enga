@@ -3,11 +3,12 @@ import { withSamples } from './sample.ts'
 import { rightNow, spotToday } from './work.ts'
 import { plansOf, optsOf, spotOf } from './store.ts'
 import { packExtras } from './extras.ts'
+import { awayAt, eventWhen, happeningNow, nextOn, occursOn, timeRange, tripTimes } from './when.ts'
 import { addStop, answerInvite, checkInAt, companions, dayProgress, dayToday, invitesFor, moveStop, myDayRows, removeStop, reopenStop, skipStop, upcomingInvites, withDay } from './day.ts'
 import type { Stop } from './types'
 import { describe, expect, it } from 'vitest'
-import type { Data, Person, Trip } from './types'
-import { allHomeRuns, currentTrip, digest, isFree, laneSegments, nextTrip, tripPeople, whereDetail, whereIs } from './logic'
+import type { Data, EventItem, Person, Trip } from './types'
+import { allHomeRuns, currentTrip, digest, isFree, laneSegments, nextTrip, tripPeople, upcomingEvents, whereDetail, whereIs } from './logic'
 import { addDays, addMonths, daysInMonth, diffDays, fmt, fmtRange, inDays, mondayIndex, mondayOf } from './dates'
 import { clock, daysOf, defaultPlan, duration, workLine, workNow } from './work'
 
@@ -427,5 +428,72 @@ describe('planning days ahead', () => {
     expect(plansOf(packed).map((d) => d.date)).toEqual([T, '2026-11-20'])
     expect(optsOf(packed)).toEqual({ mine: true, friends: false, news: true })
     expect(plansOf({ day: { date: T, stops: [{ id: 'a', name: 'KLCC', state: 'todo' }] } }).map((d) => d.date)).toEqual([T])
+  })
+})
+
+describe('times on trips and events, and weekly events', () => {
+  const T = '2026-11-18' // a Wednesday
+  const ftn: EventItem = { id: 'f', ownerId: 'd', title: 'FTN NGO work', place: 'Kuala Lumpur', date: '2026-11-19', link: '', keen: { d: 'going' }, createdAt: '2026-11-18T05:00:00Z', startTime: '19:30', endTime: '21:00', repeat: 'weekly' }
+  const dushy = { id: 'd', name: 'Dushy', home: 'Kuala Lumpur', house: '', office: '', workPlan: null, spot: null, days: [], reminderOpts: { mine: true, friends: true, news: true } } as unknown as Person
+  const ali = { ...dushy, id: 'a', name: 'Ali' } as Person
+
+  it('repeats a weekly event on its weekday from its first date on', () => {
+    expect(occursOn(ftn, '2026-11-19')).toBe(true)
+    expect(occursOn(ftn, '2026-11-26')).toBe(true)
+    expect(occursOn(ftn, '2026-11-20')).toBe(false)
+    expect(occursOn(ftn, '2026-11-12')).toBe(false)
+    expect(nextOn(ftn, T)).toBe('2026-11-19')
+    expect(nextOn(ftn, '2026-11-20')).toBe('2026-11-26')
+    expect(nextOn(ftn, '2026-11-26')).toBe('2026-11-26')
+    const once = { ...ftn, repeat: undefined }
+    expect(nextOn(once, '2026-11-20')).toBeNull()
+    expect(occursOn(once, '2026-11-26')).toBe(false)
+  })
+
+  it('words the times', () => {
+    expect(timeRange('19:30', '21:00')).toBe('7:30 pm to 9:00 pm')
+    expect(timeRange('19:30', '')).toBe('from 7:30 pm')
+    expect(timeRange('', '21:00')).toBe('till 9:00 pm')
+    expect(timeRange(undefined, undefined)).toBe('')
+    expect(timeRange('19:30:00', '21:00:00')).toBe('7:30 pm to 9:00 pm')
+    expect(eventWhen(ftn)).toBe('every Thursday \u00b7 7:30 pm to 9:00 pm')
+    expect(eventWhen({ ...ftn, repeat: undefined, endTime: '' })).toBe('Thu 19 Nov \u00b7 from 7:30 pm')
+  })
+
+  it('lists a weekly event once, at its next date', () => {
+    const data: Data = { people: [dushy, ali], trips: [], events: [ftn], cards: [], checkins: [] }
+    expect(upcomingEvents(data, '2026-11-20').map((e) => [e.id, e.date])).toEqual([['f', '2026-11-26']])
+    expect(data.events[0].date).toBe('2026-11-19')
+  })
+
+  it('knows when you are at the event, as a plan', () => {
+    expect(happeningNow(ftn, '2026-11-26', 19 * 60 + 45)).toBe(true)
+    expect(happeningNow(ftn, '2026-11-26', 21 * 60)).toBe(false)
+    expect(happeningNow(ftn, '2026-11-25', 19 * 60 + 45)).toBe(false)
+    expect(rightNow(dushy, '2026-11-26', 3, 19 * 60 + 45, [ftn])).toEqual({ kind: 'plan', text: 'FTN NGO work till 9:00 pm \u00b7 planned, not checked in', sure: false })
+    expect(rightNow(ali, '2026-11-26', 3, 19 * 60 + 45, [ftn])).toBeNull()
+  })
+
+  it('puts the event in that morning\u2019s message, and tells friends about a new weekly one', () => {
+    const data: Data = { people: [dushy, ali], trips: [], events: [ftn], cards: [], checkins: [] }
+    expect(digest(data, 'd', '2026-11-26')).toContain('Today: FTN NGO work, 7:30 pm to 9:00 pm.')
+    expect(digest(data, 'd', '2026-11-25').join(' ')).not.toContain('FTN')
+    expect(digest(data, 'a', T)).toContain('New: Dushy added FTN NGO work every Thursday, 7:30 pm.')
+  })
+
+  it('counts trip times: at home before leaving and after getting back', () => {
+    const trip: Trip = { id: 't', ownerId: 'a', place: 'Shah Alam', start: T, end: T, open: false, rsvps: {}, createdAt: '', leaveAt: '09:00', backAt: '18:00' }
+    expect(tripTimes(trip)).toBe('leaves 9:00 am \u00b7 back 6:00 pm')
+    expect(awayAt(trip, T, 8 * 60)).toBe(false)
+    expect(awayAt(trip, T, 12 * 60)).toBe(true)
+    expect(awayAt(trip, T, 18 * 60 + 1)).toBe(false)
+    const data: Data = { people: [dushy, ali], trips: [trip], events: [], cards: [], checkins: [] }
+    expect(whereIs(data, ali, T, 8 * 60)).toMatchObject({ home: true, later: { id: 't' } })
+    expect(whereIs(data, ali, T, 12 * 60)).toMatchObject({ home: false, place: 'Shah Alam' })
+    expect(whereIs(data, ali, T, 19 * 60)).toMatchObject({ home: true })
+    expect(whereIs(data, ali, T)).toMatchObject({ home: false })
+    expect(whereDetail(data, ali, 'd', T, T, 8 * 60).rows).toContainEqual(['today', 'leaves for Shah Alam at 9:00 am'])
+    expect(whereDetail(data, ali, 'd', T, T, 12 * 60).rows[0]).toEqual(['trip', `${fmtRange(T, T)} \u00b7 leaves 9:00 am \u00b7 back 6:00 pm`])
+    expect(digest(data, 'd', T)).toContain('Ali goes to Shah Alam today at 9:00 am, back Wed 18 Nov.')
   })
 })

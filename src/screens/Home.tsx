@@ -8,6 +8,7 @@ import { allHomeRuns, currentTrip, digest, isFree, laneSegments, nextTrip, openP
 import { clock, daysOf, duration, goesToOffice, rightNow } from '../lib/work'
 import { Avatar, FaceSlider, Icon, Sheet } from '../ui'
 import { MyDay, StopList } from './Day'
+import { eventWhen, occursOn, timeOf, timeRange, weekday } from '../lib/when'
 
 const nowMinutes = () => { const n = new Date(); return n.getHours() * 60 + n.getMinutes() }
 
@@ -63,9 +64,9 @@ export function OrbitScreen(ctx: Ctx) {
     return () => window.removeEventListener('resize', fit)
   }, [])
 
-  const spots = data.people.map((p, i) => ({ p, i, w: whereIs(data, p, date), next: nextTrip(data, p.id, date) }))
+  const spots = data.people.map((p, i) => { const w = whereIs(data, p, date, date === t ? minutes : undefined); return { p, i, w, next: w.later ?? nextTrip(data, p.id, date) } })
   const base = spots.filter((s) => s.w.home)
-  const nowOf = new Map(base.map((s) => [s.p.id, date === t ? rightNow(s.p, t, mondayIndex(t), minutes) : null]))
+  const nowOf = new Map(base.map((s) => [s.p.id, date === t ? rightNow(s.p, t, mondayIndex(t), minutes, data.events) : null]))
   // Everyone at home base who has something to say about today, and always you (so you can check in).
   const rightRows = date === t ? base.map((s) => ({ p: s.p, w: nowOf.get(s.p.id) ?? null })).filter((r) => r.w || r.p.id === me.id) : []
   // In the home city but checked in away from home: drawn apart from the people at home.
@@ -191,7 +192,7 @@ export function OrbitScreen(ctx: Ctx) {
             const { box, max } = boxOf(awaySlot(s))
             return (
               <div key={s.p.id} className="tagbox" style={box}>
-                <div className="sticker tag" style={{ maxWidth: max, background: 'var(--ink)', color: '#fff' }}><span className="cut">{s.w.place}</span> · back {dow(s.w.trip!.end)} {dayNum(s.w.trip!.end)}</div>
+                <div className="sticker tag" style={{ maxWidth: max, background: 'var(--ink)', color: '#fff' }}><span className="cut">{s.w.place}</span> · back {s.w.trip!.end === t && timeOf(s.w.trip!.backAt) ? clock(timeOf(s.w.trip!.backAt)) : `${dow(s.w.trip!.end)} ${dayNum(s.w.trip!.end)}`}</div>
               </div>
             )
           })}
@@ -200,7 +201,7 @@ export function OrbitScreen(ctx: Ctx) {
             return (
               <div key={n.p.id} className="tagbox" style={box}>
                 <button type="button" className="sticker tag" style={{ maxWidth: max }} onClick={() => openTrip(ctx, n.next!)}>
-                  {n.p.id === me.id ? 'you' : n.p.name}: <span className="cut">{n.next!.place}</span> · {fmtShort(n.next!.start)}
+                  {n.p.id === me.id ? 'you' : n.p.name}: <span className="cut">{n.next!.place}</span> · {n.next!.start === t && timeOf(n.next!.leaveAt) ? clock(timeOf(n.next!.leaveAt)) : fmtShort(n.next!.start)}
                 </button>
               </div>
             )
@@ -257,7 +258,7 @@ export function OrbitScreen(ctx: Ctx) {
         })}
         {events.map((e) => (
           <button key={e.id} type="button" className="tile" style={{ background: 'var(--butter)', borderRadius: '28px 28px 6px 28px' }} onClick={() => setEventId(e.id)}>
-            <span className="eyebrow" style={{ color: '#574A12' }}>event · {fmtShort(e.date)}</span>
+            <span className="eyebrow" style={{ color: '#574A12' }}>{e.repeat === 'weekly' ? `every ${weekday(e.date).slice(0, 3)}` : `event · ${fmtShort(e.date)}`}{timeOf(e.startTime) ? ` · ${clock(timeOf(e.startTime))}` : ''}</span>
             <span className="display" style={{ fontSize: 21 }}>{e.title}</span>
             <span className="small" style={{ color: 'var(--ink2)' }}>{e.place}{e.link ? ' · has a link' : ''}</span>
             <span className="row" style={{ gap: 0, marginTop: 4 }}>
@@ -337,7 +338,8 @@ function EventSheet({ ctx, event, onClose }: { ctx: Ctx; event: EventItem; onClo
   const owner = person(data, event.ownerId)
   return (
     <Sheet title={event.title} onClose={onClose}>
-      <div className="small">{fmt(event.date)} · {event.place} · added by {owner?.id === me.id ? 'you' : owner?.name}</div>
+      <div className="small">{eventWhen(event)} · {event.place} · added by {owner?.id === me.id ? 'you' : owner?.name}</div>
+      {event.repeat === 'weekly' && <div className="small">next: {fmt(upcomingEvents(data, today()).find((e) => e.id === event.id)?.date ?? event.date)}</div>}
       {event.link && <a href={event.link.startsWith('http') ? event.link : `https://${event.link}`} target="_blank" rel="noreferrer" className="row" style={{ minHeight: 44, alignSelf: 'flex-start' }}><Icon.link /> open the link</a>}
       <div className="chips">
         {Object.entries(event.keen).map(([id, level]) => { const p = person(data, id); return p ? <span key={id} className="pill mist" style={{ paddingLeft: 4 }}><Avatar p={p} size={32} />{level}</span> : null })}
@@ -346,7 +348,12 @@ function EventSheet({ ctx, event, onClose }: { ctx: Ctx; event: EventItem; onClo
       <div style={{ paddingBottom: 26 }}>
         <FaceSlider options={KEEN} value={event.keen[me.id] ?? null} face={me} label="How keen are you" onChange={(v) => void ctx.run(() => ctx.store.setKeen(event.id, v))} />
       </div>
-      {event.ownerId === me.id && <button type="button" className="pill mist" style={{ alignSelf: 'flex-start' }} onClick={() => void ctx.run(() => ctx.store.deleteEvent(event.id)).then(onClose)}>remove event</button>}
+      {event.ownerId === me.id && (
+        <div className="row">
+          <button type="button" className="pill dark" onClick={() => { onClose(); ctx.open({ k: 'event', id: event.id }) }}>edit</button>
+          <button type="button" className="pill mist" onClick={() => void ctx.run(() => ctx.store.deleteEvent(event.id)).then(onClose)}>remove event</button>
+        </div>
+      )}
     </Sheet>
   )
 }
@@ -455,7 +462,7 @@ function Month({ ctx, toggle }: { ctx: Ctx; toggle: ReactNode }) {
   const blanks = mondayIndex(month)
   const days = Array.from({ length: daysInMonth(month) }, (_, i) => addDays(month, i))
   const there = data.people.map((p) => ({ p, w: whereIs(data, p, date) }))
-  const dayEvents = data.events.filter((e) => e.date === date)
+  const dayEvents = data.events.filter((e) => occursOn(e, date))
   return (
     <>
       <div className="between">
@@ -471,7 +478,7 @@ function Month({ ctx, toggle }: { ctx: Ctx; toggle: ReactNode }) {
         {Array.from({ length: blanks }, (_, i) => <span key={`b${i}`} />)}
         {days.map((d) => {
           const out = data.people.filter((p) => currentTrip(data, p.id, d))
-          const hasEvent = data.events.some((e) => e.date === d)
+          const hasEvent = data.events.some((e) => occursOn(e, d))
           const cls = ['d', d === date ? 'sel' : hasEvent ? 'event' : out.length === 0 ? 'allhome' : '', d === t ? 'today' : ''].filter(Boolean).join(' ')
           return (
             <button key={d} type="button" aria-pressed={d === date} aria-label={`${fmt(d)}, ${out.length ? out.map((p) => p.name).join(', ') + ' away' : 'everyone home'}${hasEvent ? ', event' : ''}`} onClick={() => ctx.setDate(d)}>
@@ -494,7 +501,7 @@ function Month({ ctx, toggle }: { ctx: Ctx; toggle: ReactNode }) {
         <div className="chips">
           {there.map(({ p, w }) => <span key={p.id} className="pill" style={{ height: 36, paddingLeft: 4, background: w.home ? 'var(--sage)' : 'var(--lav)', fontWeight: 700, fontSize: 13 }}><Avatar p={p} size={28} />{p.id === me.id ? `you · ${w.place}` : w.place}</span>)}
         </div>
-        {dayEvents.map((e) => <div key={e.id} className="small" style={{ color: 'var(--ink)', fontWeight: 600 }}>{e.title} · {e.place}</div>)}
+        {dayEvents.map((e) => <div key={e.id} className="small" style={{ color: 'var(--ink)', fontWeight: 600 }}>{[e.title, timeRange(e.startTime, e.endTime), e.place].filter(Boolean).join(' · ')}</div>)}
         <div className="row">
           <button type="button" className="pill mist" onClick={() => ctx.open({ k: 'trip', start: date })}>trip from this day</button>
           <button type="button" className="pill mist" onClick={() => ctx.open({ k: 'event', date })}>event</button>

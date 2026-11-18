@@ -1,4 +1,5 @@
-import type { DayKind, DayPlan, Spot, WorkPlan } from './types.ts'
+import type { DayKind, DayPlan, EventItem, Spot, WorkPlan } from './types.ts'
+import { happeningNow, timeOf as hhmm } from './when.ts'
 import { dayProgress, dayToday } from './day.ts'
 
 export const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
@@ -105,7 +106,7 @@ const timeOf = (iso: string) => { const d = new Date(iso); return clock(d.getHou
  * places on their list for the day. Without one there is only a plan or the usual week, worded as such:
  * nobody is shown as "at" somewhere unless they said so.
  */
-export function rightNow(p: { workPlan: WorkPlan | null; spot: Spot | null; days?: DayPlan[] | null }, date: string, dayIndex: number, minutes: number): RightNow | null {
+export function rightNow(p: { workPlan: WorkPlan | null; spot: Spot | null; days?: DayPlan[] | null; id?: string }, date: string, dayIndex: number, minutes: number, events: EventItem[] = []): RightNow | null {
   const spot = spotToday(p.spot, date)
   const day = dayToday(p.days, date)
   const progress = day ? dayProgress(day.stops) : null
@@ -120,6 +121,12 @@ export function rightNow(p: { workPlan: WorkPlan | null; spot: Spot | null; days
     if (spot.kind === 'office') return { kind: 'office', text: `at the office \u00b7 checked in ${at}`, sure: true, head: 'at the office', tail: `checked in ${at}` }
     if (spot.kind === 'home') return { kind: 'home', text: `at home \u00b7 checked in ${at}`, sure: true, head: 'at home', tail: `checked in ${at}` }
     return { kind: 'left', text: `on the move since ${at}`, sure: true, head: 'on the move', tail: `since ${at}` }
+  }
+  // An event they said they are going to, on right now: shown as a plan, not as a check-in.
+  const on = p.id ? events.find((e) => e.keen[p.id!] === 'going' && happeningNow(e, date, minutes)) : undefined
+  if (on) {
+    const end = hhmm(on.endTime)
+    return { kind: 'plan', text: `${on.title}${end ? ` till ${clock(end)}` : ''} \u00b7 planned, not checked in`, sure: false }
   }
   if (progress?.next) {
     return { kind: 'plan', text: `${progress.total} place${progress.total === 1 ? '' : 's'} today \u00b7 first ${progress.next.name} \u00b7 not checked in`, sure: false }

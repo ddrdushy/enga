@@ -10,6 +10,8 @@ import type { EventDemo, TripDemo } from '../lib/sample'
 import { addDays, diffDays, dow, fmt, fmtRange, fmtShort, inDays, parse, today } from '../lib/dates'
 import { digest, isFree, placesUsed, tripPeople, tripsOf } from '../lib/logic'
 import { Avatar, DateStrip, Dial, FaceSlider, Icon, Sheet, SlideButton, pretty } from '../ui'
+import { timeOf, tripTimes, weekday } from '../lib/when'
+import { clock } from '../lib/work'
 
 const KEEN: { v: Keen; label: string }[] = [{ v: 'interested', label: 'interested' }, { v: 'maybe', label: 'maybe' }, { v: 'going', label: 'going' }]
 export const WORK_TYPES = ['office', 'from home', 'hybrid', 'shifts', 'my own business', 'studying']
@@ -64,6 +66,8 @@ export function AddTrip({ ctx, id, start: initial, demo }: { ctx: Ctx; id?: ID; 
   const [start, setStart] = useState(editing?.start ?? demo?.start ?? initial ?? addDays(t, 1))
   const [end, setEnd] = useState(editing?.end ?? demo?.end ?? addDays(initial ?? addDays(t, 1), 2))
   const [open, setOpen] = useState(editing?.open ?? demo?.open ?? false)
+  const [leaveAt, setLeaveAt] = useState(timeOf(editing?.leaveAt))
+  const [backAt, setBackAt] = useState(timeOf(editing?.backAt))
   const [picking, setPicking] = useState(!editing && !demo)
   const [error, setError] = useState('')
   const others = data.people.filter((p) => p.id !== me.id)
@@ -71,7 +75,7 @@ export function AddTrip({ ctx, id, start: initial, demo }: { ctx: Ctx; id?: ID; 
   const weekend = () => { const toSat = (6 - parse(t).getDay() + 7) % 7; const sat = addDays(t, toSat); setStart(sat); setEnd(addDays(sat, 1)) }
   const save = () => {
     if (!place.trim()) { setError('Pick where you are going first.'); setPicking(true); return }
-    void ctx.run(() => ctx.store.saveTrip({ id, place: place.trim(), start, end, open })).then((ok) => ok && ctx.close())
+    void ctx.run(() => ctx.store.saveTrip({ id, place: place.trim(), start, end, open, leaveAt, backAt })).then((ok) => ok && ctx.close())
   }
   return (
     <div className="screen pad">
@@ -93,6 +97,10 @@ export function AddTrip({ ctx, id, start: initial, demo }: { ctx: Ctx; id?: ID; 
           <button type="button" className="pill" onClick={() => setLength(7)}>1 week</button>
         </div>
       </div>
+      <div className="chips" style={{ alignItems: 'center' }}>
+        <TimeChip label={`leaving ${dow(start)}`} value={leaveAt} onChange={setLeaveAt} />
+        <TimeChip label={`back ${dow(end)}`} value={backAt} onChange={setBackAt} />
+      </div>
 
       {open && (
         <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 8, background: 'var(--lav)' }}>
@@ -108,13 +116,17 @@ export function AddTrip({ ctx, id, start: initial, demo }: { ctx: Ctx; id?: ID; 
   )
 }
 
-export function AddEvent({ ctx, date: initial, demo }: { ctx: Ctx; date?: string; demo?: EventDemo }) {
+export function AddEvent({ ctx, id, date: initial, demo }: { ctx: Ctx; id?: ID; date?: string; demo?: EventDemo }) {
   const t = today()
-  const [link, setLink] = useState(demo?.link ?? '')
-  const [title, setTitle] = useState(demo?.title ?? '')
-  const [place, setPlace] = useState(demo?.place ?? ctx.me.home)
-  const [date, setDate] = useState(demo?.date ?? initial ?? addDays(t, 7))
-  const [keen, setKeen] = useState<Keen>(demo?.keen ?? 'interested')
+  const editing = id ? ctx.data.events.find((e) => e.id === id && e.ownerId === ctx.me.id) : undefined
+  const [link, setLink] = useState(editing?.link ?? demo?.link ?? '')
+  const [title, setTitle] = useState(editing?.title ?? demo?.title ?? '')
+  const [place, setPlace] = useState(editing?.place ?? demo?.place ?? ctx.me.home)
+  const [date, setDate] = useState(editing?.date ?? demo?.date ?? initial ?? addDays(t, 7))
+  const [keen, setKeen] = useState<Keen>(editing?.keen[ctx.me.id] ?? demo?.keen ?? 'interested')
+  const [startTime, setStartTime] = useState(timeOf(editing?.startTime))
+  const [endTime, setEndTime] = useState(timeOf(editing?.endTime))
+  const [weekly, setWeekly] = useState(editing?.repeat === 'weekly')
   const [picking, setPicking] = useState(false)
   const [error, setError] = useState('')
   const paste = async () => {
@@ -122,7 +134,8 @@ export function AddEvent({ ctx, date: initial, demo }: { ctx: Ctx; date?: string
   }
   const save = () => {
     if (!title.trim()) { setError('Give it a name first.'); return }
-    void ctx.run(() => ctx.store.saveEvent({ title: title.trim(), place, date, link: link.trim(), keen })).then((ok) => ok && ctx.close())
+    if (startTime && endTime && endTime <= startTime) { setError('The end time is before the start.'); return }
+    void ctx.run(() => ctx.store.saveEvent({ id: editing?.id, title: title.trim(), place, date, link: link.trim(), keen, startTime, endTime, repeat: weekly ? 'weekly' : undefined })).then((ok) => ok && ctx.close())
   }
   return (
     <div className="screen pad">
@@ -139,17 +152,25 @@ export function AddEvent({ ctx, date: initial, demo }: { ctx: Ctx; date?: string
         There's{' '}
         <Blank value={title} onChange={(v) => { setTitle(v); setError('') }} label="What is happening" hint="what?" bg="var(--butter)" />{' '}
         in <button type="button" className="word" style={{ background: 'var(--peach)' }} onClick={() => setPicking(true)}>{place}</button>{' '}
-        on <span className="nowrap"><span className="word" style={{ background: 'var(--ink)', color: '#fff' }}>{fmt(date)}</span>.</span> I'm{' '}
+        {weekly ? 'every' : 'on'} <span className="nowrap"><span className="word" style={{ background: 'var(--ink)', color: '#fff' }}>{weekly ? weekday(date) : fmt(date)}</span>{startTime ? '' : '.'}</span>{' '}
+        {startTime && <span className="nowrap">at <span className="word" style={{ background: 'var(--ink)', color: '#fff' }}>{clock(startTime)}</span>.</span>}{' '}I'm{' '}
         <span className="nowrap"><span className="word" style={{ background: 'var(--lav)' }}>{keen === 'interested' ? 'just interested' : keen}</span>.</span>
       </div>
       </div>
-      <DateStrip range={false} start={date} end={date} hint="tap the day" onChange={(s) => setDate(s)} />
+      <DateStrip range={false} start={date} end={date} hint={weekly ? 'tap the first day' : 'tap the day'} onChange={(s) => setDate(s)} />
+      <div className="chips" style={{ alignItems: 'center' }}>
+        <TimeChip label="from" value={startTime} onChange={setStartTime} />
+        <TimeChip label="till" value={endTime} onChange={setEndTime} />
+        <button type="button" className={`pill${weekly ? ' dark' : ''}`} aria-pressed={weekly} onClick={() => setWeekly(!weekly)}>every week</button>
+      </div>
+      {weekly && <div className="small">Repeats every {weekday(date)}, starting {fmt(date)}.</div>}
       <div data-tour="event-keen" style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
         <div className="label">how keen are you? drag your face</div>
         <div style={{ paddingBottom: 22 }}><FaceSlider options={KEEN} value={keen} face={ctx.me} label="How keen are you" onChange={setKeen} /></div>
       </div>
       <div className="err" role="alert">{error}</div>
-      <div className="push"><SlideButton label="slide to share" onDone={save} /></div>
+      {editing && <button type="button" className="pill" style={{ alignSelf: 'flex-start' }} onClick={() => void ctx.run(() => ctx.store.deleteEvent(editing.id)).then((ok) => ok && ctx.close())}>remove this event</button>}
+      <div className="push"><SlideButton label={editing ? 'slide to save changes' : 'slide to share'} onDone={save} /></div>
       {picking && <PlacePicker ctx={ctx} value={place} onPick={setPlace} onClose={() => setPicking(false)} />}
     </div>
   )
@@ -170,7 +191,7 @@ function PassTop({ ctx, trip, label }: { ctx: Ctx; trip: Trip; label: string }) 
         <span className="route" aria-hidden="true"><i /><span style={{ display: 'flex' }}>{Icon.arrow(18)}</span></span>
         <span className="dest">{trip.place}</span>
       </div>
-      <div style={{ fontSize: 15, opacity: 0.85 }}>{fmtRange(trip.start, trip.end)} · {diffDays(trip.start, trip.end) + 1} days</div>
+      <div style={{ fontSize: 15, opacity: 0.85 }}>{fmtRange(trip.start, trip.end)} · {diffDays(trip.start, trip.end) + 1} days{tripTimes(trip) ? ` · ${tripTimes(trip)}` : ''}</div>
     </div>
   )
 }
@@ -401,5 +422,16 @@ export function MeScreen(ctx: Ctx) {
       {ctx.store.mode !== 'demo' && <div className="small">The same message also shows when you first open the app each day.</div>}
       {editHome && <PlacePicker ctx={ctx} value={me.home} onPick={(v) => void ctx.run(() => ctx.store.saveProfile({ home: v }))} onClose={() => setEditHome(false)} />}
     </div>
+  )
+}
+
+/** An optional time: a label and the phone's own time picker, with a way to clear it. */
+export function TimeChip({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+  return (
+    <span className="pill" style={{ gap: 6, paddingRight: value ? 4 : 12, background: value ? 'var(--butter)' : undefined }}>
+      <span className="small" style={{ fontWeight: 600 }}>{label}</span>
+      <input type="time" aria-label={`${label} time`} value={value} onChange={(e) => onChange(e.target.value)} style={{ border: 'none', background: 'transparent', font: 'inherit', fontWeight: 700, color: 'inherit', minWidth: 92 }} />
+      {value && <button type="button" className="round" style={{ width: 32, height: 32 }} aria-label={`Clear ${label} time`} onClick={() => onChange('')}><span style={{ display: 'flex', scale: '0.7' }}><Icon.close /></span></button>}
+    </span>
   )
 }

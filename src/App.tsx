@@ -163,7 +163,7 @@ export default function App() {
       {overlay && (
         <div className="overlay" key={overlay.k + ('id' in overlay ? overlay.id ?? '' : '') + ('tripId' in overlay ? overlay.tripId : '') + ('demo' in overlay && overlay.demo ? 'demo' : '')}>
           {overlay.k === 'trip' && <AddTrip ctx={ctx} id={overlay.id} start={overlay.start} demo={overlay.demo} />}
-          {overlay.k === 'event' && <AddEvent ctx={ctx} date={overlay.date} demo={overlay.demo} />}
+          {overlay.k === 'event' && <AddEvent ctx={ctx} id={overlay.id} date={overlay.date} demo={overlay.demo} />}
           {overlay.k === 'plan' && <PlanView ctx={ctx} id={overlay.id} />}
           {overlay.k === 'pass' && <TripPass ctx={ctx} id={overlay.id} />}
           {overlay.k === 'safety' && <SafetyForm ctx={ctx} tripId={overlay.tripId} />}
