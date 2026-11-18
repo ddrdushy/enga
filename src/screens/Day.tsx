@@ -44,7 +44,7 @@ export function StopList({ stops, people, ownerId, viewerId, date }: { stops: St
 function Dot({ stop, n }: { stop: Stop; n: number }) {
   const done = stop.state === 'done'
   return (
-    <span aria-hidden="true" style={{ flex: 'none', width: 28, height: 28, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, background: done ? 'var(--ink)' : stop.state === 'skipped' ? 'transparent' : 'var(--card)', color: done ? '#fff' : 'var(--ink)', border: stop.state === 'skipped' ? '2px dashed var(--muted)' : '2px solid var(--ink)' }}>
+    <span aria-hidden="true" style={{ flex: 'none', width: 28, height: 28, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, background: done ? 'var(--ink)' : stop.state === 'skipped' ? 'transparent' : 'var(--card)', color: done ? 'var(--on-ink)' : 'var(--ink)', border: stop.state === 'skipped' ? '2px dashed var(--muted)' : '2px solid var(--ink)' }}>
       {done ? <span style={{ display: 'flex', scale: '0.6' }}><Icon.check /></span> : n}
     </span>
   )

@@ -255,8 +255,8 @@ export function Dial({ value, onChange }: { value: string; onChange: (v: string)
         onPointerCancel={() => setDrag(false)}
       >
         <svg aria-hidden="true" width="300" height="168" viewBox="0 0 300 168" fill="none" style={{ position: 'absolute', inset: 0 }}>
-          <path d="M20 154 A130 130 0 0 1 280 154" stroke="#DDE1EA" strokeWidth="14" strokeLinecap="round" />
-          <path d={`M20 154 A130 130 0 0 1 ${kx} ${ky}`} stroke="#1E2235" strokeWidth="14" strokeLinecap="round" />
+          <path d="M20 154 A130 130 0 0 1 280 154" stroke="var(--soft)" strokeWidth="14" strokeLinecap="round" />
+          <path d={`M20 154 A130 130 0 0 1 ${kx} ${ky}`} stroke="var(--ink)" strokeWidth="14" strokeLinecap="round" />
         </svg>
         <button
           type="button"
@@ -267,7 +267,7 @@ export function Dial({ value, onChange }: { value: string; onChange: (v: string)
           aria-valuenow={minutes}
           aria-valuetext={pretty(value)}
           onKeyDown={(e) => { if (e.key === 'ArrowRight' || e.key === 'ArrowUp') step(15); if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') step(-15) }}
-          style={{ position: 'absolute', left: kx - 20, top: ky - 20, width: 40, height: 40, borderRadius: '50%', background: '#fff', border: '5px solid #1E2235', cursor: 'grab', animation: drag ? undefined : 'pulse 2.2s ease-in-out infinite' }}
+          style={{ position: 'absolute', left: kx - 20, top: ky - 20, width: 40, height: 40, borderRadius: '50%', background: 'var(--card)', border: '5px solid var(--ink)', cursor: 'grab', animation: drag ? undefined : 'pulse 2.2s ease-in-out infinite' }}
         />
         <div className="display" style={{ position: 'absolute', left: 0, right: 0, top: 78, textAlign: 'center', fontSize: 54, letterSpacing: -2, lineHeight: 1, pointerEvents: 'none' }}>{pretty(value)}</div>
         <div className="small" style={{ position: 'absolute', left: 0, right: 0, top: 136, textAlign: 'center', fontWeight: 600, pointerEvents: 'none' }}>in the morning</div>

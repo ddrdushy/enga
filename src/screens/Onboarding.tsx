@@ -115,7 +115,7 @@ export function Onboarding({ me, store, onDone }: { me: Person; store: Store; on
         <div key="am" style={{ display: 'flex', flexDirection: 'column', gap: 16, animation: 'rise .35s ease-out both' }}>
           <div className="display" style={{ fontSize: 22, fontWeight: 600 }}>when should we tell you?</div>
           <div className="say sm">
-            Every morning at <span className="word" style={{ background: 'var(--ink)', color: '#fff' }}>{pretty(time)}</span> tell me who is where.
+            Every morning at <span className="word" style={{ background: 'var(--ink)', color: 'var(--on-ink)' }}>{pretty(time)}</span> tell me who is where.
           </div>
           <Dial value={time} onChange={setTime} />
           <PushToggle save={store.savePush} remove={store.removePush} demo={store.mode === 'demo'} />

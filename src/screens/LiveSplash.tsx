@@ -91,7 +91,7 @@ export function LiveSplash({ live, onOpen, scene }: { live: LiveRow[]; onOpen?: 
       </div>
 
       <div className="row" aria-hidden="true" style={{ position: 'relative', justifyContent: 'center', gap: 6 }}>
-        {live.map((r, i) => <span key={r.who} style={{ width: i === active ? 22 : 7, height: 7, borderRadius: 4, background: i === active ? 'var(--ink)' : '#B4BACB', transition: 'width .25s' }} />)}
+        {live.map((r, i) => <span key={r.who} style={{ width: i === active ? 22 : 7, height: 7, borderRadius: 4, background: i === active ? 'var(--ink)' : 'var(--soft)', transition: 'width .25s' }} />)}
       </div>
 
       <div style={{ position: 'relative', marginTop: 'auto', padding: '18px 24px 0', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12 }}>

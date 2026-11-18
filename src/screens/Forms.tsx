@@ -87,8 +87,8 @@ export function AddTrip({ ctx, id, start: initial, demo }: { ctx: Ctx; id?: ID; 
         {withIds.length ? 'We\u2019re' : 'I\u2019m'} going to{' '}
         <button type="button" className={`word${place ? '' : ' off'}`} style={place ? { background: 'var(--peach)' } : undefined} onClick={() => setPicking(true)}>{place || 'where?'}</button>{' '}
         {withIds.length > 0 && <>(me and <span className="word" style={{ background: 'var(--sage)' }}>{names(data, withIds)}</span>){' '}</>}
-        from <span className="word" style={{ background: 'var(--ink)', color: '#fff' }}>{dow(start)} {fmtShort(start)}</span>{' '}
-        to <span className="nowrap"><span className="word" style={{ background: 'var(--ink)', color: '#fff' }}>{dow(end)} {fmtShort(end)}</span>,</span>{' '}
+        from <span className="word" style={{ background: 'var(--ink)', color: 'var(--on-ink)' }}>{dow(start)} {fmtShort(start)}</span>{' '}
+        to <span className="nowrap"><span className="word" style={{ background: 'var(--ink)', color: 'var(--on-ink)' }}>{dow(end)} {fmtShort(end)}</span>,</span>{' '}
         <span className="nowrap"><button type="button" className="word" style={{ background: 'var(--lav)' }} aria-label={open ? 'Open for friends to join, tap for just me' : 'Just me, tap to open it for friends'} onClick={() => setOpen(!open)}>{open ? 'friends can join' : withIds.length ? 'just us' : 'just me'}</button>.</span>
       </div>
       <div className="small">Tap a coloured word to change it. {diffDays(start, end) + 1} day{start === end ? '' : 's'}.</div>
@@ -159,8 +159,8 @@ export function AddEvent({ ctx, id, date: initial, demo }: { ctx: Ctx; id?: ID; 
         There's{' '}
         <Blank value={title} onChange={(v) => { setTitle(v); setError('') }} label="What is happening" hint="what?" bg="var(--butter)" />{' '}
         in <button type="button" className="word" style={{ background: 'var(--peach)' }} onClick={() => setPicking(true)}>{place}</button>{' '}
-        {weekly ? 'every' : 'on'} <span className="nowrap"><span className="word" style={{ background: 'var(--ink)', color: '#fff' }}>{weekly ? weekday(date) : fmt(date)}</span>{startTime ? '' : '.'}</span>{' '}
-        {startTime && <span className="nowrap">at <span className="word" style={{ background: 'var(--ink)', color: '#fff' }}>{clock(startTime)}</span>.</span>}{' '}I'm{' '}
+        {weekly ? 'every' : 'on'} <span className="nowrap"><span className="word" style={{ background: 'var(--ink)', color: 'var(--on-ink)' }}>{weekly ? weekday(date) : fmt(date)}</span>{startTime ? '' : '.'}</span>{' '}
+        {startTime && <span className="nowrap">at <span className="word" style={{ background: 'var(--ink)', color: 'var(--on-ink)' }}>{clock(startTime)}</span>.</span>}{' '}I'm{' '}
         <span className="nowrap"><span className="word" style={{ background: 'var(--lav)' }}>{keen === 'interested' ? 'just interested' : keen}</span>{withIds.length ? '' : '.'}</span>
         {withIds.length > 0 && <>{' '}with <span className="nowrap"><span className="word" style={{ background: 'var(--sage)' }}>{names(ctx.data, withIds)}</span>.</span></>}
       </div>
@@ -269,8 +269,8 @@ export function TripPass({ ctx, id }: { ctx: Ctx; id: ID }) {
         <div className="tear" />
         <div className="stub" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)' }}>
           {steps.map((s, i) => (
-            <span key={s} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: i === stage ? '#fff' : '#C9CEDD' }}>
-              <span style={{ width: 14, height: 14, borderRadius: '50%', background: i < stage ? 'var(--sage)' : i === stage ? '#fff' : 'transparent', border: i > stage ? '2px solid #8188A0' : undefined, animation: i === stage ? 'pulse 2s ease-in-out infinite' : undefined }} />{s}
+            <span key={s} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: i === stage ? 'var(--on-ink)' : 'var(--on-ink2)' }}>
+              <span style={{ width: 14, height: 14, borderRadius: '50%', background: i < stage ? 'var(--sage)' : i === stage ? 'var(--on-ink)' : 'transparent', border: i > stage ? '2px solid var(--line)' : undefined, animation: i === stage ? 'pulse 2s ease-in-out infinite' : undefined }} />{s}
             </span>
           ))}
         </div>
@@ -359,7 +359,7 @@ export function SafetyForm({ ctx, tripId }: { ctx: Ctx; tripId: ID }) {
       <div className="card" style={{ borderRadius: 20, display: 'flex', flexDirection: 'column', gap: 6 }}>
         <div className="between">
           <div className="label">if something's wrong, call</div>
-          <button type="button" style={{ fontSize: 14, fontWeight: 700, color: '#3F4A8A', minHeight: 44 }} onClick={() => ctx.setTab('me')}>change</button>
+          <button type="button" style={{ fontSize: 14, fontWeight: 700, color: 'var(--link)', minHeight: 44 }} onClick={() => ctx.setTab('me')}>change</button>
         </div>
         {me.emergencyContacts.length ? <ContactLines contacts={me.emergencyContacts} /> : <div className="small">No emergency contact yet. Add one on the Me tab.</div>}
       </div>
@@ -424,13 +424,19 @@ export function MeScreen(ctx: Ctx) {
       <ContactsEditor value={contacts} onChange={setContacts} />
       {dirty && <button type="button" className="pill dark" style={{ alignSelf: 'center' }} onClick={saveDetails}>save my details</button>}
       <div className="say sm">
-        Every morning at <span className="word" style={{ background: 'var(--ink)', color: '#fff' }}>{pretty(time)}</span> tell me about {w(opts.mine, 'my trips', 'var(--peach)', 'mine')}, {w(opts.friends, "friends' trips", 'var(--lav)', 'friends')} and {w(opts.news, 'new plans', 'var(--butter)', 'news')}.
+        Every morning at <span className="word" style={{ background: 'var(--ink)', color: 'var(--on-ink)' }}>{pretty(time)}</span> tell me about {w(opts.mine, 'my trips', 'var(--peach)', 'mine')}, {w(opts.friends, "friends' trips", 'var(--lav)', 'friends')} and {w(opts.news, 'new plans', 'var(--butter)', 'news')}.
       </div>
       <Dial value={time} onChange={setTime} />
       {time !== me.reminderTime && <button type="button" className="pill dark" style={{ alignSelf: 'center' }} onClick={() => void ctx.run(() => ctx.store.saveProfile({ reminderTime: time }))}>save {pretty(time)}</button>}
       <div className="bubble">
-        <div className="eyebrow" style={{ color: '#C9CEDD' }}>tomorrow, {pretty(time)}</div>
+        <div className="eyebrow" style={{ color: 'var(--on-ink2)' }}>tomorrow, {pretty(time)}</div>
         {lines.length ? lines.map((l) => <div key={l}>{l}</div>) : <div>Nothing to tell. Switch something on above.</div>}
+      </div>
+      <div className="between">
+        <div className="label">sky on this phone</div>
+        <div className="seg fit" role="group" aria-label="Sky">
+          {(['auto', 'day', 'night'] as const).map((m) => <button key={m} type="button" aria-pressed={ctx.skyMode === m} onClick={() => ctx.setSkyMode(m)}>{m === 'auto' ? 'auto' : `always ${m}`}</button>)}
+        </div>
       </div>
       <div data-tour="push"><PushToggle save={ctx.store.savePush} remove={ctx.store.removePush} demo={ctx.store.mode === 'demo'} /></div>
       {ctx.store.mode !== 'demo' && <div className="small">The same message also shows when you first open the app each day.</div>}

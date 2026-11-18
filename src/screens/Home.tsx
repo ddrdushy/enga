@@ -141,9 +141,9 @@ export function OrbitScreen(ctx: Ctx) {
 
       {brief.length > 0 && (
         <div className="bubble" style={{ maxWidth: '100%' }}>
-          <div className="eyebrow" style={{ color: '#C9CEDD' }}>this morning</div>
+          <div className="eyebrow" style={{ color: 'var(--on-ink2)' }}>this morning</div>
           {brief.map((line) => <div key={line}>{line}</div>)}
-          <button type="button" className="textbtn" style={{ alignSelf: 'flex-end', color: '#fff', margin: '-6px -4px -10px 0', padding: '0 8px' }} onClick={() => { try { localStorage.setItem(briefKey, t) } catch { /* ignore */ } setBriefSeen(true) }}>got it</button>
+          <button type="button" className="textbtn" style={{ alignSelf: 'flex-end', color: 'var(--on-ink)', margin: '-6px -4px -10px 0', padding: '0 8px' }} onClick={() => { try { localStorage.setItem(briefKey, t) } catch { /* ignore */ } setBriefSeen(true) }}>got it</button>
         </div>
       )}
 
@@ -159,14 +159,14 @@ export function OrbitScreen(ctx: Ctx) {
             {nexts.map((n) => (
               <g key={n.p.id}>
                 <path d={`M${n.from.x} ${n.from.y} L${n.to.x} ${n.to.y}`} stroke={LINE[n.i % LINE.length]} strokeWidth="2.5" strokeDasharray="3 7" strokeLinecap="round" style={{ animation: 'march 1.4s linear infinite' }} />
-                {!n.to.bare && <circle cx={n.to.x} cy={n.to.y} r="7" fill="#EFF1F5" stroke={LINE[n.i % LINE.length]} strokeWidth="2.5" />}
+                {!n.to.bare && <circle cx={n.to.x} cy={n.to.y} r="7" fill="var(--mist)" stroke={LINE[n.i % LINE.length]} strokeWidth="2.5" />}
               </g>
             ))}
           </svg>
 
           <div className="abs" style={{ left: 99, top: 222, width: 160, textAlign: 'center' }}>
             <div className="display" style={{ fontSize: 15 }}>{me.home}</div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#2F5A3D' }}>{home.length ? 'home base' : town.length ? 'everyone is out' : 'nobody home'}</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--sage-ink)' }}>{home.length ? 'home base' : town.length ? 'everyone is out' : 'nobody home'}</div>
           </div>
 
           {spots.map((s) => {
@@ -196,7 +196,7 @@ export function OrbitScreen(ctx: Ctx) {
             const { box, max } = boxOf(awaySlot(s))
             return (
               <div key={s.p.id} className="tagbox" style={box}>
-                <div className="sticker tag" style={{ maxWidth: max, background: 'var(--ink)', color: '#fff' }}><span className="cut">{s.w.place}</span> · back {s.w.trip!.end === t && timeOf(s.w.trip!.backAt) ? clock(timeOf(s.w.trip!.backAt)) : `${dow(s.w.trip!.end)} ${dayNum(s.w.trip!.end)}`}</div>
+                <div className="sticker tag" style={{ maxWidth: max, background: 'var(--ink)', color: 'var(--on-ink)' }}><span className="cut">{s.w.place}</span> · back {s.w.trip!.end === t && timeOf(s.w.trip!.backAt) ? clock(timeOf(s.w.trip!.backAt)) : `${dow(s.w.trip!.end)} ${dayNum(s.w.trip!.end)}`}</div>
               </div>
             )
           })}
@@ -253,7 +253,7 @@ export function OrbitScreen(ctx: Ctx) {
           const mine = p.rsvps[me.id]
           return (
             <button key={p.id} type="button" className="tile" style={{ background: 'var(--peach)', borderRadius: '28px 28px 28px 6px' }} onClick={() => ctx.open({ k: 'plan', id: p.id })}>
-              <span className="eyebrow" style={{ color: '#5C3A22' }}>{owner?.name}'s open plan</span>
+              <span className="eyebrow" style={{ color: 'var(--peach-ink)' }}>{owner?.name}'s open plan</span>
               <span className="display" style={{ fontSize: 21 }}>{p.place}</span>
               <span className="small" style={{ color: 'var(--ink2)' }}>{fmtRange(p.start, p.end)}</span>
               <span style={{ fontSize: 13, fontWeight: 700, marginTop: 4 }}>{mine ? `you said ${mine === 'in' ? 'join' : mine === 'out' ? "can't" : 'maybe'}` : free ? "you're free · slide to join" : 'you have a trip then'}</span>
@@ -262,7 +262,7 @@ export function OrbitScreen(ctx: Ctx) {
         })}
         {events.map((e) => (
           <button key={e.id} type="button" className="tile" style={{ background: 'var(--butter)', borderRadius: '28px 28px 6px 28px' }} onClick={() => setEventId(e.id)}>
-            <span className="eyebrow" style={{ color: '#574A12' }}>{e.repeat === 'weekly' ? `every ${weekday(e.date).slice(0, 3)}` : `event · ${fmtShort(e.date)}`}{timeOf(e.startTime) ? ` · ${clock(timeOf(e.startTime))}` : ''}</span>
+            <span className="eyebrow" style={{ color: 'var(--butter-ink)' }}>{e.repeat === 'weekly' ? `every ${weekday(e.date).slice(0, 3)}` : `event · ${fmtShort(e.date)}`}{timeOf(e.startTime) ? ` · ${clock(timeOf(e.startTime))}` : ''}</span>
             <span className="display" style={{ fontSize: 21 }}>{e.title}</span>
             <span className="small" style={{ color: 'var(--ink2)' }}>{e.place}{e.link ? ' · has a link' : ''}</span>
             <span className="row" style={{ gap: 0, marginTop: 4 }}>
@@ -471,7 +471,7 @@ function Lanes({ ctx, toggle }: { ctx: Ctx; toggle: ReactNode }) {
           {data.people.map((p) => (
             <LaneRow key={p.id} ctx={ctx} p={p} start={start} />
           ))}
-          {runs.length > 0 && <span style={{ fontSize: 10, fontWeight: 700, color: '#2F5A3D', lineHeight: 1.1 }}>all<br />home</span>}
+          {runs.length > 0 && <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--sage-ink)', lineHeight: 1.1 }}>all<br />home</span>}
           {runs.map((r) => {
             const n = r.to - r.from + 1
             return <span key={r.from} className="together" style={{ gridColumn: `${r.from + 2} / ${r.to + 3}` }}>{n >= 9 ? `everyone home · ${n} days` : n >= 3 ? `${n} days` : `${n}d`}</span>
@@ -488,15 +488,15 @@ function Lanes({ ctx, toggle }: { ctx: Ctx; toggle: ReactNode }) {
           {upcoming.length > 1 && <div className="back" style={{ background: 'var(--peach)', rotate: '3deg', left: 10, right: 10, top: 12 }} />}
           <button type="button" className="front" key={top.id} style={{ animation: 'pop .35s ease-out both' }} onClick={() => openTrip(ctx, top)}>
             <span className="between">
-              <span className="eyebrow" style={{ color: '#C9CEDD' }}>{owner?.id === me.id ? 'you' : owner?.name} · {(idx % upcoming.length) + 1} of {upcoming.length}{top.open ? ' · open' : ''}</span>
+              <span className="eyebrow" style={{ color: 'var(--on-ink2)' }}>{owner?.id === me.id ? 'you' : owner?.name} · {(idx % upcoming.length) + 1} of {upcoming.length}{top.open ? ' · open' : ''}</span>
               <span className="sticker" style={{ background: 'var(--sage)', color: 'var(--ink)' }}>{top.start <= t ? 'now' : inDays(t, top.start)}</span>
             </span>
             <span>
               <span className="display" style={{ fontSize: 32, letterSpacing: -1, lineHeight: 1, display: 'block' }}>{top.place}</span>
-              <span style={{ fontSize: 14, color: '#C9CEDD' }}>{fmtRange(top.start, top.end)}</span>
+              <span style={{ fontSize: 14, color: 'var(--on-ink2)' }}>{fmtRange(top.start, top.end)}</span>
             </span>
           </button>
-          {upcoming.length > 1 && <button type="button" className="round" aria-label="Next trip" style={{ position: 'absolute', right: 14, bottom: 34, background: '#fff' }} onClick={() => setIdx(idx + 1)}>{Icon.arrow(20)}</button>}
+          {upcoming.length > 1 && <button type="button" className="round" aria-label="Next trip" style={{ position: 'absolute', right: 14, bottom: 34, background: 'var(--card)' }} onClick={() => setIdx(idx + 1)}>{Icon.arrow(20)}</button>}
         </div>
       )}
     </>

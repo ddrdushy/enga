@@ -2,6 +2,7 @@ import type { Data, ID, Person } from './lib/types'
 import type { Store } from './lib/store'
 import type { EventDemo, TripDemo } from './lib/sample'
 import type { CastPick } from './lib/cast'
+import type { SkyMode } from './lib/sky'
 
 export type Overlay =
   | { k: 'trip'; id?: ID; start?: string; demo?: TripDemo }
@@ -31,6 +32,9 @@ export interface Ctx {
   rain: boolean
   /** The outfit and pose for a person's clay character right now. */
   cast(p: Person): CastPick
+  /** Sky on this phone: follow the time, or always day / always night. */
+  skyMode: SkyMode
+  setSkyMode(m: SkyMode): void
   /** Run a store change, then reload. Shows any failure. */
   run(action: () => Promise<unknown>): Promise<boolean>
 }

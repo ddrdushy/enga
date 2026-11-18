@@ -27,7 +27,7 @@ export function Splash({ members, live, onOpen, scene }: { members: Member[]; li
         <div style={{ fontSize: 20, fontWeight: 500, lineHeight: 1.3, color: 'var(--ink2)' }}>Who is where,<br />and where next.</div>
         <div role="img" aria-label="Loading" className="row" style={{ marginTop: 12 }}>
           <span style={{ width: 28, height: 6, borderRadius: 3, background: 'var(--ink)', animation: 'load 1.6s ease-in-out infinite' }} />
-          <span style={{ width: 6, height: 6, borderRadius: 3, background: '#B4BACB' }} /><span style={{ width: 6, height: 6, borderRadius: 3, background: '#B4BACB' }} />
+          <span style={{ width: 6, height: 6, borderRadius: 3, background: 'var(--soft)' }} /><span style={{ width: 6, height: 6, borderRadius: 3, background: 'var(--soft)' }} />
         </div>
       </div>
     </div>
@@ -157,7 +157,7 @@ export function Login({ members, demo, claimed, inviteCode, onSignIn, onClaim }:
               style={{ width: 68, height: 68, borderRadius: '50%', background: k === 'del' ? 'transparent' : 'var(--card)', fontSize: k === 'del' ? 16 : 28, fontWeight: 600 }}>{k === 'del' ? 'del' : k}</button>)}
       </div>
       {claimed === null && (
-        <button type="button" style={{ alignSelf: 'center', minHeight: 44, fontSize: 14, fontWeight: 700, color: '#3F4A8A' }} onClick={() => { setManualFirst(!manualFirst); reset() }}>
+        <button type="button" style={{ alignSelf: 'center', minHeight: 44, fontSize: 14, fontWeight: 700, color: 'var(--link)' }} onClick={() => { setManualFirst(!manualFirst); reset() }}>
           {manualFirst ? 'I already have a PIN' : 'first time here? set your PIN'}
         </button>
       )}

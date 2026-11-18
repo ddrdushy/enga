@@ -9,6 +9,9 @@ import { whereDetail } from './lib/logic'
 import { castMoment, castPick } from './lib/cast'
 import type { CastPick } from './lib/cast'
 import { WEATHER_TTL, rainingNow } from './lib/weather'
+import { readSkyMode, saveSkyMode } from './lib/sky'
+import type { SkyMode } from './lib/sky'
+import { SkyLayer, useSky } from './screens/Sky'
 import { Icon } from './ui'
 import { Login, Splash } from './screens/Entry'
 import type { LiveRow } from './screens/Entry'
@@ -36,6 +39,9 @@ export default function App() {
   // The clock, ticked every minute: the characters, the sky and "right now" follow it.
   const [clockNow, setClockNow] = useState(() => Date.now())
   const [rain, setRain] = useState(false)
+  const [skyMode, setSkyMode] = useState<SkyMode>(readSkyMode)
+  const sky = useSky(clockNow, skyMode)
+  const skyLayer = <SkyLayer sky={sky} />
   const [claimed, setClaimed] = useState<string[] | null>(null)
   const [onboarding, setOnboarding] = useState(false)
   const [tour, setTour] = useState(false)
@@ -130,11 +136,12 @@ export default function App() {
 
   const openApp = useCallback(() => { if (store) setSplash(false) }, [store])
 
-  if (splash || !store) return <div className="app"><Splash members={MEMBERS} live={live} onOpen={openApp} scene={splashScene} /></div>
+  if (splash || !store) return <div className="app">{skyLayer}<Splash members={MEMBERS} live={live} onOpen={openApp} scene={splashScene} /></div>
 
   if (!meId || !data) {
     return (
       <div className="app">
+        {skyLayer}
         <Login members={store.members()} demo={store.mode === 'demo'} claimed={claimed} inviteCode={inviteCode} onSignIn={async (slug, pin) => {
           const id = await store.signIn(slug, pin)
           setData(await store.load())
@@ -160,6 +167,7 @@ export default function App() {
   if (onboarding) {
     return (
       <div className="app">
+        {skyLayer}
         <Onboarding me={me} store={store} onDone={() => {
           try { localStorage.removeItem(`enga-onboard-${me.id}`) } catch { /* ignore */ }
           setOnboarding(false)
@@ -172,6 +180,7 @@ export default function App() {
   const ctx: Ctx = {
     data: shown ?? data, me, store, date,
     minutes: new Date(clockNow).getHours() * 60 + new Date(clockNow).getMinutes(), rain, cast,
+    skyMode, setSkyMode: (m) => { saveSkyMode(m); setSkyMode(m) },
     setDate, setTab: (t) => { setOverlay(null); setTab(t) },
     open: setOverlay, close: () => setOverlay(null),
     tour: () => { setOverlay(null); setTour(true) },
@@ -182,6 +191,7 @@ export default function App() {
 
   return (
     <div className="app">
+      {skyLayer}
       {tab === 'now' && <OrbitScreen {...ctx} />}
       {tab === 'now' && rain && !overlay && <div className="rain" aria-hidden="true" />}
       {tab === 'next' && <NextScreen {...ctx} />}
