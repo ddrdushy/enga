@@ -1,3 +1,4 @@
+import { canSeeEvent, privacyOf } from './types'
 import { isNewer, latestFrom } from './update.ts'
 import { withSamples } from './sample.ts'
 import { rightNow, spotToday } from './work.ts'
@@ -579,5 +580,29 @@ describe('birthdays', () => {
   it('lists the coming month\u2019s birthdays, soonest first', () => {
     expect(upcomingBirthdays(data.people, '2026-11-18', 30).map((x) => [x.p.name, x.days])).toEqual([['Dushy', 7]])
     expect(upcomingBirthdays(data.people, '2027-02-20', 30).map((x) => [x.p.name, x.on])).toEqual([['Ali', '2027-02-28']])
+  })
+})
+
+describe('private events', () => {
+  const base = { ownerId: 'd', keen: { d: 'going' as const, a: 'going' as const } }
+  it('shared events are seen by everyone', () => {
+    expect(canSeeEvent({ ...base }, 'k')).toBe(true)
+  })
+  it('only me: just the owner', () => {
+    expect(canSeeEvent({ ...base, privacy: 'me' }, 'd')).toBe(true)
+    expect(canSeeEvent({ ...base, privacy: 'me' }, 'a')).toBe(false)
+    expect(canSeeEvent({ ...base, privacy: 'me' }, 'k')).toBe(false)
+  })
+  it("me + who's coming: the owner and the people on it", () => {
+    expect(canSeeEvent({ ...base, privacy: 'with' }, 'd')).toBe(true)
+    expect(canSeeEvent({ ...base, privacy: 'with' }, 'a')).toBe(true)
+    expect(canSeeEvent({ ...base, privacy: 'with' }, 'k')).toBe(false)
+  })
+  it('reads the column safely', () => {
+    expect(privacyOf('me')).toBe('me')
+    expect(privacyOf('with')).toBe('with')
+    expect(privacyOf('')).toBeUndefined()
+    expect(privacyOf(null)).toBeUndefined()
+    expect(privacyOf('anyone')).toBeUndefined()
   })
 })

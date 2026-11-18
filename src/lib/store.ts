@@ -1,9 +1,10 @@
-import type { Checkin, Contact, Data, EventItem, ID, Keen, Member, Person, Rsvp, SafetyCard, Spot, Stop, Trip } from './types'
+import type { Checkin, Contact, Data, EventItem, EventPrivacy, ID, Keen, Member, Person, Rsvp, SafetyCard, Spot, Stop, Trip } from './types'
 import { withDay } from './day'
 import { plansOf, optsOf, packExtras, personalOf, spotOf } from './extras'
 import type { Personal } from './extras'
 import { today as todayIso } from './dates'
 import { timeOf } from './when'
+import { canSeeEvent, privacyOf } from './types'
 
 export { plansOf, optsOf, spotOf }
 import { addDays, today } from './dates'
@@ -31,6 +32,7 @@ export interface EventInput {
   startTime?: string
   endTime?: string
   repeat?: 'weekly'
+  privacy?: EventPrivacy
   /** People the owner is taking along (marked going), and the ones marked going before this change. */
   with?: ID[]
   was?: ID[]
@@ -165,7 +167,7 @@ function demoStore(): Store {
     claimed: async () => Object.keys(state.pins),
     async claim(slug, pin) { return this.signIn(slug, pin) },
     async signOut() { state.me = null; commit() },
-    load: async () => ({ people: state.people, trips: state.trips, events: state.events, cards: state.cards, checkins: state.checkins }),
+    load: async () => ({ people: state.people, trips: state.trips, events: state.events.filter((e) => canSeeEvent(e, me())), cards: state.cards, checkins: state.checkins }),
     async saveTrip(input) {
       const fields = { place: input.place, start: input.start, end: input.end, open: input.open, leaveAt: timeOf(input.leaveAt), backAt: timeOf(input.backAt) }
       let trip = input.id ? state.trips.find((t) => t.id === input.id) : undefined
@@ -187,7 +189,7 @@ function demoStore(): Store {
       if (t) { t.rsvps[me()] = value; commit() }
     },
     async saveEvent(input) {
-      const fields = { title: input.title, place: input.place, date: input.date, link: input.link, startTime: timeOf(input.startTime), endTime: timeOf(input.endTime), repeat: input.repeat }
+      const fields = { title: input.title, place: input.place, date: input.date, link: input.link, startTime: timeOf(input.startTime), endTime: timeOf(input.endTime), repeat: input.repeat, privacy: input.privacy }
       const existing = input.id ? state.events.find((e) => e.id === input.id && e.ownerId === me()) : undefined
       let event = existing
       if (event) { Object.assign(event, fields); event.keen[me()] = input.keen }
@@ -330,7 +332,7 @@ async function cloudStore(url: string, anonKey: string): Promise<Store> {
         })),
         events: (check<Row[] | null>(events) ?? []).map((r): EventItem => ({
           id: r.id, ownerId: r.owner_id, title: r.title, place: r.place, date: r.event_date, link: r.link ?? '', createdAt: r.created_at,
-          startTime: timeOf(r.start_time), endTime: timeOf(r.end_time), repeat: r.repeat === 'weekly' ? 'weekly' : undefined,
+          startTime: timeOf(r.start_time), endTime: timeOf(r.end_time), repeat: r.repeat === 'weekly' ? 'weekly' : undefined, privacy: privacyOf(r.privacy),
           keen: Object.fromEntries(keenRows.filter((x) => x.event_id === r.id).map((x) => [x.user_id, x.level as Keen])),
         })),
         cards: (check<Row[] | null>(cards) ?? []).map((r): SafetyCard => ({
@@ -358,7 +360,7 @@ async function cloudStore(url: string, anonKey: string): Promise<Store> {
     },
     async saveEvent(input) {
       const me = await myId()
-      const row = { title: input.title, place: input.place, event_date: input.date, link: input.link, start_time: timeOf(input.startTime) || null, end_time: timeOf(input.endTime) || null, repeat: input.repeat ?? '' }
+      const row = { title: input.title, place: input.place, event_date: input.date, link: input.link, start_time: timeOf(input.startTime) || null, end_time: timeOf(input.endTime) || null, repeat: input.repeat ?? '', privacy: input.privacy ?? '' }
       let eventId: ID | undefined = input.id
       if (eventId) check(await sb.from('events').update(row).eq('id', eventId))
       else eventId = check<Row | null>(await sb.from('events').insert({ ...row, owner_id: me }).select('id').single())?.id

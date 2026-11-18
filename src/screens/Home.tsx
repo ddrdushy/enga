@@ -286,7 +286,7 @@ export function OrbitScreen(ctx: Ctx) {
         })}
         {events.map((e) => (
           <button key={e.id} type="button" className="tile" style={{ background: 'var(--butter)', borderRadius: '28px 28px 6px 28px' }} onClick={() => setEventId(e.id)}>
-            <span className="eyebrow" style={{ color: 'var(--butter-ink)' }}>{e.repeat === 'weekly' ? `every ${weekday(e.date).slice(0, 3)}` : `event · ${fmtShort(e.date)}`}{timeOf(e.startTime) ? ` · ${clock(timeOf(e.startTime))}` : ''}</span>
+            <span className="eyebrow" style={{ color: 'var(--butter-ink)', display: 'inline-flex', alignItems: 'center', gap: 4 }}>{e.privacy && <span aria-label={privacyWord(ctx, e)} style={{ display: 'inline-flex' }}><Icon.lock /></span>}{e.repeat === 'weekly' ? `every ${weekday(e.date).slice(0, 3)}` : `event · ${fmtShort(e.date)}`}{timeOf(e.startTime) ? ` · ${clock(timeOf(e.startTime))}` : ''}</span>
             <span className="display" style={{ fontSize: 21 }}>{e.title}</span>
             <span className="small" style={{ color: 'var(--ink2)' }}>{e.place}{e.link ? ' · has a link' : ''}</span>
             <span className="row" style={{ gap: 0, marginTop: 4 }}>
@@ -423,12 +423,20 @@ function PersonSheet({ ctx, id, onClose }: { ctx: Ctx; id: string; onClose: () =
   )
 }
 
+/** "only you see this" / "only you and Ali see this", for a private event. */
+function privacyWord(ctx: Ctx, e: EventItem): string {
+  if (e.privacy === 'me') return e.ownerId === ctx.me.id ? 'only you see this' : 'private'
+  const others = Object.keys(e.keen).filter((id) => id !== ctx.me.id).map((id) => person(ctx.data, id)?.name).filter(Boolean)
+  return others.length ? `only you and ${others.join(' and ')} see this` : 'only you see this'
+}
+
 function EventSheet({ ctx, event, onClose }: { ctx: Ctx; event: EventItem; onClose: () => void }) {
   const { data, me } = ctx
   const owner = person(data, event.ownerId)
   return (
     <Sheet title={event.title} onClose={onClose}>
       <div className="small">{eventWhen(event)} · {event.place} · added by {owner?.id === me.id ? 'you' : owner?.name}</div>
+      {event.privacy && <div className="row small" style={{ gap: 6, fontWeight: 600 }}><Icon.lock /> {privacyWord(ctx, event)}</div>}
       {event.repeat === 'weekly' && <div className="small">next: {fmt(upcomingEvents(data, today()).find((e) => e.id === event.id)?.date ?? event.date)}</div>}
       {event.link && <a href={event.link.startsWith('http') ? event.link : `https://${event.link}`} target="_blank" rel="noreferrer" className="row" style={{ minHeight: 44, alignSelf: 'flex-start' }}><Icon.link /> open the link</a>}
       <div className="chips">

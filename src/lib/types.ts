@@ -119,7 +119,16 @@ export interface EventItem {
   endTime?: string
   /** 'weekly': repeats on the weekday of `date`, from `date` on. */
   repeat?: 'weekly'
+  /** Who sees it: unset = everyone, 'me' = only the owner, 'with' = the owner and the people on it. */
+  privacy?: EventPrivacy
 }
+export type EventPrivacy = 'me' | 'with'
+/** The privacy column as the app type; '' and anything unknown mean shared. */
+export const privacyOf = (v: unknown): EventPrivacy | undefined => (v === 'me' || v === 'with' ? v : undefined)
+
+/** Whether `viewer` may see the event (the server applies the same rule). */
+export const canSeeEvent = (e: Pick<EventItem, 'ownerId' | 'privacy' | 'keen'>, viewer: ID): boolean =>
+  !e.privacy || e.ownerId === viewer || (e.privacy === 'with' && viewer in e.keen)
 
 export interface SafetyCard {
   tripId: ID

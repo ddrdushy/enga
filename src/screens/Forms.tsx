@@ -5,7 +5,7 @@ import { WorkWeek } from './WorkWeek'
 import { ContactLines, ContactsEditor } from './Contacts'
 import { defaultPlan, hasWeek } from '../lib/work'
 import { person } from '../ctx'
-import type { ID, Keen, Rsvp, SafetyCard, Trip } from '../lib/types'
+import type { EventPrivacy, ID, Keen, Rsvp, SafetyCard, Trip } from '../lib/types'
 import type { EventDemo, TripDemo } from '../lib/sample'
 import { addDays, diffDays, dow, fmt, fmtRange, fmtShort, inDays, parse, today } from '../lib/dates'
 import { digest, isFree, placesUsed, tripPeople, tripsOf } from '../lib/logic'
@@ -133,6 +133,7 @@ export function AddEvent({ ctx, id, date: initial, demo }: { ctx: Ctx; id?: ID; 
   const [startTime, setStartTime] = useState(timeOf(editing?.startTime))
   const [endTime, setEndTime] = useState(timeOf(editing?.endTime))
   const [weekly, setWeekly] = useState(editing?.repeat === 'weekly')
+  const [privacy, setPrivacy] = useState<EventPrivacy | undefined>(editing?.privacy)
   const was = editing ? Object.entries(editing.keen).filter(([pid, k]) => pid !== ctx.me.id && k === 'going').map(([pid]) => pid) : []
   const [withIds, setWithIds] = useState<ID[]>(was)
   const [picking, setPicking] = useState(false)
@@ -143,7 +144,9 @@ export function AddEvent({ ctx, id, date: initial, demo }: { ctx: Ctx; id?: ID; 
   const save = () => {
     if (!title.trim()) { setError('Give it a name first.'); return }
     if (startTime && endTime && endTime <= startTime) { setError('The end time is before the start.'); return }
-    void ctx.run(() => ctx.store.saveEvent({ id: editing?.id, title: title.trim(), place, date, link: link.trim(), keen, startTime, endTime, repeat: weekly ? 'weekly' : undefined, with: withIds, was })).then((ok) => ok && ctx.close())
+    if (privacy === 'with' && !withIds.length) { setError("Add who's coming first, or pick only me."); return }
+    const people = privacy === 'me' ? [] : withIds
+    void ctx.run(() => ctx.store.saveEvent({ id: editing?.id, title: title.trim(), place, date, link: link.trim(), keen, startTime, endTime, repeat: weekly ? 'weekly' : undefined, privacy, with: people, was })).then((ok) => ok && ctx.close())
   }
   return (
     <div className="screen pad">
@@ -163,7 +166,8 @@ export function AddEvent({ ctx, id, date: initial, demo }: { ctx: Ctx; id?: ID; 
         {weekly ? 'every' : 'on'} <span className="nowrap"><span className="word" style={{ background: 'var(--ink)', color: 'var(--on-ink)' }}>{weekly ? weekday(date) : fmt(date)}</span>{startTime ? '' : '.'}</span>{' '}
         {startTime && <span className="nowrap">at <span className="word" style={{ background: 'var(--ink)', color: 'var(--on-ink)' }}>{clock(startTime)}</span>.</span>}{' '}I'm{' '}
         <span className="nowrap"><span className="word" style={{ background: 'var(--lav)' }}>{keen === 'interested' ? 'just interested' : keen}</span>{withIds.length ? '' : '.'}</span>
-        {withIds.length > 0 && <>{' '}with <span className="nowrap"><span className="word" style={{ background: 'var(--sage)' }}>{names(ctx.data, withIds)}</span>.</span></>}
+        {withIds.length > 0 && privacy !== 'me' && <>{' '}with <span className="nowrap"><span className="word" style={{ background: 'var(--sage)' }}>{names(ctx.data, withIds)}</span>.</span></>}
+        {privacy && <>{' '}<span className="nowrap"><span className="word" style={{ background: 'var(--lav)' }}>{privacy === 'me' ? 'only I see it' : `only us ${withIds.length + 1} see it`}</span>.</span></>}
       </div>
       </div>
       <DateStrip range={false} start={date} end={date} hint={weekly ? 'tap the first day' : 'tap the day'} onChange={(s) => setDate(s)} />
@@ -173,9 +177,16 @@ export function AddEvent({ ctx, id, date: initial, demo }: { ctx: Ctx; id?: ID; 
         <button type="button" className={`pill${weekly ? ' dark' : ''}`} aria-pressed={weekly} onClick={() => setWeekly(!weekly)}>every week</button>
       </div>
       {weekly && <div className="small">Repeats every {weekday(date)}, starting {fmt(date)}.</div>}
-      <WithPicker ctx={ctx} value={withIds} onChange={(v) => { if (v.length > withIds.length && keen === 'interested') setKeen('going'); setWithIds(v) }}
+      <div className="label">who sees it?</div>
+      <div className="seg fit" role="group" aria-label="Who sees it" style={{ alignSelf: 'flex-start' }}>
+        <button type="button" aria-pressed={!privacy} onClick={() => { setPrivacy(undefined); setError('') }}>everyone</button>
+        <button type="button" aria-pressed={privacy === 'me'} onClick={() => { setPrivacy('me'); setError('') }}>only me</button>
+        <button type="button" aria-pressed={privacy === 'with'} onClick={() => { setPrivacy('with'); setError('') }}>me + who's coming</button>
+      </div>
+      {privacy && <div className="small">{privacy === 'me' ? 'Hidden from everyone else: not on their home screen, calendar or morning message.' : "Only you and the people you add below see it. Nobody else knows it's there."}</div>}
+      {privacy !== 'me' && <WithPicker ctx={ctx} value={withIds} onChange={(v) => { if (v.length > withIds.length && keen === 'interested') setKeen('going'); setWithIds(v); setError('') }}
         busy={(pid) => { const away = ctx.data.trips.find((tr) => tripPeople(tr).includes(pid) && tr.start <= date && date <= tr.end); return away ? `away in ${away.place} then` : '' }}
-        note="It goes on their calendar as going. They can leave it if they can't make it." />
+        note="It goes on their calendar as going. They can leave it if they can't make it." />}
       <div data-tour="event-keen" style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
         <div className="label">how keen are you? drag your face</div>
         <div style={{ paddingBottom: 22 }}><FaceSlider options={KEEN} value={keen} face={ctx.me} label="How keen are you" onChange={setKeen} /></div>

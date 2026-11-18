@@ -12,6 +12,7 @@ import { digest } from '../src/lib/logic.ts'
 import { personalOf, plansOf, optsOf, spotOf } from '../src/lib/extras.ts'
 import { timeOf } from '../src/lib/when.ts'
 import type { Checkin, Data, EventItem, Keen, Person, Rsvp, SafetyCard, Trip } from '../src/lib/types.ts'
+import { canSeeEvent, privacyOf } from '../src/lib/types.ts'
 
 export const DEFAULT_TZ = 'Asia/Kuala_Lumpur'
 export const DEFAULT_TIME = '08:00'
@@ -78,7 +79,7 @@ export function toData(rows: Loaded): Data {
     })),
     events: rows.events.map((r): EventItem => ({
       id: r.id, ownerId: r.owner_id, title: r.title, place: r.place, date: r.event_date, link: r.link ?? '', createdAt: r.created_at,
-      startTime: timeOf(r.start_time), endTime: timeOf(r.end_time), repeat: r.repeat === 'weekly' ? 'weekly' : undefined,
+      startTime: timeOf(r.start_time), endTime: timeOf(r.end_time), repeat: r.repeat === 'weekly' ? 'weekly' : undefined, privacy: privacyOf(r.privacy),
       keen: Object.fromEntries(rows.keen.filter((x) => x.event_id === r.id).map((x) => [x.user_id, x.level as Keen])),
     })),
     cards: rows.cards.map((r): SafetyCard => ({
@@ -153,7 +154,8 @@ export async function run(io: Io, now: Date, mode: Mode = 'live'): Promise<Summa
 
     // The date is this person's local date, never the server's: the server runs on UTC,
     // where 8am in Kuala Lumpur is still "yesterday" until 8am.
-    const lines = digest(data, id, date)
+    // The server key sees every event; each person's message only uses the ones they may see.
+    const lines = digest({ ...data, events: data.events.filter((e) => canSeeEvent(e, id)) }, id, date)
     if (mode === 'dry') { result.status = 'dry'; result.lines = lines; continue }
 
     if (lines.length === 0) {
