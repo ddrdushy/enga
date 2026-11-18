@@ -2,6 +2,7 @@ import type { Data, EventItem, ID, Person, Stop, Trip } from './types.ts'
 import { dayProgress, dayToday, myDayRows } from './day.ts'
 import { addDays, diffDays, fmt, fmtRange, inDays, mondayIndex, toIso } from './dates.ts'
 import { clock, rightNow, workLine } from './work.ts'
+import { festivalLine } from './festivals.ts'
 import { awayAt, occursOn, timeOf, timeRange, tripTimes, upcoming, weekday } from './when.ts'
 
 /** Owner plus everyone who answered "in". */
@@ -114,6 +115,14 @@ export function digest(data: Data, meId: ID, date: string): string[] {
   const opts = me.reminderOpts
   const lines: string[] = []
   const yesterday = addDays(date, -1)
+
+  // A festival (only when it is someone's) and birthdays: one line each, at the top.
+  if (opts.mine || opts.friends || opts.news) {
+    const fest = festivalLine(data.people, date)
+    if (fest) lines.push(fest)
+    const bday = data.people.filter((p) => p.birthday && p.birthday === date.slice(5))
+    if (bday.length) lines.push(`Happy birthday, ${bday.map((p) => p.name).join(' and ')}!`)
+  }
 
   if (opts.mine) {
     const mine = currentTrip(data, meId, date)

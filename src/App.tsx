@@ -7,6 +7,7 @@ import { toIso, today } from './lib/dates'
 import { eventDemo, tripDemo, withSamples } from './lib/sample'
 import { whereDetail } from './lib/logic'
 import { castMoment, castPick } from './lib/cast'
+import { festivalFor } from './lib/festivals'
 import type { CastPick } from './lib/cast'
 import { WEATHER_TTL, rainingNow } from './lib/weather'
 import { readSkyMode, saveSkyMode } from './lib/sky'
@@ -100,7 +101,7 @@ export default function App() {
   const cast = useCallback((p: Person): CastPick => {
     const d = new Date(clockNow)
     const date = toIso(d)
-    return castPick(castMoment(shown ?? data ?? { people: [], trips: [], events: [], cards: [], checkins: [] }, p, { date, minutes: d.getHours() * 60 + d.getMinutes(), nowMs: clockNow, rain }))
+    return castPick(castMoment(shown ?? data ?? { people: [], trips: [], events: [], cards: [], checkins: [] }, p, { date, minutes: d.getHours() * 60 + d.getMinutes(), nowMs: clockNow, rain, festival: festivalFor(p, date) }))
   }, [shown, data, clockNow, rain])
 
   // Signed in: the splash shows where everyone is right now, for a few seconds or until a tap.

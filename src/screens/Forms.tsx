@@ -9,6 +9,7 @@ import type { ID, Keen, Rsvp, SafetyCard, Trip } from '../lib/types'
 import type { EventDemo, TripDemo } from '../lib/sample'
 import { addDays, diffDays, dow, fmt, fmtRange, fmtShort, inDays, parse, today } from '../lib/dates'
 import { digest, isFree, placesUsed, tripPeople, tripsOf } from '../lib/logic'
+import { FESTIVALS, theirFestivals } from '../lib/festivals'
 import { Avatar, DateStrip, Dial, FaceSlider, Icon, Sheet, SlideButton, pretty } from '../ui'
 import { timeOf, tripTimes, weekday } from '../lib/when'
 import { clock } from '../lib/work'
@@ -415,6 +416,7 @@ export function MeScreen(ctx: Ctx) {
       <div className="say sm">
         I live in <Blank value={house} onChange={setHouse} label="Your area or address" hint="area" bg="var(--peach)" after="." /> My office is in <Blank value={office} onChange={setOffice} label="Where your office is" hint="area" bg="var(--butter)" after="." />
       </div>
+      <Personal ctx={ctx} />
       <div className="label">how you work</div>
       <div className="chips">
         {WORK_TYPES.map((t) => <button key={t} type="button" className={`pill${workType === t ? ' dark' : ''}`} aria-pressed={workType === t} onClick={() => pickWork(t)}>{t}</button>)}
@@ -442,6 +444,44 @@ export function MeScreen(ctx: Ctx) {
       {ctx.store.mode !== 'demo' && <div className="small">The same message also shows when you first open the app each day.</div>}
       {editHome && <PlacePicker ctx={ctx} value={me.home} onPick={(v) => void ctx.run(() => ctx.store.saveProfile({ home: v }))} onClose={() => setEditHome(false)} />}
     </div>
+  )
+}
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+const DAYS_IN = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+
+/** Birthday (day and month, no year) and which festivals are yours. Saved straight away; friends see them. */
+function Personal({ ctx }: { ctx: Ctx }) {
+  const { me } = ctx
+  const [mm, dd] = me.birthday ? [Number(me.birthday.slice(0, 2)), Number(me.birthday.slice(3))] : [0, 0]
+  const setBirthday = (m: number, d: number) => {
+    if (!m || !d) return void ctx.run(() => ctx.store.savePersonal({ birthday: '' }))
+    const day = Math.min(d, DAYS_IN[m - 1])
+    void ctx.run(() => ctx.store.savePersonal({ birthday: `${String(m).padStart(2, '0')}-${String(day).padStart(2, '0')}` }))
+  }
+  const mine = theirFestivals(me)
+  const flipFest = (key: string) => void ctx.run(() => ctx.store.savePersonal({ festivals: mine.includes(key) ? mine.filter((k) => k !== key) : [...mine, key] }))
+  return (
+    <>
+      <div className="say sm">
+        My birthday is{' '}
+        <span className="nowrap">
+          <select className="word" aria-label="Birthday day" value={dd || ''} onChange={(e) => setBirthday(mm || 1, Number(e.target.value))} style={{ background: 'var(--lav)' }}>
+            <option value="">day</option>
+            {Array.from({ length: DAYS_IN[(mm || 1) - 1] }, (_, i) => <option key={i} value={i + 1}>{i + 1}</option>)}
+          </select>{' '}
+          <select className="word" aria-label="Birthday month" value={mm || ''} onChange={(e) => setBirthday(Number(e.target.value), dd || 1)} style={{ background: 'var(--lav)' }}>
+            <option value="">month</option>
+            {MONTHS.map((m, i) => <option key={m} value={i + 1}>{m}</option>)}
+          </select>.
+        </span>
+        {me.birthday && <button type="button" className="textbtn" style={{ fontSize: 13, verticalAlign: 'middle' }} onClick={() => setBirthday(0, 0)}>clear</button>}
+      </div>
+      <div className="label">my festivals · your character dresses up, and friends get a hello</div>
+      <div className="chips" role="group" aria-label="My festivals">
+        {FESTIVALS.map((f) => <button key={f.key} type="button" className={`pill${mine.includes(f.key) ? ' dark' : ''}`} style={{ height: 38 }} aria-pressed={mine.includes(f.key)} onClick={() => flipFest(f.key)}>{f.name}</button>)}
+      </div>
+    </>
   )
 }
 

@@ -39,6 +39,9 @@ a { color: var(--link); font-weight: 700; text-decoration: none; }
 @keyframes shake { 0%, 100% { translate: 0 0; } 25% { translate: -8px 0; } 75% { translate: 8px 0; } }
 @keyframes drift { from { translate: 0 0; } to { translate: -28px 22px; } }
 @keyframes twinkle { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
+@keyframes sway { 0%, 100% { rotate: -4deg; } 50% { rotate: 4deg; } }
+@keyframes flicker { 0%, 100% { opacity: 1; scale: 1; } 50% { opacity: 0.7; scale: 0.92; } }
+@keyframes burst { 0%, 15% { scale: 0.2; opacity: 0; } 40% { scale: 1; opacity: 1; } 80%, 100% { scale: 1.15; opacity: 0; } }
 @keyframes rainfall { to { background-position: -30px 120px, -24px 180px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 
@@ -218,3 +221,11 @@ button.word::after { content: ''; position: absolute; inset: -5px 0; }
 .sky .stars { position: absolute; inset: 0 0 50% 0; transition: opacity 2s ease; }
 .sky .stars i { position: absolute; border-radius: 50%; background: #fff; box-shadow: 0 0 4px rgba(255, 255, 255, 0.8); animation: twinkle 4.5s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .sky .stars i { opacity: 0.7; } }
+
+/* festival decorations (src/screens/Festive.tsx) */
+.festive { margin: -14px -16px -2px; padding: 0 0 4px; pointer-events: none; }
+.festive .sway { animation: sway 4s ease-in-out infinite; }
+.festive .flicker { animation: flicker 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.festive .burst { animation: burst 3s ease-out infinite; }
+@media (prefers-reduced-motion: reduce) { .festive .burst { opacity: 1; } }
+select.word { appearance: none; -webkit-appearance: none; font: inherit; color: inherit; cursor: pointer; }

@@ -8,6 +8,8 @@ import { allHomeRuns, currentTrip, digest, isFree, laneSegments, nextTrip, openP
 import { clock, daysOf, duration, goesToOffice, rightNow } from '../lib/work'
 import { Avatar, FaceSlider, GroupScene, Icon, Sheet, hasGroup } from '../ui'
 import { greeting, headerMoment, slugOf } from '../lib/cast'
+import { festivalLine, festivalToday } from '../lib/festivals'
+import { FestiveStrip } from './Festive'
 import type { CastPick } from '../lib/cast'
 import { MyDay, StopList } from './Day'
 import { eventWhen, occursOn, timeOf, timeRange, weekday } from '../lib/when'
@@ -125,8 +127,11 @@ export function OrbitScreen(ctx: Ctx) {
   const shown = eventId ? data.events.find((e) => e.id === eventId) : undefined
   const summary = spots.map((s) => { const r = nowOf.get(s.p.id); return `${s.p.id === me.id ? 'You are' : s.p.name + ' is'} ${town.includes(s) && r?.head ? r.head : `in ${s.w.place}`}` }).join('. ')
 
+  const fest = date === t ? festivalToday(data.people, t) : null
+
   return (
     <div className="screen">
+      {fest && <FestiveStrip decor={fest.festival.decor} line={festivalLine(data.people, t)} />}
       <div className="between">
         <div>
           <div className="label">{fmt(date)}{date === t ? ' · right now' : ''}</div>
