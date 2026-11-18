@@ -92,3 +92,9 @@ For someone who is signed in, the opening screen lists where each person is righ
 On the home screen, under "right now", "my day" holds your list of places for today (up to 12). "here" checks in at a place with the time, "skip" drops one, "undo" reverses either, and "reorder" shows up / down / remove on every row. Friends see your latest check-in ("at KLCC · since 11:40 am · 2 of 5 places") in "right now", on the opening screen, and the whole list on the sheet that opens when they tap your face. The list only counts on its own date, and works at home or during a trip.
 
 Logic is in `src/lib/day.ts`; like the office check-in, the list is stored inside `reminder_opts`, under `day` (`dayOf` in `src/lib/store.ts`).
+
+## Home check-in, and places shared with friends
+
+"right now" on your own row has three one-tap check-ins: "at home", "at office" and "on the move". The latest check-in of any kind (these, or a place on your day) is what friends see; tapping the one that is on turns it off.
+
+A place on "my day" can carry a time and friends ("Lunch at Nando\u2019s, 1:00 pm, with Ali"). It then appears on each invited friend\u2019s day as an invite; they tap "here" or "skip" for themselves, and everyone on it sees who has arrived. Either person can be the one to set it up. Each person\u2019s answer is stored in their own profile, as a copy that points back to the inviter\u2019s place (`ref`), which is why it needs no shared table. If the inviter renames it or changes the time, the copies follow; if the inviter skips it, unanswered invites disappear.

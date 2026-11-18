@@ -22,7 +22,7 @@ export interface TourView { tab: Tab; stage: number | null; form: 'trip' | 'even
 const STEPS: Step[] = [
   { tab: 'now', stage: 0, title: 'a quick tour', body: 'About a minute. To show you around, the app is filled with a few sample trips and a sample event. Nothing here is saved, and your friends do not see it.' },
   { tab: 'now', stage: 0, target: '.orbit', title: 'who is where', body: 'Faces inside the green circle are at home. A face on the outer ring is away: the dark label says where, and when they are back. Tap a face or a label to see more.' },
-  { tab: 'now', stage: 0, target: '[data-tour="rightnow"]', optional: true, title: 'right now', body: 'Reached the office? Tap \u201cat office\u201d and your friends see it straight away; tap \u201cleave\u201d when you go. Without a check-in, the app only shows what your usual week says.' },
+  { tab: 'now', stage: 0, target: '[data-tour="rightnow"]', optional: true, title: 'right now', body: 'Tap \u201cat home\u201d, \u201cat office\u201d or \u201con the move\u201d and your friends see it straight away. Without a check-in, the app only shows what your usual week says.' },
   { tab: 'now', stage: 0, target: '.nav .plus', title: 'adding a trip', body: 'Going somewhere? Tap +. Next, see how it looks with a sample trip.' },
   { tab: 'now', stage: 0, form: 'trip', target: '[data-tour="trip-say"]', title: 'a trip is one sentence', body: 'Tap a coloured word to change it: the place, and \u201cjust me\u201d or \u201cfriends can join\u201d when you want the others to come along.' },
   { tab: 'now', stage: 0, form: 'trip', target: '[data-tour="trip-days"]', title: 'pick the days', body: 'Tap the first day, then the last. The buttons under it are shortcuts.' },

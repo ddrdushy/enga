@@ -2,7 +2,7 @@ import { isNewer, latestFrom } from './update.ts'
 import { withSamples } from './sample.ts'
 import { rightNow, spotToday } from './work.ts'
 import { dayOf, optsOf, spotOf } from './store.ts'
-import { addStop, checkInAt, dayProgress, dayToday, moveStop, removeStop, reopenStop, skipStop } from './day.ts'
+import { addStop, answerInvite, checkInAt, companions, dayProgress, dayToday, invitesFor, moveStop, myDayRows, removeStop, reopenStop, skipStop } from './day.ts'
 import type { Stop } from './types'
 import { describe, expect, it } from 'vitest'
 import type { Data, Person, Trip } from './types'
@@ -196,7 +196,8 @@ describe('office check-in', () => {
   })
   it('shows a check-in as certain, with the time, even with no usual week saved', () => {
     expect(rightNow({ workPlan: null, spot: { kind: 'office', at: at(9, 52) } }, '2026-11-18', 2, 600)).toMatchObject({ kind: 'office', text: 'at the office \u00b7 checked in 9:52 am', sure: true })
-    expect(rightNow({ workPlan: null, spot: { kind: 'left', at: at(18, 10) } }, '2026-11-18', 2, 1100)).toMatchObject({ kind: 'left', text: 'left the office 6:10 pm', sure: true })
+    expect(rightNow({ workPlan: null, spot: { kind: 'left', at: at(18, 10) } }, '2026-11-18', 2, 1100)).toMatchObject({ kind: 'left', text: 'on the move since 6:10 pm', sure: true })
+    expect(rightNow({ workPlan: null, spot: { kind: 'home', at: at(19, 5) } }, '2026-11-18', 2, 1150)).toMatchObject({ kind: 'home', text: 'at home \u00b7 checked in 7:05 pm', sure: true })
   })
   it('never says "at the office" from the usual week alone', () => {
     const guess = rightNow({ workPlan: { ...plan, days: [...plan.days] }, spot: null }, '2026-11-18', 2, 600)
@@ -317,5 +318,62 @@ describe("today's places", () => {
     expect(optsOf(stored)).toEqual({ mine: true, friends: true, news: false })
     expect(dayOf({ mine: true })).toBeNull()
     expect(dayOf({ day: { date: '2026-11-18', stops: 'nope' } })).toBeNull()
+  })
+})
+
+describe('home check-in and shared places', () => {
+  const at = (h: number, m: number) => new Date(2026, 10, 18, h, m).toISOString()
+  const D = '2026-11-18'
+  const person = (id: string, name: string, stops: Stop[] = []) => ({ id, name, home: 'Kuala Lumpur', house: 'Wangsa Maju', office: '', workPlan: null, spot: null, day: stops.length ? { date: D, stops } : null }) as Person
+
+  it('"at home" shows as a check-in, with the area', () => {
+    const p = { ...person('d', 'Dushy'), spot: { kind: 'home' as const, at: at(19, 5) } }
+    const d = whereDetail({ people: [p], trips: [], events: [], cards: [], checkins: [] }, p, 'x', D, D, 1150)
+    expect(d.headline).toBe('at home')
+    expect(d.sub).toBe('checked in 7:05 pm \u00b7 Wangsa Maju')
+  })
+
+  it('a place with a friend and a time shows on the friend\u2019s day until they answer', () => {
+    const lunch = addStop([], 'Lunch at Nando\u2019s', { time: '13:00', with: ['a'] })[0]
+    expect(lunch).toMatchObject({ name: 'Lunch at Nando\u2019s', time: '13:00', with: ['a'], state: 'todo' })
+    const kiru = person('k', 'Kiru', [lunch])
+    const ali = person('a', 'Ali', addStop([], 'Bank'))
+    const dushy = person('d', 'Dushy')
+    const people = [dushy, ali, kiru]
+
+    expect(invitesFor(people, 'a', D).map((i) => i.ownerName)).toEqual(['Kiru'])
+    expect(invitesFor(people, 'd', D)).toEqual([])
+    const rows = myDayRows(people, 'a', D)
+    expect(rows.map((r) => [r.stop.name, r.pending])).toEqual([['Bank', false], ['Lunch at Nando\u2019s', true]])
+    expect(rows[1].stop).toMatchObject({ time: '13:00', with: ['k'], ref: `k/${lunch.id}` })
+    expect(myDayRows(people, 'k', D).map((r) => r.pending)).toEqual([false])
+    // yesterday's invite is not shown
+    expect(myDayRows(people, 'a', '2026-11-19')).toEqual([])
+
+    // Ali checks in: her own copy goes on her list, and Kiru sees that she is there
+    const aliStops = answerInvite(ali.day!.stops, rows[1], 'done', at(13, 5))
+    expect(aliStops).toHaveLength(2)
+    expect(aliStops[1]).toMatchObject({ state: 'done', ref: `k/${lunch.id}`, time: '13:00', with: ['k'] })
+    const after = [dushy, person('a', 'Ali', aliStops), kiru]
+    expect(myDayRows(after, 'a', D).map((r) => r.pending)).toEqual([false, false])
+    expect(companions(after, 'k', lunch, D)).toEqual([{ id: 'a', name: 'Ali', state: 'done', at: at(13, 5) }])
+    expect(companions(after, 'a', aliStops[1], D)).toEqual([{ id: 'k', name: 'Kiru', state: 'todo', at: undefined }])
+
+    // Kiru renames it: Ali's copy follows; Kiru drops it: the invite is gone for anyone who had not answered
+    const renamed = [dushy, person('a', 'Ali', aliStops), person('k', 'Kiru', [{ ...lunch, name: 'Lunch at Madam Kwan\u2019s', time: '13:30' }])]
+    expect(myDayRows(renamed, 'a', D)[1].stop).toMatchObject({ name: 'Lunch at Madam Kwan\u2019s', time: '13:30', state: 'done' })
+    expect(invitesFor([dushy, ali, person('k', 'Kiru', skipStop([lunch], lunch.id))], 'a', D)).toEqual([])
+  })
+
+  it('keeps the time and the people when a shared place is skipped and reopened', () => {
+    const s = addStop([], 'Lunch', { time: '13:00', with: ['a'] })
+    const back = reopenStop(skipStop(checkInAt(s, s[0].id, at(13, 0)), s[0].id), s[0].id)
+    expect(back[0]).toEqual({ id: s[0].id, name: 'Lunch', state: 'todo', time: '13:00', with: ['a'] })
+  })
+
+  it('stores times, people and invite copies, and drops malformed ones', () => {
+    const stored = { day: { date: D, stops: [{ id: 'a', name: 'Lunch', state: 'todo', time: '13:00', with: ['k', 7], ref: 'k/x1' }, { id: 'b', name: 'Bank', state: 'todo', time: '1pm', with: 'k', ref: 'nope' }] } }
+    expect(dayOf(stored)?.stops).toEqual([{ id: 'a', name: 'Lunch', state: 'todo', time: '13:00', with: ['k'], ref: 'k/x1' }, { id: 'b', name: 'Bank', state: 'todo' }])
+    expect(spotOf({ spot: { kind: 'home', at: at(19, 0) } })).toEqual({ kind: 'home', at: at(19, 0) })
   })
 })

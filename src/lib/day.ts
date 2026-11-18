@@ -1,5 +1,5 @@
 // Today's places: a short list a person makes for the day, and checks in at one by one.
-import type { DayPlan, Stop } from './types.ts'
+import type { DayPlan, ID, Stop } from './types.ts'
 
 export const MAX_STOPS = 12
 export const MAX_NAME = 60
@@ -12,11 +12,14 @@ export function dayToday(day: DayPlan | null | undefined, date: string): DayPlan
 const newId = () => Math.random().toString(36).slice(2, 10)
 
 /** Add a place at the end. Blank names, repeats of a place still to visit, and lists that are full are left alone. */
-export function addStop(stops: Stop[], name: string): Stop[] {
+export function addStop(stops: Stop[], name: string, extra: { time?: string; with?: ID[] } = {}): Stop[] {
   const clean = name.replace(/\s+/g, ' ').trim().slice(0, MAX_NAME)
   if (!clean || stops.length >= MAX_STOPS) return stops
   if (stops.some((s) => s.state === 'todo' && s.name.toLowerCase() === clean.toLowerCase())) return stops
-  return [...stops, { id: newId(), name: clean, state: 'todo' }]
+  const stop: Stop = { id: newId(), name: clean, state: 'todo' }
+  if (extra.time && /^\d\d:\d\d$/.test(extra.time)) stop.time = extra.time
+  if (extra.with?.length) stop.with = [...new Set(extra.with)]
+  return [...stops, stop]
 }
 
 export const removeStop = (stops: Stop[], id: string): Stop[] => stops.filter((s) => s.id !== id)
@@ -25,10 +28,11 @@ export const removeStop = (stops: Stop[], id: string): Stop[] => stops.filter((s
 export const checkInAt = (stops: Stop[], id: string, at: string): Stop[] => stops.map((s) => (s.id === id ? { ...s, state: 'done', at } : s))
 
 /** Not going after all. */
-export const skipStop = (stops: Stop[], id: string): Stop[] => stops.map((s) => (s.id === id ? { id: s.id, name: s.name, state: 'skipped' } : s))
+const without = (s: Stop, state: Stop['state']): Stop => { const { at: _at, ...rest } = s; void _at; return { ...rest, state } }
+export const skipStop = (stops: Stop[], id: string): Stop[] => stops.map((s) => (s.id === id ? without(s, 'skipped') : s))
 
 /** Back to "still to visit" (undo a check-in or a skip). */
-export const reopenStop = (stops: Stop[], id: string): Stop[] => stops.map((s) => (s.id === id ? { id: s.id, name: s.name, state: 'todo' } : s))
+export const reopenStop = (stops: Stop[], id: string): Stop[] => stops.map((s) => (s.id === id ? without(s, 'todo') : s))
 
 /** Move a place one step up (-1) or down (+1) the list. */
 export function moveStop(stops: Stop[], id: string, by: -1 | 1): Stop[] {
@@ -54,4 +58,71 @@ export function dayProgress(stops: Stop[]): DayProgress {
   const done = stops.filter((s) => s.state === 'done')
   const last = [...done].sort((a, b) => (b.at ?? '').localeCompare(a.at ?? ''))[0]
   return { total: stops.length, done: done.length, skipped: stops.filter((s) => s.state === 'skipped').length, last, next: stops.find((s) => s.state === 'todo') }
+}
+
+/* ---------- places shared with other people ("lunch with Ali") ---------- */
+
+interface HasDay { id: ID; name: string; day?: DayPlan | null }
+
+/** A place someone else put on their day and invited you to. */
+export interface Invite { ownerId: ID; ownerName: string; stop: Stop; ref: string }
+
+/** Today's invites for a person that the inviter has not dropped, whether or not the person has answered. */
+export function invitesFor(people: HasDay[], meId: ID, date: string): Invite[] {
+  const out: Invite[] = []
+  for (const p of people) {
+    if (p.id === meId) continue
+    for (const stop of dayToday(p.day, date)?.stops ?? []) {
+      if (stop.with?.includes(meId) && stop.state !== 'skipped' && !stop.ref) out.push({ ownerId: p.id, ownerName: p.name, stop, ref: `${p.id}/${stop.id}` })
+    }
+  }
+  return out
+}
+
+/** One line of your own day: either a place on your list, or an invite you have not answered yet. */
+export interface DayRow { stop: Stop; invite?: Invite; pending: boolean }
+
+/**
+ * Your day as you see it: your list, with invites you have not answered added at the end.
+ * A copy of an invite keeps the inviter's latest name and time, so a change on their side shows on yours.
+ */
+export function myDayRows(people: HasDay[], meId: ID, date: string): DayRow[] {
+  const mine = dayToday(people.find((p) => p.id === meId)?.day, date)?.stops ?? []
+  const invites = invitesFor(people, meId, date)
+  const rows: DayRow[] = mine.map((stop) => {
+    const invite = stop.ref ? invites.find((i) => i.ref === stop.ref) : undefined
+    return { stop: invite ? { ...stop, name: invite.stop.name, time: invite.stop.time } : stop, invite, pending: false }
+  })
+  for (const invite of invites) {
+    if (mine.some((s) => s.ref === invite.ref)) continue
+    const others = [invite.ownerId, ...(invite.stop.with ?? []).filter((id) => id !== meId)]
+    rows.push({ stop: { id: `invite:${invite.ref}`, name: invite.stop.name, state: 'todo', time: invite.stop.time, with: others, ref: invite.ref }, invite, pending: true })
+  }
+  return rows
+}
+
+/** Answer an invite: put your own copy on your list, checked in ('done') or declined ('skipped'). */
+export function answerInvite(stops: Stop[], row: DayRow, state: 'done' | 'skipped', at: string): Stop[] {
+  if (!row.pending || stops.length >= MAX_STOPS) return stops
+  const copy: Stop = { id: newId(), name: row.stop.name, state, ref: row.stop.ref, with: row.stop.with }
+  if (row.stop.time) copy.time = row.stop.time
+  if (state === 'done') copy.at = at
+  return [...stops, copy]
+}
+
+/** Where each other person on a shared place stands: 'done' with the time, 'skipped', or still 'todo'. */
+export function companions(people: HasDay[], meId: ID, stop: Stop, date: string): { id: ID; name: string; state: Stop['state']; at?: string }[] {
+  const [ownerId, ownerStopId] = stop.ref ? stop.ref.split('/') : [meId, stop.id]
+  const ref = `${ownerId}/${ownerStopId}`
+  const ownerStop = dayToday(people.find((p) => p.id === ownerId)?.day, date)?.stops.find((s) => s.id === ownerStopId)
+  const everyone = [ownerId, ...(ownerStop?.with ?? stop.with ?? [])]
+  const out: { id: ID; name: string; state: Stop['state']; at?: string }[] = []
+  for (const id of [...new Set(everyone)]) {
+    if (id === meId) continue
+    const person = people.find((p) => p.id === id)
+    if (!person) continue
+    const theirs = id === ownerId ? ownerStop : dayToday(person.day, date)?.stops.find((s) => s.ref === ref)
+    out.push({ id, name: person.name, state: theirs?.state ?? 'todo', at: theirs?.at })
+  }
+  return out
 }

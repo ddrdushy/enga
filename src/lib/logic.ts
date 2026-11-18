@@ -208,6 +208,7 @@ export function whereDetail(data: Data, p: Person, viewerId: ID, date: string, t
   if (today_) rows.push(['today', today_])
   if (now?.sure && now.kind === 'office') return { headline: 'at the office', sub: [now.tail, p.office].filter(Boolean).join(' \u00b7 '), rows, stops }
   if (now?.sure && now.kind === 'stop') return { headline: now.head ?? '', sub: now.tail ?? '', rows, stops }
+  if (now?.sure && now.kind === 'home') return { headline: 'at home', sub: [now.tail, p.house].filter(Boolean).join(' \u00b7 '), rows, stops }
   if (now?.sure && now.kind === 'left') return { headline: `in ${p.home}`, sub: now.text, rows, stops }
   return { headline: `in ${p.home}`, sub: now ? `home base \u00b7 ${now.text}` : isToday ? 'home base \u00b7 no check-in today' : 'home base', rows, stops }
 }

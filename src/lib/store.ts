@@ -38,7 +38,7 @@ export interface Store {
   setKeen(eventId: ID, value: Keen): Promise<void>
   saveCard(card: SafetyCard): Promise<void>
   checkin(tripId: ID): Promise<void>
-  /** "I am at the office" / "I have left" for today; null clears it. Friends see it straight away. */
+  /** "I am home" / "I am at the office" / "I am on the move" for today; null clears it. Friends see it straight away. */
   setSpot(kind: Spot['kind'] | null): Promise<void>
   /** Today's list of places, in order, with which are done or skipped. An empty list clears it. */
   setDay(stops: Stop[]): Promise<void>
@@ -96,7 +96,7 @@ export function optsOf(raw: unknown): ReminderOpts {
  */
 export function spotOf(raw: unknown): Spot | null {
   const spot = (typeof raw === 'object' && raw !== null ? (raw as Record<string, unknown>).spot : null) as Record<string, unknown> | null | undefined
-  if (!spot || typeof spot.at !== 'string' || (spot.kind !== 'office' && spot.kind !== 'left')) return null
+  if (!spot || typeof spot.at !== 'string' || (spot.kind !== 'office' && spot.kind !== 'left' && spot.kind !== 'home')) return null
   return { kind: spot.kind, at: spot.at }
 }
 
@@ -110,6 +110,9 @@ export function dayOf(raw: unknown): DayPlan | null {
     const state = s.state === 'done' || s.state === 'skipped' ? s.state : 'todo'
     const stop: Stop = { id: s.id, name: s.name.slice(0, MAX_NAME), state }
     if (state === 'done' && typeof s.at === 'string') stop.at = s.at
+    if (typeof s.time === 'string' && /^\d\d:\d\d$/.test(s.time)) stop.time = s.time
+    if (Array.isArray(s.with)) { const ids = (s.with as unknown[]).filter((x): x is string => typeof x === 'string').slice(0, 8); if (ids.length) stop.with = ids }
+    if (typeof s.ref === 'string' && s.ref.includes('/')) stop.ref = s.ref
     stops.push(stop)
     if (stops.length >= MAX_STOPS) break
   }

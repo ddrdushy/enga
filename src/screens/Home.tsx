@@ -2,10 +2,10 @@ import { Fragment, useEffect, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import type { Ctx } from '../ctx'
 import { person } from '../ctx'
-import type { EventItem, Keen, Person, Trip } from '../lib/types'
+import type { EventItem, Keen, Person, Spot, Trip } from '../lib/types'
 import { addDays, addMonths, dayNum, daysInMonth, dow, firstOfMonth, fmt, fmtRange, fmtShort, inDays, mondayIndex, monthName, today } from '../lib/dates'
 import { allHomeRuns, currentTrip, digest, isFree, laneSegments, nextTrip, openPlansFor, tripPeople, upcomingEvents, whereDetail, whereIs } from '../lib/logic'
-import { clock, daysOf, duration, goesToOffice, rightNow, spotToday } from '../lib/work'
+import { clock, daysOf, duration, goesToOffice, rightNow } from '../lib/work'
 import { Avatar, FaceSlider, Icon, Sheet } from '../ui'
 import { MyDay, StopList } from './Day'
 
@@ -183,18 +183,22 @@ export function OrbitScreen(ctx: Ctx) {
           {rightRows.map(({ p, w }) => {
             const isMe = p.id === me.id
             const moving = !!w && (w.kind === 'to-office' || w.kind === 'to-home')
-            const here = !!w?.sure && (w.kind === 'office' || w.kind === 'stop')
-            const inOffice = isMe && spotToday(p.spot, t)?.kind === 'office'
+            const here = !!w?.sure && (w.kind === 'office' || w.kind === 'stop' || w.kind === 'home')
+            const mine = isMe && w?.sure && (w.kind === 'home' || w.kind === 'office' || w.kind === 'left') ? w.kind : undefined
             return (
-              <div key={p.id} style={{ display: 'flex', gap: 6, alignItems: 'stretch' }}>
-                <button type="button" className="pill" style={{ flex: 1, minWidth: 0, paddingLeft: 4, height: 'auto', minHeight: 44, whiteSpace: 'normal', textAlign: 'left', justifyContent: 'flex-start', background: here ? 'var(--butter)' : moving ? 'var(--peach)' : 'var(--card)' }} onClick={() => setPersonId(p.id)}>
+              <div key={p.id} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <button type="button" className="pill" style={{ paddingLeft: 4, height: 'auto', minHeight: 44, whiteSpace: 'normal', textAlign: 'left', justifyContent: 'flex-start', background: here ? 'var(--butter)' : moving ? 'var(--peach)' : 'var(--card)' }} onClick={() => setPersonId(p.id)}>
                   <Avatar p={p} size={34} />
                   <span><b>{isMe ? 'you' : p.name}</b> · {w ? w.text : 'not checked in today'}</span>
                 </button>
-                {isMe && p.workType !== 'from home' && (
-                  <button type="button" className={`pill${inOffice ? '' : ' dark'}`} style={{ flex: 'none', height: 'auto', minHeight: 44 }} aria-label={inOffice ? 'I have left the office' : 'Check in: I am at the office'} onClick={() => void ctx.run(() => ctx.store.setSpot(inOffice ? 'left' : 'office'))}>
-                    {inOffice ? 'leave' : 'at office'}
-                  </button>
+                {isMe && (
+                  <div className="chips" role="group" aria-label="Check in">
+                    {SPOTS.map((o) => (
+                      <button key={o.kind} type="button" className={`pill${mine === o.kind ? ' dark' : ''}`} style={{ height: 40 }} aria-pressed={mine === o.kind} aria-label={o.say} onClick={() => void ctx.run(() => ctx.store.setSpot(mine === o.kind ? null : o.kind))}>
+                        {o.label}
+                      </button>
+                    ))}
+                  </div>
                 )}
               </div>
             )
@@ -239,6 +243,13 @@ export function OrbitScreen(ctx: Ctx) {
   )
 }
 
+/** The one-tap check-ins on your own "right now" row. Tapping the one that is on turns it off. */
+const SPOTS: { kind: Spot['kind']; label: string; say: string }[] = [
+  { kind: 'home', label: 'at home', say: 'Check in: I am at home' },
+  { kind: 'office', label: 'at office', say: 'Check in: I am at the office' },
+  { kind: 'left', label: 'on the move', say: 'Check in: I am on the move' },
+]
+
 const WORK_LINE: Record<string, string> = {
   office: 'works at an office',
   'from home': 'works from home',
@@ -278,7 +289,7 @@ function PersonSheet({ ctx, id, onClose }: { ctx: Ctx; id: string; onClose: () =
       {where.stops && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <div className="label">{isMe ? 'your places today' : `${p.name}'s places today`}</div>
-          <StopList stops={where.stops} />
+          <StopList stops={where.stops} people={data.people} ownerId={p.id} viewerId={me.id} />
         </div>
       )}
       <div className="row" style={{ flexWrap: 'wrap' }}>

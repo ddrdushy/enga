@@ -26,9 +26,9 @@ export interface WorkPlan {
   end: string
 }
 
-/** A check-in the person made themselves: "I am at the office" or "I have left". Only counts on the day it was made. */
+/** A check-in the person made themselves: "I am home", "I am at the office" or "I am on the move". Only counts on the day it was made. */
 export interface Spot {
-  kind: 'office' | 'left'
+  kind: 'home' | 'office' | 'left'
   /** When they tapped it, ISO time. */
   at: string
 }
@@ -40,6 +40,12 @@ export interface Stop {
   state: 'todo' | 'done' | 'skipped'
   /** When they checked in there, ISO time; only on done stops. */
   at?: string
+  /** Planned time, 'HH:MM'; optional. */
+  time?: string
+  /** Who it is with. On your own stop: the people you invited. On a copy of someone's invite: the others going. */
+  with?: ID[]
+  /** On a copy of someone else's invite: '<their id>/<their stop id>'. */
+  ref?: string
 }
 
 /** The places a person means to go on one day, in order. */

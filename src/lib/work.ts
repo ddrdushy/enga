@@ -80,7 +80,7 @@ export function daysOf(plan: WorkPlan, kind: DayKind): string {
 
 /** The check-in, if it was made on `date` ('YYYY-MM-DD', this phone's calendar). Yesterday's check-in says nothing about today. */
 export function spotToday(spot: Spot | null | undefined, date: string): Spot | null {
-  if (!spot || (spot.kind !== 'office' && spot.kind !== 'left')) return null
+  if (!spot || (spot.kind !== 'office' && spot.kind !== 'left' && spot.kind !== 'home')) return null
   const d = new Date(spot.at)
   if (Number.isNaN(d.getTime())) return null
   const day = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
@@ -117,9 +117,9 @@ export function rightNow(p: { workPlan: WorkPlan | null; spot: Spot | null; day?
   }
   if (spot) {
     const at = timeOf(spot.at)
-    return spot.kind === 'office'
-      ? { kind: 'office', text: `at the office \u00b7 checked in ${at}`, sure: true, head: 'at the office', tail: `checked in ${at}` }
-      : { kind: 'left', text: `left the office ${at}`, sure: true, head: 'left the office', tail: at }
+    if (spot.kind === 'office') return { kind: 'office', text: `at the office \u00b7 checked in ${at}`, sure: true, head: 'at the office', tail: `checked in ${at}` }
+    if (spot.kind === 'home') return { kind: 'home', text: `at home \u00b7 checked in ${at}`, sure: true, head: 'at home', tail: `checked in ${at}` }
+    return { kind: 'left', text: `on the move since ${at}`, sure: true, head: 'on the move', tail: `since ${at}` }
   }
   if (progress?.next) {
     return { kind: 'plan', text: `${progress.total} place${progress.total === 1 ? '' : 's'} today \u00b7 first ${progress.next.name} \u00b7 not checked in`, sure: false }
