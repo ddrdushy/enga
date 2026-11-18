@@ -13,7 +13,7 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | dushy/out/travel | done | 1 | redo for shared framing (first version full body) |
 | dushy/out/pack | done | 0 |  |
 | dushy/out/rain | done | 0 |  |
-| dushy/out/birthday | pending | 0 |  |
+| dushy/out/birthday | done | 0 |  |
 | dushy/home/idle | pending | 0 |  |
 | dushy/home/wave | pending | 0 |  |
 | dushy/home/tv | done | 0 |  |
@@ -120,7 +120,7 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/out/walk | done | 0 |  |
 | kiru/out/travel | done | 0 |  |
 | kiru/out/pack | done | 0 |  |
-| kiru/out/rain | pending | 0 |  |
+| kiru/out/rain | done | 0 | end pose (eyes down) differs slightly from the start (eyes forward) |
 | kiru/out/birthday | pending | 0 |  |
 | kiru/home/idle | pending | 0 |  |
 | kiru/home/wave | pending | 0 |  |

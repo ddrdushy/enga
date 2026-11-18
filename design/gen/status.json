@@ -263,5 +263,15 @@
   "state": "done",
   "retries": 0,
   "note": ""
+ },
+ "kiru/out/rain": {
+  "state": "done",
+  "retries": 0,
+  "note": "end pose (eyes down) differs slightly from the start (eyes forward)"
+ },
+ "dushy/out/birthday": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
  }
 }
