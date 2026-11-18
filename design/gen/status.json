@@ -218,5 +218,20 @@
   "state": "done",
   "retries": 0,
   "note": "tea break with ONE glass of milky tea (checked every frame)"
+ },
+ "dushy/out/pack": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "group/welcome-dushy": {
+  "state": "done",
+  "retries": 0,
+  "note": "Dushy steps in from the left edge (suitcase cut at the edge in first frames); Kiru's trousers came out olive instead of black"
+ },
+ "ali/out/pack": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
  }
 }

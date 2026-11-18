@@ -11,7 +11,7 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | dushy/out/cheer | done | 0 |  |
 | dushy/out/walk | done | 1 | redo for shared framing (first version full body); beard grey at the chin a bit stronger than the sheet |
 | dushy/out/travel | done | 1 | redo for shared framing (first version full body) |
-| dushy/out/pack | pending | 0 |  |
+| dushy/out/pack | done | 0 |  |
 | dushy/out/rain | pending | 0 |  |
 | dushy/out/birthday | pending | 0 |  |
 | dushy/home/idle | pending | 0 |  |
@@ -65,7 +65,7 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | ali/out/cheer | done | 0 |  |
 | ali/out/walk | done | 1 | redo for shared framing (first version full body) |
 | ali/out/travel | done | 1 | redo for shared framing (first version full body) |
-| ali/out/pack | pending | 0 |  |
+| ali/out/pack | done | 0 |  |
 | ali/out/rain | pending | 0 |  |
 | ali/out/birthday | pending | 0 |  |
 | ali/home/idle | pending | 0 |  |
@@ -168,7 +168,7 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/travel/travel | pending | 0 |  |
 | group/hello | done | 3 | redone with Kiru v2 look; 2 versions rejected (ghost second glass in one frame; glass switching hands + figures cut off); final: Kiru holds ONE glass in the same hand in all 16 frames (checked frame by frame) |
 | group/hug | pending | 0 |  |
-| group/welcome-dushy | pending | 0 |  |
+| group/welcome-dushy | done | 0 | Dushy steps in from the left edge (suitcase cut at the edge in first frames); Kiru's trousers came out olive instead of black |
 | group/welcome-ali | pending | 0 |  |
 | group/welcome-kiru | pending | 0 |  |
 | group/birthday | pending | 0 |  |
