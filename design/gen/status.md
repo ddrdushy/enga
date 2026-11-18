@@ -9,22 +9,22 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | dushy/out/laugh | done | 0 |  |
 | dushy/out/dance | done | 0 |  |
 | dushy/out/cheer | done | 0 |  |
-| dushy/out/walk | pending | 0 |  |
-| dushy/out/travel | pending | 0 |  |
+| dushy/out/walk | done | 0 | bag is a backpack on one shoulder |
+| dushy/out/travel | done | 0 | full body |
 | dushy/out/pack | pending | 0 |  |
 | dushy/out/rain | pending | 0 |  |
 | dushy/out/birthday | pending | 0 |  |
 | dushy/home/idle | pending | 0 |  |
 | dushy/home/wave | pending | 0 |  |
-| dushy/home/tv | pending | 0 |  |
-| dushy/home/phone | pending | 0 |  |
-| dushy/home/cook | pending | 0 |  |
-| dushy/home/sleep | pending | 0 |  |
+| dushy/home/tv | done | 0 |  |
+| dushy/home/phone | done | 0 |  |
+| dushy/home/cook | done | 0 |  |
+| dushy/home/sleep | done | 0 |  |
 | dushy/home/laugh | pending | 0 |  |
 | dushy/work/idle | pending | 0 |  |
 | dushy/work/wave | pending | 0 |  |
-| dushy/work/type | pending | 0 |  |
-| dushy/work/coffee | pending | 0 |  |
+| dushy/work/type | done | 1 | first attempt: ChatGPT image tool error |
+| dushy/work/coffee | done | 0 |  |
 | dushy/work/laugh | pending | 0 |  |
 | dushy/work2/idle | pending | 0 |  |
 | dushy/work2/wave | pending | 0 |  |

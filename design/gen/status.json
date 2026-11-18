@@ -48,5 +48,45 @@
   "state": "done",
   "retries": 0,
   "note": "16 frames; Kiru checked frame by frame: one glass in every frame; source GIF 311x299, upscaled to 480 wide"
+ },
+ "dushy/out/walk": {
+  "state": "done",
+  "retries": 0,
+  "note": "bag is a backpack on one shoulder"
+ },
+ "dushy/out/travel": {
+  "state": "done",
+  "retries": 0,
+  "note": "full body"
+ },
+ "dushy/home/tv": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "dushy/home/phone": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "dushy/home/cook": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "dushy/home/sleep": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "dushy/work/type": {
+  "state": "done",
+  "retries": 1,
+  "note": "first attempt: ChatGPT image tool error"
+ },
+ "dushy/work/coffee": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
  }
 }
