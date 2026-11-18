@@ -28,5 +28,20 @@
   "state": "done",
   "retries": 0,
   "note": ""
+ },
+ "sheets/expressions-v1": {
+  "state": "done",
+  "retries": 0,
+  "note": "8 expressions x 3 people"
+ },
+ "sheets/outfits-daily-v1": {
+  "state": "done",
+  "retries": 0,
+  "note": "columns: work2, work3, out2, out3, out4, home2"
+ },
+ "sheets/outfits-special-v1": {
+  "state": "done",
+  "retries": 0,
+  "note": "columns: gym, party, rain, travel"
  }
 }
