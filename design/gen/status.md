@@ -41,9 +41,9 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | dushy/out4/idle | done | 0 |  |
 | dushy/out4/wave | done | 0 |  |
 | dushy/out4/dance | done | 0 |  |
-| dushy/home2/idle | pending | 0 |  |
-| dushy/home2/wave | pending | 0 |  |
-| dushy/home2/tv | pending | 0 |  |
+| dushy/home2/idle | done | 0 | lungi not visible in head-to-chest framing (only the grey t-shirt) |
+| dushy/home2/wave | done | 0 |  |
+| dushy/home2/tv | done | 0 |  |
 | dushy/home2/phone | pending | 0 |  |
 | dushy/home2/sleep | pending | 0 |  |
 | dushy/gym/idle | pending | 0 |  |

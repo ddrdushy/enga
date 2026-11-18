@@ -383,5 +383,20 @@
   "state": "done",
   "retries": 0,
   "note": ""
+ },
+ "dushy/home2/idle": {
+  "state": "done",
+  "retries": 0,
+  "note": "lungi not visible in head-to-chest framing (only the grey t-shirt)"
+ },
+ "dushy/home2/wave": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "dushy/home2/tv": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
  }
 }
