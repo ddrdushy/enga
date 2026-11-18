@@ -118,3 +118,7 @@ Trips can carry the time you leave on the first day and the time you are back on
 Events can have a start and an end time, and "every week" makes one repeat on its weekday from its first date on (FTN NGO work, every Thursday 7:30 pm to 9:00 pm). A weekly event shows once in "what's on", at its next date, and on every one of its days in the month view. If you said you are going, "right now" shows it while it is on ("FTN NGO work till 9:00 pm · planned, not checked in"), and that morning's message lists it. The person who added an event can now edit it.
 
 Logic is in `src/lib/when.ts`; the columns are added by `supabase/migrations/0008_times.sql`.
+
+## "Who's coming": one entry for two people
+
+The trip and event forms have "who's coming with you?". Tapping a friend puts them on it straight away: a trip goes on their lane and home circle (their answer is set to "in"), an event is marked "going" for them and shows on their day. A friend who already has a trip then is flagged on the button. Their next morning message says "Dushy put you on the Penang trip" or "Dushy is taking you to Movie night". Anyone put on something can take themselves off: "I can't make it" on the trip pass or the event. The person who added it can take people off by editing, or cancel the whole thing. Database rules for this are in `supabase/migrations/0009_with_people.sql`.

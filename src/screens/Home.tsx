@@ -348,10 +348,13 @@ function EventSheet({ ctx, event, onClose }: { ctx: Ctx; event: EventItem; onClo
       <div style={{ paddingBottom: 26 }}>
         <FaceSlider options={KEEN} value={event.keen[me.id] ?? null} face={me} label="How keen are you" onChange={(v) => void ctx.run(() => ctx.store.setKeen(event.id, v))} />
       </div>
+      {event.ownerId !== me.id && event.keen[me.id] && (
+        <button type="button" className="pill mist" style={{ alignSelf: 'flex-start' }} onClick={() => void ctx.run(() => ctx.store.leaveEvent(event.id)).then(onClose)}>{event.keen[me.id] === 'going' ? "I can't make it" : 'not interested any more'}</button>
+      )}
       {event.ownerId === me.id && (
         <div className="row">
           <button type="button" className="pill dark" onClick={() => { onClose(); ctx.open({ k: 'event', id: event.id }) }}>edit</button>
-          <button type="button" className="pill mist" onClick={() => void ctx.run(() => ctx.store.deleteEvent(event.id)).then(onClose)}>remove event</button>
+          <button type="button" className="pill mist" onClick={() => void ctx.run(() => ctx.store.deleteEvent(event.id)).then(onClose)}>cancel event</button>
         </div>
       )}
     </Sheet>

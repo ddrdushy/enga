@@ -8,7 +8,7 @@ import { addStop, answerInvite, checkInAt, companions, dayProgress, dayToday, in
 import type { Stop } from './types'
 import { describe, expect, it } from 'vitest'
 import type { Data, EventItem, Person, Trip } from './types'
-import { allHomeRuns, currentTrip, digest, isFree, laneSegments, nextTrip, tripPeople, upcomingEvents, whereDetail, whereIs } from './logic'
+import { allHomeRuns, currentTrip, digest, isFree, laneSegments, nextTrip, tripPeople, tripsOf, upcomingEvents, whereDetail, whereIs } from './logic'
 import { addDays, addMonths, daysInMonth, diffDays, fmt, fmtRange, inDays, mondayIndex, mondayOf } from './dates'
 import { clock, daysOf, defaultPlan, duration, workLine, workNow } from './work'
 
@@ -495,5 +495,37 @@ describe('times on trips and events, and weekly events', () => {
     expect(whereDetail(data, ali, 'd', T, T, 8 * 60).rows).toContainEqual(['today', 'leaves for Shah Alam at 9:00 am'])
     expect(whereDetail(data, ali, 'd', T, T, 12 * 60).rows[0]).toEqual(['trip', `${fmtRange(T, T)} \u00b7 leaves 9:00 am \u00b7 back 6:00 pm`])
     expect(digest(data, 'd', T)).toContain('Ali goes to Shah Alam today at 9:00 am, back Wed 18 Nov.')
+  })
+})
+
+describe('putting friends on a trip or an event', () => {
+  const T = '2026-11-18'
+  const base = { home: 'Kuala Lumpur', house: '', office: '', workPlan: null, spot: null, days: [], reminderOpts: { mine: true, friends: true, news: true } }
+  const dushy = { ...base, id: 'd', name: 'Dushy' } as unknown as Person
+  const ali = { ...base, id: 'a', name: 'Ali' } as unknown as Person
+  const trip: Trip = { id: 't', ownerId: 'd', place: 'Penang', start: '2026-11-27', end: '2026-11-29', open: false, rsvps: { a: 'in' }, createdAt: `${T}T05:00:00Z` }
+  const movie: EventItem = { id: 'm', ownerId: 'd', title: 'Movie', place: 'Mid Valley', date: '2026-11-20', link: '', keen: { d: 'going', a: 'going' }, createdAt: `${T}T05:00:00Z`, startTime: '20:00' }
+  const data: Data = { people: [dushy, ali], trips: [trip], events: [movie], cards: [], checkins: [] }
+
+  it('a trip with Ali is on her calendar too', () => {
+    expect(tripsOf(data, 'a').map((x) => x.id)).toEqual(['t'])
+    expect(whereIs(data, ali, '2026-11-28')).toMatchObject({ home: false, place: 'Penang' })
+    expect(isFree(data, 'a', '2026-11-28', '2026-11-28')).toBe(false)
+    // she can't make it: off her calendar
+    const out = { ...data, trips: [{ ...trip, rsvps: { a: 'out' as const } }] }
+    expect(whereIs(out, ali, '2026-11-28').home).toBe(true)
+  })
+
+  it('an event with Ali shows on her day', () => {
+    expect(whereDetail(data, ali, 'd', '2026-11-20', T, 600).rows).toContainEqual(['event', 'Movie, from 8:00 pm'])
+    const left = { ...data, events: [{ ...movie, keen: { d: 'going' as const } }] }
+    expect(whereDetail(left, ali, 'd', '2026-11-20', T, 600).rows.map((r) => r[0])).not.toContain('event')
+  })
+
+  it('tells them in the morning message', () => {
+    const lines = digest(data, 'a', T)
+    expect(lines).toContain('New: Dushy put you on the Penang trip (Fri 27 to Sun 29 Nov). Can\'t make it? Open the trip and tap "I can\'t make it".')
+    expect(lines).toContain('New: Dushy is taking you to Movie on Fri 20 Nov, 8:00 pm.')
+    expect(digest(data, 'd', T).join(' ')).not.toContain('New:')
   })
 })

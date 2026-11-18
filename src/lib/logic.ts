@@ -159,12 +159,16 @@ export function digest(data: Data, meId: ID, date: string): string[] {
   if (opts.news) {
     const since = (iso: string) => iso.slice(0, 10) >= yesterday
     for (const t of data.trips) {
-      if (t.open && t.ownerId !== meId && since(t.createdAt)) {
-        lines.push(`New: ${nameOf(data, t.ownerId, meId)}'s ${t.place} plan (${fmtRange(t.start, t.end)}) is open to join.`)
-      }
+      if (t.ownerId === meId || !since(t.createdAt) || t.end < date) continue
+      // An open plan is joined by each person themselves; a trip that is not open has people on it only because its owner put them there.
+      if (!t.open && t.rsvps[meId] === 'in') lines.push(`New: ${nameOf(data, t.ownerId, meId)} put you on the ${t.place} trip (${fmtRange(t.start, t.end)}). Can't make it? Open the trip and tap "I can't make it".`)
+      else if (t.open) lines.push(`New: ${nameOf(data, t.ownerId, meId)}'s ${t.place} plan (${fmtRange(t.start, t.end)}) is open to join.`)
     }
     for (const e of data.events) {
-      if (e.ownerId !== meId && since(e.createdAt)) lines.push(`New: ${nameOf(data, e.ownerId, meId)} added ${e.title} ${e.repeat === 'weekly' ? `every ${weekday(e.date)}` : `on ${fmt(e.date)}`}${timeOf(e.startTime) ? `, ${clock(timeOf(e.startTime))}` : ''}.`)
+      if (e.ownerId === meId || !since(e.createdAt)) continue
+      const when = `${e.repeat === 'weekly' ? `every ${weekday(e.date)}` : `on ${fmt(e.date)}`}${timeOf(e.startTime) ? `, ${clock(timeOf(e.startTime))}` : ''}`
+      if (e.keen[meId] === 'going') lines.push(`New: ${nameOf(data, e.ownerId, meId)} is taking you to ${e.title} ${when}.`)
+      else lines.push(`New: ${nameOf(data, e.ownerId, meId)} added ${e.title} ${when}.`)
     }
   }
   return lines
@@ -202,6 +206,11 @@ export function whereDetail(data: Data, p: Person, viewerId: ID, date: string, t
   const stops = date >= today ? dayToday(p.days, date)?.stops : undefined
   const now = isToday ? rightNow(p, date, mondayIndex(date), minutes, data.events) : null
   const progress = stops ? dayProgress(stops) : null
+  // Events that day this person is going to: their calendar is taken then.
+  const goingTo = data.events.filter((e) => e.keen[p.id] === 'going' && occursOn(e, date))
+    .sort((a, b) => (timeOf(a.startTime) || '99').localeCompare(timeOf(b.startTime) || '99'))
+    .map((e) => [e.title, timeRange(e.startTime, e.endTime)].filter(Boolean).join(', '))
+  const eventsRow: [string, string][] = goingTo.length ? [[goingTo.length > 1 ? 'events' : 'event', goingTo.join('; ')]] : []
   const today_ = !progress ? '' : isToday ? `${progress.done} of ${progress.total} places done${progress.skipped ? `, ${progress.skipped} skipped` : ''}` : `${progress.total} place${progress.total === 1 ? '' : 's'} planned`
   if (w.trip) {
     const t = w.trip
@@ -222,12 +231,14 @@ export function whereDetail(data: Data, p: Person, viewerId: ID, date: string, t
       rows.push(['staying at', p.id === viewerId ? 'not added yet' : 'not shared yet'])
     }
     if (today_) rows.push([isToday ? 'today' : 'that day', today_])
+    rows.push(...eventsRow)
     return { headline: `in ${t.place}`, sub: `day ${diffDays(t.start, date) + 1} of ${total} \u00b7 back ${fmt(t.end)}${isToday ? ` (${inDays(date, t.end)})` : ''}`, rows, trip: t, stops }
   }
   const home = [p.house, p.home].filter(Boolean).join(', ')
   if (home) rows.push(['lives in', home])
   if (p.office) rows.push(['office', p.office])
   if (today_) rows.push([isToday ? 'today' : 'that day', today_])
+  rows.push(...eventsRow)
   if (now?.sure && now.kind === 'office') return { headline: 'at the office', sub: [now.tail, p.office].filter(Boolean).join(' \u00b7 '), rows, stops }
   if (now?.sure && now.kind === 'stop') return { headline: now.head ?? '', sub: now.tail ?? '', rows, stops }
   if (now?.sure && now.kind === 'home') return { headline: 'at home', sub: [now.tail, p.house].filter(Boolean).join(' \u00b7 '), rows, stops }

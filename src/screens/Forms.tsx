@@ -68,6 +68,9 @@ export function AddTrip({ ctx, id, start: initial, demo }: { ctx: Ctx; id?: ID; 
   const [open, setOpen] = useState(editing?.open ?? demo?.open ?? false)
   const [leaveAt, setLeaveAt] = useState(timeOf(editing?.leaveAt))
   const [backAt, setBackAt] = useState(timeOf(editing?.backAt))
+  // People on the trip besides you: added by you, or who joined an open plan.
+  const was = editing ? tripPeople(editing).filter((x) => x !== editing.ownerId) : []
+  const [withIds, setWithIds] = useState<ID[]>(was)
   const [picking, setPicking] = useState(!editing && !demo)
   const [error, setError] = useState('')
   const others = data.people.filter((p) => p.id !== me.id)
@@ -75,17 +78,18 @@ export function AddTrip({ ctx, id, start: initial, demo }: { ctx: Ctx; id?: ID; 
   const weekend = () => { const toSat = (6 - parse(t).getDay() + 7) % 7; const sat = addDays(t, toSat); setStart(sat); setEnd(addDays(sat, 1)) }
   const save = () => {
     if (!place.trim()) { setError('Pick where you are going first.'); setPicking(true); return }
-    void ctx.run(() => ctx.store.saveTrip({ id, place: place.trim(), start, end, open, leaveAt, backAt })).then((ok) => ok && ctx.close())
+    void ctx.run(() => ctx.store.saveTrip({ id, place: place.trim(), start, end, open, leaveAt, backAt, with: withIds, was })).then((ok) => ok && ctx.close())
   }
   return (
     <div className="screen pad">
       <Head ctx={ctx} kind="trip" />
       <div className="say" data-tour="trip-say">
-        I'm going to{' '}
+        {withIds.length ? 'We\u2019re' : 'I\u2019m'} going to{' '}
         <button type="button" className={`word${place ? '' : ' off'}`} style={place ? { background: 'var(--peach)' } : undefined} onClick={() => setPicking(true)}>{place || 'where?'}</button>{' '}
+        {withIds.length > 0 && <>(me and <span className="word" style={{ background: 'var(--sage)' }}>{names(data, withIds)}</span>){' '}</>}
         from <span className="word" style={{ background: 'var(--ink)', color: '#fff' }}>{dow(start)} {fmtShort(start)}</span>{' '}
         to <span className="nowrap"><span className="word" style={{ background: 'var(--ink)', color: '#fff' }}>{dow(end)} {fmtShort(end)}</span>,</span>{' '}
-        <span className="nowrap"><button type="button" className="word" style={{ background: 'var(--lav)' }} aria-label={open ? 'Open for friends to join, tap for just me' : 'Just me, tap to open it for friends'} onClick={() => setOpen(!open)}>{open ? 'friends can join' : 'just me'}</button>.</span>
+        <span className="nowrap"><button type="button" className="word" style={{ background: 'var(--lav)' }} aria-label={open ? 'Open for friends to join, tap for just me' : 'Just me, tap to open it for friends'} onClick={() => setOpen(!open)}>{open ? 'friends can join' : withIds.length ? 'just us' : 'just me'}</button>.</span>
       </div>
       <div className="small">Tap a coloured word to change it. {diffDays(start, end) + 1} day{start === end ? '' : 's'}.</div>
 
@@ -101,6 +105,7 @@ export function AddTrip({ ctx, id, start: initial, demo }: { ctx: Ctx; id?: ID; 
         <TimeChip label={`leaving ${dow(start)}`} value={leaveAt} onChange={setLeaveAt} />
         <TimeChip label={`back ${dow(end)}`} value={backAt} onChange={setBackAt} />
       </div>
+      <WithPicker ctx={ctx} value={withIds} onChange={setWithIds} busy={(pid) => (isFree(data, pid, start, end, id) ? '' : 'has a trip then')} note="They're on the trip straight away, and can take themselves off." />
 
       {open && (
         <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 8, background: 'var(--lav)' }}>
@@ -127,6 +132,8 @@ export function AddEvent({ ctx, id, date: initial, demo }: { ctx: Ctx; id?: ID; 
   const [startTime, setStartTime] = useState(timeOf(editing?.startTime))
   const [endTime, setEndTime] = useState(timeOf(editing?.endTime))
   const [weekly, setWeekly] = useState(editing?.repeat === 'weekly')
+  const was = editing ? Object.entries(editing.keen).filter(([pid, k]) => pid !== ctx.me.id && k === 'going').map(([pid]) => pid) : []
+  const [withIds, setWithIds] = useState<ID[]>(was)
   const [picking, setPicking] = useState(false)
   const [error, setError] = useState('')
   const paste = async () => {
@@ -135,7 +142,7 @@ export function AddEvent({ ctx, id, date: initial, demo }: { ctx: Ctx; id?: ID; 
   const save = () => {
     if (!title.trim()) { setError('Give it a name first.'); return }
     if (startTime && endTime && endTime <= startTime) { setError('The end time is before the start.'); return }
-    void ctx.run(() => ctx.store.saveEvent({ id: editing?.id, title: title.trim(), place, date, link: link.trim(), keen, startTime, endTime, repeat: weekly ? 'weekly' : undefined })).then((ok) => ok && ctx.close())
+    void ctx.run(() => ctx.store.saveEvent({ id: editing?.id, title: title.trim(), place, date, link: link.trim(), keen, startTime, endTime, repeat: weekly ? 'weekly' : undefined, with: withIds, was })).then((ok) => ok && ctx.close())
   }
   return (
     <div className="screen pad">
@@ -154,7 +161,8 @@ export function AddEvent({ ctx, id, date: initial, demo }: { ctx: Ctx; id?: ID; 
         in <button type="button" className="word" style={{ background: 'var(--peach)' }} onClick={() => setPicking(true)}>{place}</button>{' '}
         {weekly ? 'every' : 'on'} <span className="nowrap"><span className="word" style={{ background: 'var(--ink)', color: '#fff' }}>{weekly ? weekday(date) : fmt(date)}</span>{startTime ? '' : '.'}</span>{' '}
         {startTime && <span className="nowrap">at <span className="word" style={{ background: 'var(--ink)', color: '#fff' }}>{clock(startTime)}</span>.</span>}{' '}I'm{' '}
-        <span className="nowrap"><span className="word" style={{ background: 'var(--lav)' }}>{keen === 'interested' ? 'just interested' : keen}</span>.</span>
+        <span className="nowrap"><span className="word" style={{ background: 'var(--lav)' }}>{keen === 'interested' ? 'just interested' : keen}</span>{withIds.length ? '' : '.'}</span>
+        {withIds.length > 0 && <>{' '}with <span className="nowrap"><span className="word" style={{ background: 'var(--sage)' }}>{names(ctx.data, withIds)}</span>.</span></>}
       </div>
       </div>
       <DateStrip range={false} start={date} end={date} hint={weekly ? 'tap the first day' : 'tap the day'} onChange={(s) => setDate(s)} />
@@ -164,12 +172,15 @@ export function AddEvent({ ctx, id, date: initial, demo }: { ctx: Ctx; id?: ID; 
         <button type="button" className={`pill${weekly ? ' dark' : ''}`} aria-pressed={weekly} onClick={() => setWeekly(!weekly)}>every week</button>
       </div>
       {weekly && <div className="small">Repeats every {weekday(date)}, starting {fmt(date)}.</div>}
+      <WithPicker ctx={ctx} value={withIds} onChange={(v) => { if (v.length > withIds.length && keen === 'interested') setKeen('going'); setWithIds(v) }}
+        busy={(pid) => { const away = ctx.data.trips.find((tr) => tripPeople(tr).includes(pid) && tr.start <= date && date <= tr.end); return away ? `away in ${away.place} then` : '' }}
+        note="It goes on their calendar as going. They can leave it if they can't make it." />
       <div data-tour="event-keen" style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
         <div className="label">how keen are you? drag your face</div>
         <div style={{ paddingBottom: 22 }}><FaceSlider options={KEEN} value={keen} face={ctx.me} label="How keen are you" onChange={setKeen} /></div>
       </div>
       <div className="err" role="alert">{error}</div>
-      {editing && <button type="button" className="pill" style={{ alignSelf: 'flex-start' }} onClick={() => void ctx.run(() => ctx.store.deleteEvent(editing.id)).then((ok) => ok && ctx.close())}>remove this event</button>}
+      {editing && <button type="button" className="pill" style={{ alignSelf: 'flex-start' }} onClick={() => void ctx.run(() => ctx.store.deleteEvent(editing.id)).then((ok) => ok && ctx.close())}>cancel this event</button>}
       <div className="push"><SlideButton label={editing ? 'slide to save changes' : 'slide to share'} onDone={save} /></div>
       {picking && <PlacePicker ctx={ctx} value={place} onPick={setPlace} onClose={() => setPicking(false)} />}
     </div>
@@ -269,6 +280,9 @@ export function TripPass({ ctx, id }: { ctx: Ctx; id: ID }) {
       {onIt && (iChecked
         ? <div className="pill" style={{ background: 'var(--sage)', fontWeight: 700, alignSelf: 'stretch', justifyContent: 'center', height: 56, borderRadius: 28 }}>{Icon.check()} you checked in</div>
         : <SlideButton sage icon={Icon.check()} disabled={!during} label={during ? 'slide: I reached safely' : 'check-in opens on travel day'} onDone={() => void ctx.run(() => ctx.store.checkin(trip.id))} />)}
+      {onIt && trip.ownerId !== me.id && trip.end >= t && (
+        <button type="button" className="pill mist" style={{ alignSelf: 'flex-start' }} onClick={() => void ctx.run(() => ctx.store.rsvp(trip.id, 'out')).then((ok) => ok && ctx.close())}>I can't make it</button>
+      )}
       {checks.filter((c) => c.userId !== me.id).map((c) => { const p = person(data, c.userId); return p ? <div key={c.id} className="row small" style={{ color: 'var(--ink)' }}><Avatar p={p} size={26} />{p.name} reached safely · {fmt(c.at.slice(0, 10))}</div> : null })}
 
       <div className="h2">safety cards</div>
@@ -433,5 +447,34 @@ export function TimeChip({ label, value, onChange }: { label: string; value: str
       <input type="time" aria-label={`${label} time`} value={value} onChange={(e) => onChange(e.target.value)} style={{ border: 'none', background: 'transparent', font: 'inherit', fontWeight: 700, color: 'inherit', minWidth: 92 }} />
       {value && <button type="button" className="round" style={{ width: 32, height: 32 }} aria-label={`Clear ${label} time`} onClick={() => onChange('')}><span style={{ display: 'flex', scale: '0.7' }}><Icon.close /></span></button>}
     </span>
+  )
+}
+
+const names = (data: Ctx['data'], ids: ID[]) => {
+  const n = ids.map((pid) => data.people.find((p) => p.id === pid)?.name).filter(Boolean) as string[]
+  return n.length > 1 ? `${n.slice(0, -1).join(', ')} and ${n[n.length - 1]}` : n[0] ?? ''
+}
+
+/** "Who's coming": tap friends to put them on it too. `busy` says why a friend may not be free. */
+function WithPicker({ ctx, value, onChange, busy, note }: { ctx: Ctx; value: ID[]; onChange: (v: ID[]) => void; busy: (id: ID) => string; note: string }) {
+  const others = ctx.data.people.filter((p) => p.id !== ctx.me.id)
+  if (!others.length) return null
+  return (
+    <div data-tour="with" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div className="label">who's coming with you?</div>
+      <div className="chips">
+        {others.map((p) => {
+          const on = value.includes(p.id)
+          const why = busy(p.id)
+          return (
+            <button key={p.id} type="button" className={`pill${on ? ' dark' : ''}`} style={{ paddingLeft: 4, height: 'auto', minHeight: 44, whiteSpace: 'normal', textAlign: 'left' }} aria-pressed={on} aria-label={`With ${p.name}${why ? `, ${why}` : ''}`} onClick={() => onChange(on ? value.filter((x) => x !== p.id) : [...value, p.id])}>
+              <Avatar p={p} size={32} />
+              <span>{p.name}{why && <span style={{ display: 'block', fontSize: 12, fontWeight: 500, opacity: 0.8 }}>{why}</span>}</span>
+            </button>
+          )
+        })}
+      </div>
+      {value.length > 0 && <div className="small">{note}</div>}
+    </div>
   )
 }
