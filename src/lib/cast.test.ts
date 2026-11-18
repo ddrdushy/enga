@@ -301,8 +301,13 @@ describe('header moments', () => {
 
 describe('weather', () => {
   it('reads rain from Open-Meteo', () => {
-    expect(isRaining({ current: { precipitation: 0.4, weather_code: 61 } })).toBe(true)
-    expect(isRaining({ current: { precipitation: 0, weather_code: 95 } })).toBe(true)
+    expect(isRaining({ current: { precipitation: 1.2, weather_code: 61 } })).toBe(true)
+    expect(isRaining({ current: { precipitation: 0.6, weather_code: 95 } })).toBe(true)
+    // drizzle or a trace of rain is not rain on the ground (the false alarm of 18 Nov: 0.3 mm, code 55)
+    expect(isRaining({ current: { precipitation: 0.3, weather_code: 55 } })).toBe(false)
+    expect(isRaining({ current: { precipitation: 2, weather_code: 53 } })).toBe(false)
+    expect(isRaining({ current: { precipitation: 0.4, weather_code: 61 } })).toBe(false)
+    expect(isRaining({ current: { precipitation: 0, weather_code: 95 } })).toBe(false)
     expect(isRaining({ current: { precipitation: 0, weather_code: 2 } })).toBe(false)
     expect(isRaining(null)).toBe(false)
     expect(isRaining({})).toBe(false)

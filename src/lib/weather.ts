@@ -1,12 +1,17 @@
 // Is it raining at home base? Current weather for Kuala Lumpur from Open-Meteo (free, no key).
 // Kept for 20 minutes on the phone; any failure just means "not raining".
+// Open-Meteo's "current" is a model estimate for a wide area, not a rain gauge, so light
+// drizzle readings are often wrong on the ground. Only real rain counts: a rain, shower or
+// storm code AND at least 0.5 mm in the last 15 minutes.
 
 export const WEATHER_URL = 'https://api.open-meteo.com/v1/forecast?latitude=3.139&longitude=101.6869&current=precipitation,weather_code'
 export const WEATHER_TTL = 20 * 60_000
-const KEY = 'enga-weather'
+const KEY = 'enga-weather-v2'
 
-/** WMO weather codes for drizzle, rain, showers and thunderstorms. */
-const WET = new Set([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99])
+/** WMO weather codes for rain, showers and thunderstorms (drizzle, 51-57, is left out). */
+const WET = new Set([61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99])
+/** Least rain in the 15-minute reading that counts as raining, in mm. */
+export const MIN_RAIN_MM = 0.5
 
 /** Whether an Open-Meteo "current" answer means it is raining. */
 export function isRaining(json: unknown): boolean {
@@ -14,7 +19,7 @@ export function isRaining(json: unknown): boolean {
   if (!cur) return false
   const mm = typeof cur.precipitation === 'number' ? cur.precipitation : 0
   const code = typeof cur.weather_code === 'number' ? cur.weather_code : -1
-  return mm >= 0.1 || WET.has(code)
+  return mm >= MIN_RAIN_MM && WET.has(code)
 }
 
 interface Cached { at: number; rain: boolean }
