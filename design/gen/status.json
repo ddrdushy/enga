@@ -50,14 +50,14 @@
   "note": "redone with Kiru v2 look; 2 versions rejected (ghost second glass in one frame; glass switching hands + figures cut off); final: Kiru holds ONE glass in the same hand in all 16 frames (checked frame by frame)"
  },
  "dushy/out/walk": {
-  "state": "done, redo pending",
-  "retries": 0,
-  "note": "first version full body; redo requested for the shared head-to-mid-chest framing"
+  "state": "done",
+  "retries": 1,
+  "note": "redo for shared framing (first version full body); beard grey at the chin a bit stronger than the sheet"
  },
  "dushy/out/travel": {
-  "state": "done, redo pending",
-  "retries": 0,
-  "note": "first version full body; redo requested for the shared head-to-mid-chest framing"
+  "state": "done",
+  "retries": 1,
+  "note": "redo for shared framing (first version full body)"
  },
  "dushy/home/tv": {
   "state": "done",
@@ -115,14 +115,14 @@
   "note": ""
  },
  "ali/out/walk": {
-  "state": "done, redo pending",
-  "retries": 0,
-  "note": "first version full body; redo requested for the shared head-to-mid-chest framing"
+  "state": "done",
+  "retries": 1,
+  "note": "redo for shared framing (first version full body)"
  },
  "ali/out/travel": {
-  "state": "done, redo pending",
-  "retries": 0,
-  "note": "first version full body; redo requested for the shared head-to-mid-chest framing"
+  "state": "done",
+  "retries": 1,
+  "note": "redo for shared framing (first version full body)"
  },
  "ali/home/tv": {
   "state": "done",

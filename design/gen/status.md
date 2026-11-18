@@ -9,8 +9,8 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | dushy/out/laugh | done | 0 |  |
 | dushy/out/dance | done | 0 |  |
 | dushy/out/cheer | done | 0 |  |
-| dushy/out/walk | done, redo pending | 0 | first version full body; redo requested for the shared head-to-mid-chest framing |
-| dushy/out/travel | done, redo pending | 0 | first version full body; redo requested for the shared head-to-mid-chest framing |
+| dushy/out/walk | done | 1 | redo for shared framing (first version full body); beard grey at the chin a bit stronger than the sheet |
+| dushy/out/travel | done | 1 | redo for shared framing (first version full body) |
 | dushy/out/pack | pending | 0 |  |
 | dushy/out/rain | pending | 0 |  |
 | dushy/out/birthday | pending | 0 |  |
@@ -63,8 +63,8 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | ali/out/laugh | done | 0 | ChatGPT offered two versions; kept one |
 | ali/out/dance | done | 0 |  |
 | ali/out/cheer | done | 0 |  |
-| ali/out/walk | done, redo pending | 0 | first version full body; redo requested for the shared head-to-mid-chest framing |
-| ali/out/travel | done, redo pending | 0 | first version full body; redo requested for the shared head-to-mid-chest framing |
+| ali/out/walk | done | 1 | redo for shared framing (first version full body) |
+| ali/out/travel | done | 1 | redo for shared framing (first version full body) |
 | ali/out/pack | pending | 0 |  |
 | ali/out/rain | pending | 0 |  |
 | ali/out/birthday | pending | 0 |  |
