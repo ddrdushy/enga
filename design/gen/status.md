@@ -86,9 +86,9 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | ali/work3/idle | done | 0 |  |
 | ali/work3/wave | done | 0 |  |
 | ali/work3/coffee | done | 0 |  |
-| ali/out2/idle | pending | 0 |  |
-| ali/out2/wave | pending | 0 |  |
-| ali/out2/walk | pending | 0 |  |
+| ali/out2/idle | done | 0 |  |
+| ali/out2/wave | done | 0 |  |
+| ali/out2/walk | done | 0 |  |
 | ali/out3/idle | pending | 0 |  |
 | ali/out3/wave | pending | 0 |  |
 | ali/out3/laugh | pending | 0 |  |
