@@ -21,6 +21,12 @@ async function bytes(url) {
   return Buffer.from(await res.arrayBuffer())
 }
 
+// Bigger artwork (the splash scene) lives under "_scenes" and keeps its shape:
+//   { "_scenes": { "<name>": { "still": "<url>", "anim": "<url of a GIF>" } } }
+//   writes src/assets/scenes/<name>.webp (up to 900px wide) and <name>.anim.webp (up to 480px wide)
+const scenes = list._scenes ?? {}
+delete list._scenes
+await mkdir('src/assets/scenes', { recursive: true })
 await mkdir('src/assets/avatars', { recursive: true })
 await mkdir('design/avatars', { recursive: true })
 let failed = 0
@@ -46,6 +52,27 @@ for (const [name, art] of Object.entries(list)) {
   } catch (err) {
     failed++
     console.error(`${name}: ${err.message}`)
+  }
+}
+for (const [name, art] of Object.entries(scenes)) {
+  if (!/^[a-z0-9-]+$/.test(name)) { console.error(`skipped scene "${name}"`); failed++; continue }
+  try {
+    if (art.still) {
+      await sharp(await bytes(art.still)).resize({ width: 900, withoutEnlargement: true }).webp({ quality: 86 }).toFile(`src/assets/scenes/${name}.webp`)
+      console.log(`scene ${name}: still saved`)
+    }
+    if (art.anim) {
+      const gif = await bytes(art.anim)
+      const meta = await sharp(gif, { animated: true }).metadata()
+      const delay = Array.from({ length: meta.pages ?? 1 }, (_, i) => meta.delay?.[i] ?? 150)
+      delay[delay.length - 1] = 2500
+      const out = await sharp(gif, { animated: true }).resize({ width: 480, withoutEnlargement: true }).webp({ quality: 80, effort: 5, loop: 0, delay }).toBuffer()
+      await writeFile(`src/assets/scenes/${name}.anim.webp`, out)
+      console.log(`scene ${name}: animation saved (${Math.round(out.length / 1024)} KB)`)
+    }
+  } catch (err) {
+    failed++
+    console.error(`scene ${name}: ${err.message}`)
   }
 }
 process.exit(failed ? 1 : 0)

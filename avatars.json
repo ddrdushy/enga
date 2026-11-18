@@ -10,5 +10,11 @@
   "kiru": {
     "still": "https://d8j0ntlcm91z4.cloudfront.net/user_31uNzHYj2IpcGDa7QpNzsmXjRva/hf_20261118_015935_adc74e5f-bbfb-4d2c-b801-3f7214203e7d.png",
     "anim": "https://d8j0ntlcm91z4.cloudfront.net/user_31uNzHYj2IpcGDa7QpNzsmXjRva/hf_20261118_020331_d000989f-ba16-4172-b86e-d0aa88e8fd6a.gif"
+  },
+  "_scenes": {
+    "friends": {
+      "still": "https://d8j0ntlcm91z4.cloudfront.net/user_31uNzHYj2IpcGDa7QpNzsmXjRva/hf_20261118_061440_d5f95d93-08f8-46ed-a0f0-66497291b75d.png",
+      "anim": "https://d8j0ntlcm91z4.cloudfront.net/user_31uNzHYj2IpcGDa7QpNzsmXjRva/hf_20261118_061440_804f9e54-f6fe-4ff7-a113-90508c89563e.gif"
+    }
   }
 }
