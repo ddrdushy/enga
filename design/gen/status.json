@@ -243,5 +243,15 @@
   "state": "done",
   "retries": 0,
   "note": ""
+ },
+ "group/welcome-kiru": {
+  "state": "done",
+  "retries": 0,
+  "note": "frames 8-15 drifted down up to 12 px with a strip of another frame at the top; re-aligned the frames and cropped 13 px rows in conversion"
+ },
+ "group/hug": {
+  "state": "done",
+  "retries": 0,
+  "note": "home outfits"
  }
 }
