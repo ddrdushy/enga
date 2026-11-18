@@ -1,4 +1,4 @@
-import type { Checkin, Contact, Data, EventItem, ID, Keen, Member, Person, Rsvp, SafetyCard, Trip } from './types'
+import type { Checkin, Contact, Data, EventItem, ID, Keen, Member, Person, ReminderOpts, Rsvp, SafetyCard, Spot, Trip } from './types'
 import { addDays, today } from './dates'
 
 export interface TripInput {
@@ -36,6 +36,8 @@ export interface Store {
   setKeen(eventId: ID, value: Keen): Promise<void>
   saveCard(card: SafetyCard): Promise<void>
   checkin(tripId: ID): Promise<void>
+  /** "I am at the office" / "I have left" for today; null clears it. Friends see it straight away. */
+  setSpot(kind: Spot['kind'] | null): Promise<void>
   saveProfile(patch: ProfilePatch): Promise<void>
   /** This phone's push subscription, for the morning notification. */
   savePush(sub: { endpoint: string; p256dh: string; auth: string }): Promise<void>
@@ -78,11 +80,27 @@ interface DemoState extends Data {
   me: ID | null
 }
 
+/** The three reminder switches, whatever else is stored beside them. */
+export function optsOf(raw: unknown): ReminderOpts {
+  const o = (typeof raw === 'object' && raw !== null ? raw : {}) as Record<string, unknown>
+  return { mine: o.mine !== false, friends: o.friends !== false, news: o.news !== false }
+}
+
+/**
+ * The office check-in. It is kept inside the profile's reminder_opts JSON, under "spot", so that it
+ * needed no database change; a column of its own can replace this later without touching the app.
+ */
+export function spotOf(raw: unknown): Spot | null {
+  const spot = (typeof raw === 'object' && raw !== null ? (raw as Record<string, unknown>).spot : null) as Record<string, unknown> | null | undefined
+  if (!spot || typeof spot.at !== 'string' || (spot.kind !== 'office' && spot.kind !== 'left')) return null
+  return { kind: spot.kind, at: spot.at }
+}
+
 function seed(): DemoState {
   const t = today()
   const now = new Date().toISOString()
   const people: Person[] = MEMBERS.map((m) => ({
-    id: m.slug, name: m.name, initial: m.initial, color: m.color, ink: m.ink, home: 'Kuala Lumpur', house: '', office: '', workType: '', workPlan: null,
+    id: m.slug, name: m.name, initial: m.initial, color: m.color, ink: m.ink, home: 'Kuala Lumpur', house: '', office: '', workType: '', workPlan: null, spot: null,
     emergencyContacts: [], reminderTime: '08:00', reminderOpts: { mine: true, friends: true, news: true },
   }))
   const [a, b, c] = people.map((p) => p.id)
@@ -106,7 +124,7 @@ function demoStore(): Store {
       if (raw) {
         const saved = JSON.parse(raw) as DemoState
         // Older demo data may be missing newer fields.
-        for (const p of saved.people) { p.emergencyContacts ??= []; p.workPlan ??= null; p.house ??= ''; p.office ??= ''; p.workType ??= '' }
+        for (const p of saved.people) { p.emergencyContacts ??= []; p.workPlan ??= null; p.spot ??= null; p.house ??= ''; p.office ??= ''; p.workType ??= '' }
         return saved
       }
     } catch { /* fall through to a fresh seed */ }
@@ -179,6 +197,10 @@ function demoStore(): Store {
       state.checkins.push(entry)
       commit()
     },
+    async setSpot(kind) {
+      const p = state.people.find((x) => x.id === me())
+      if (p) { p.spot = kind ? { kind, at: new Date().toISOString() } : null; commit() }
+    },
     async saveProfile(patch) {
       const p = state.people.find((x) => x.id === me())
       if (p) {
@@ -205,6 +227,7 @@ async function cloudStore(url: string, anonKey: string): Promise<Store> {
     if (res.error) throw new Error(res.error.message)
     return res.data
   }
+  const savedOpts = async (id: ID): Promise<unknown> => check<Row | null>(await sb.from('profiles').select('reminder_opts').eq('id', id).maybeSingle())?.reminder_opts
   const myId = async (): Promise<ID> => {
     const { data } = await sb.auth.getSession()
     const id = data.session?.user.id
@@ -265,8 +288,8 @@ async function cloudStore(url: string, anonKey: string): Promise<Store> {
           return {
           id: r.id, name: r.name, initial: String(r.name ?? '?')[0].toUpperCase(),
           color: r.color ?? paint.color, ink: r.ink ?? paint.ink,
-          home: r.home ?? 'Kuala Lumpur', house: r.house ?? '', office: r.office ?? '', workType: r.work_type ?? '', workPlan: r.work_plan ?? null, emergencyContacts: contactsOf(r),
-          reminderTime: r.reminder_time ?? '08:00', reminderOpts: r.reminder_opts ?? { mine: true, friends: true, news: true },
+          home: r.home ?? 'Kuala Lumpur', house: r.house ?? '', office: r.office ?? '', workType: r.work_type ?? '', workPlan: r.work_plan ?? null, spot: spotOf(r.reminder_opts), emergencyContacts: contactsOf(r),
+          reminderTime: r.reminder_time ?? '08:00', reminderOpts: optsOf(r.reminder_opts),
           }
         }),
         trips: (check<Row[] | null>(trips) ?? []).map((r): Trip => ({
@@ -313,6 +336,11 @@ async function cloudStore(url: string, anonKey: string): Promise<Store> {
       }))
     },
     async checkin(tripId) { check(await sb.from('checkins').insert({ trip_id: tripId, user_id: await myId() })) },
+    async setSpot(kind) {
+      const id = await myId()
+      const spot: Spot | null = kind ? { kind, at: new Date().toISOString() } : null
+      check(await sb.from('profiles').update({ reminder_opts: { ...optsOf(await savedOpts(id)), spot } }).eq('id', id))
+    },
     async saveProfile(patch) {
       const row: Row = {}
       if (patch.name !== undefined) row.name = patch.name
@@ -328,8 +356,10 @@ async function cloudStore(url: string, anonKey: string): Promise<Store> {
         row.emergency_phone = patch.emergencyContacts[0]?.phone ?? ''
       }
       if (patch.reminderTime !== undefined) row.reminder_time = patch.reminderTime
-      if (patch.reminderOpts !== undefined) row.reminder_opts = patch.reminderOpts
-      check(await sb.from('profiles').update(row).eq('id', await myId()))
+      const id = await myId()
+      // The check-in shares this column (see spotOf), so changing the reminder words must not wipe it.
+      if (patch.reminderOpts !== undefined) row.reminder_opts = { ...optsOf(patch.reminderOpts), spot: spotOf(await savedOpts(id)) }
+      check(await sb.from('profiles').update(row).eq('id', id))
     },
     async savePush(sub) {
       check(await sb.rpc('save_push_subscription', { p_endpoint: sub.endpoint, p_p256dh: sub.p256dh, p_auth: sub.auth }))

@@ -5,7 +5,7 @@ import { person } from '../ctx'
 import type { EventItem, Keen, Person, Trip } from '../lib/types'
 import { addDays, addMonths, dayNum, daysInMonth, dow, firstOfMonth, fmt, fmtRange, fmtShort, inDays, mondayIndex, monthName, today } from '../lib/dates'
 import { allHomeRuns, currentTrip, digest, isFree, laneSegments, nextTrip, openPlansFor, tripPeople, upcomingEvents, whereIs } from '../lib/logic'
-import { clock, daysOf, duration, goesToOffice, workNow } from '../lib/work'
+import { clock, daysOf, duration, goesToOffice, rightNow, spotToday } from '../lib/work'
 import { Avatar, FaceSlider, Icon, Sheet } from '../ui'
 
 const nowMinutes = () => { const n = new Date(); return n.getHours() * 60 + n.getMinutes() }
@@ -58,6 +58,8 @@ export function OrbitScreen(ctx: Ctx) {
 
   const spots = data.people.map((p, i) => ({ p, i, w: whereIs(data, p, date), next: nextTrip(data, p.id, date) }))
   const home = spots.filter((s) => s.w.home)
+  // Everyone at home base who has something to say about today, and always you (so you can check in).
+  const rightRows = home.map((s) => ({ p: s.p, w: rightNow(s.p, t, mondayIndex(t), minutes) })).filter((r) => r.w || r.p.id === me.id)
   const away = spots.filter((s) => !s.w.home)
   const homeX = (k: number) => 179 + (k - (home.length - 1) / 2) * 48
   const awaySlot = (s: (typeof spots)[number]) => AWAY_SLOTS[away.indexOf(s) % AWAY_SLOTS.length]
@@ -174,17 +176,25 @@ export function OrbitScreen(ctx: Ctx) {
         </div>
       </div>
 
-      {date === t && home.some((s) => s.p.workPlan) && (
+      {date === t && rightRows.length > 0 && (
         <div data-tour="rightnow" style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           <div className="h2">right now</div>
-          {home.filter((s) => s.p.workPlan).map((s) => {
-            const w = workNow(s.p.workPlan!, mondayIndex(t), minutes)
-            const moving = w.kind === 'to-office' || w.kind === 'to-home'
+          {rightRows.map(({ p, w }) => {
+            const isMe = p.id === me.id
+            const moving = !!w && (w.kind === 'to-office' || w.kind === 'to-home')
+            const inOffice = isMe && spotToday(p.spot, t)?.kind === 'office'
             return (
-              <button key={s.p.id} type="button" className="pill" style={{ paddingLeft: 4, height: 'auto', minHeight: 44, whiteSpace: 'normal', textAlign: 'left', justifyContent: 'flex-start', background: w.kind === 'office' ? 'var(--butter)' : moving ? 'var(--peach)' : 'var(--card)' }} onClick={() => setPersonId(s.p.id)}>
-                <Avatar p={s.p} size={34} style={{ animation: moving ? 'nudge 1.8s ease-in-out infinite' : undefined }} />
-                <span><b>{s.p.id === me.id ? 'you' : s.p.name}</b> · {w.text}</span>
-              </button>
+              <div key={p.id} style={{ display: 'flex', gap: 6, alignItems: 'stretch' }}>
+                <button type="button" className="pill" style={{ flex: 1, minWidth: 0, paddingLeft: 4, height: 'auto', minHeight: 44, whiteSpace: 'normal', textAlign: 'left', justifyContent: 'flex-start', background: w?.sure && w.kind === 'office' ? 'var(--butter)' : moving ? 'var(--peach)' : 'var(--card)' }} onClick={() => setPersonId(p.id)}>
+                  <Avatar p={p} size={34} style={{ animation: moving ? 'nudge 1.8s ease-in-out infinite' : undefined }} />
+                  <span><b>{isMe ? 'you' : p.name}</b> · {w ? w.text : 'not checked in today'}</span>
+                </button>
+                {isMe && p.workType !== 'from home' && (
+                  <button type="button" className={`pill${inOffice ? '' : ' dark'}`} style={{ flex: 'none', height: 'auto', minHeight: 44 }} aria-label={inOffice ? 'I have left the office' : 'Check in: I am at the office'} onClick={() => void ctx.run(() => ctx.store.setSpot(inOffice ? 'left' : 'office'))}>
+                    {inOffice ? 'leave' : 'at office'}
+                  </button>
+                )}
+              </div>
             )
           })}
         </div>
@@ -256,7 +266,7 @@ function PersonSheet({ ctx, id, onClose }: { ctx: Ctx; id: string; onClose: () =
         {row('lives in', [p.house, p.home].filter(Boolean).join(', '))}
         {row('office', p.office)}
         {row('work', p.workType ? WORK_LINE[p.workType] ?? p.workType : '')}
-        {plan && w.home && date === today() && row('right now', workNow(plan, mondayIndex(date), nowMinutes()).text)}
+        {w.home && date === today() && row('right now', rightNow(p, date, mondayIndex(date), nowMinutes())?.text ?? '')}
         {plan && row('office days', daysOf(plan, 'office'))}
         {plan && row('home days', daysOf(plan, 'home'))}
         {plan && row('hours', `${clock(plan.start)} to ${clock(plan.end)}`)}

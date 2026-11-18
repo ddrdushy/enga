@@ -66,7 +66,7 @@ export function toData(rows: Loaded): Data {
     people: rows.profiles.map((r): Person => ({
       id: r.id, name: r.name, initial: String(r.name ?? '?')[0].toUpperCase(),
       color: r.color ?? '#5B6BBF', ink: r.ink ?? '#FFFFFF',
-      home: r.home ?? 'Kuala Lumpur', house: r.house ?? '', office: r.office ?? '', workType: r.work_type ?? '', workPlan: r.work_plan ?? null, emergencyContacts: Array.isArray(r.emergency_contacts) ? r.emergency_contacts : [],
+      home: r.home ?? 'Kuala Lumpur', house: r.house ?? '', office: r.office ?? '', workType: r.work_type ?? '', workPlan: r.work_plan ?? null, spot: null, emergencyContacts: Array.isArray(r.emergency_contacts) ? r.emergency_contacts : [],
       reminderTime: r.reminder_time ?? DEFAULT_TIME, reminderOpts: r.reminder_opts ?? { mine: true, friends: true, news: true },
     })),
     trips: rows.trips.map((r): Trip => ({

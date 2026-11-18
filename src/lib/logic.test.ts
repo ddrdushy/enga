@@ -1,5 +1,7 @@
 import { isNewer, latestFrom } from './update.ts'
 import { withSamples } from './sample.ts'
+import { rightNow, spotToday } from './work.ts'
+import { optsOf, spotOf } from './store.ts'
 import { describe, expect, it } from 'vitest'
 import type { Data, Person, Trip } from './types'
 import { allHomeRuns, currentTrip, digest, isFree, laneSegments, nextTrip, tripPeople, whereIs } from './logic'
@@ -7,7 +9,7 @@ import { addDays, addMonths, daysInMonth, diffDays, fmt, fmtRange, inDays, monda
 import { clock, daysOf, defaultPlan, duration, workLine, workNow } from './work'
 
 const person = (id: string, name: string): Person => ({
-  id, name, initial: name[0], color: '#000', ink: '#fff', home: 'Kuala Lumpur', house: '', office: '', workType: '', workPlan: null,
+  id, name, initial: name[0], color: '#000', ink: '#fff', home: 'Kuala Lumpur', house: '', office: '', workType: '', spot: null, workPlan: null,
   emergencyContacts: [], reminderTime: '08:00', reminderOpts: { mine: true, friends: true, news: true },
 })
 const trip = (id: string, ownerId: string, place: string, start: string, end: string, extra: Partial<Trip> = {}): Trip => ({
@@ -178,5 +180,36 @@ describe('tour samples', () => {
   it('works when you are the only person so far', () => {
     const alone = withSamples({ ...real, people: real.people.slice(0, 1) }, 'me', '2026-11-18', 2)
     expect(alone.trips.map((t) => t.id)).toEqual(['sample-mine'])
+  })
+})
+
+describe('office check-in', () => {
+  const plan = { days: ['office', 'office', 'office', 'home', 'home', 'off', 'off'] as const, leaveAt: '08:00', commuteMin: 45, start: '09:00', end: '18:00' }
+  const at = (h: number, m: number) => new Date(2026, 10, 18, h, m).toISOString() // Wed 18 Nov 2026, this machine's clock
+  it('counts only on the day it was made', () => {
+    expect(spotToday({ kind: 'office', at: at(9, 52) }, '2026-11-18')?.kind).toBe('office')
+    expect(spotToday({ kind: 'office', at: at(9, 52) }, '2026-11-19')).toBeNull()
+    expect(spotToday(null, '2026-11-18')).toBeNull()
+    expect(spotToday({ kind: 'office', at: 'rubbish' }, '2026-11-18')).toBeNull()
+  })
+  it('shows a check-in as certain, with the time, even with no usual week saved', () => {
+    expect(rightNow({ workPlan: null, spot: { kind: 'office', at: at(9, 52) } }, '2026-11-18', 2, 600)).toEqual({ kind: 'office', text: 'at the office \u00b7 checked in 9:52 am', sure: true })
+    expect(rightNow({ workPlan: null, spot: { kind: 'left', at: at(18, 10) } }, '2026-11-18', 2, 1100)).toEqual({ kind: 'left', text: 'left the office 6:10 pm', sure: true })
+  })
+  it('never says "at the office" from the usual week alone', () => {
+    const guess = rightNow({ workPlan: { ...plan, days: [...plan.days] }, spot: null }, '2026-11-18', 2, 600)
+    expect(guess?.sure).toBe(false)
+    expect(guess?.text).toBe('office day, usually there till 6:00 pm \u00b7 not checked in')
+    expect(rightNow({ workPlan: null, spot: null }, '2026-11-18', 2, 600)).toBeNull()
+    // yesterday's check-in falls back to the guess
+    expect(rightNow({ workPlan: { ...plan, days: [...plan.days] }, spot: { kind: 'office', at: at(9, 0) } }, '2026-11-19', 3, 600)?.sure).toBe(false)
+  })
+  it('keeps the check-in and the reminder switches apart in the one stored object', () => {
+    const stored = { mine: true, friends: false, news: true, spot: { kind: 'office', at: at(9, 52) } }
+    expect(optsOf(stored)).toEqual({ mine: true, friends: false, news: true })
+    expect(spotOf(stored)).toEqual({ kind: 'office', at: at(9, 52) })
+    expect(spotOf({ mine: true })).toBeNull()
+    expect(spotOf({ spot: { kind: 'moon', at: at(9, 0) } })).toBeNull()
+    expect(optsOf(null)).toEqual({ mine: true, friends: true, news: true })
   })
 })

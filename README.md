@@ -72,3 +72,9 @@ the circle code, the web-push key pair and the job secret. `INVITE-LINK.txt` hol
 Each build gets a stamp (`vite.config.ts`). The app carries it as `__BUILD__` and the build writes the same stamp to `/version.json`. An open app re-reads that file when it comes back to the front, when the phone comes back online, and every five minutes; if the stamp differs, `src/screens/UpdateBanner.tsx` asks for a refresh. "later" hides the banner until the app is next brought forward. The service worker never caches `/version.json`.
 
 `scripts/ship.sh` also sends a notification after publishing (`/api/update`, same job secret as the morning message): "A new version of enga? is ready. Open the app and tap refresh.", plus the line you pass to the script. It reaches only phones with notifications turned on, and it waits until the new build is really being served.
+
+## Office check-in
+
+On the home screen, "right now" has an "at office" button on your own row. Tapping it tells your friends you are at the office, with the time; "leave" marks that you have gone. A check-in only counts on the day it was made. Without one, the app shows what the usual week says, worded as a guess ("office day, usually there till 6:00 pm · not checked in"), never as "at the office".
+
+The check-in is stored inside the profile's `reminder_opts` JSON, under `spot` (`spotOf` / `optsOf` in `src/lib/store.ts`), so it needed no database change.

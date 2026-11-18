@@ -26,6 +26,13 @@ export interface WorkPlan {
   end: string
 }
 
+/** A check-in the person made themselves: "I am at the office" or "I have left". Only counts on the day it was made. */
+export interface Spot {
+  kind: 'office' | 'left'
+  /** When they tapped it, ISO time. */
+  at: string
+}
+
 export interface Person {
   id: ID
   name: string
@@ -42,6 +49,8 @@ export interface Person {
   workType: string
   /** Their usual week; null until they set it. */
   workPlan: WorkPlan | null
+  /** Their latest office check-in; null if they never made one. */
+  spot: Spot | null
   /** People to call if something is wrong; shown on this person's safety cards. */
   emergencyContacts: Contact[]
   reminderTime: string

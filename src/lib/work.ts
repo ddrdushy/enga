@@ -1,4 +1,4 @@
-import type { DayKind, WorkPlan } from './types.ts'
+import type { DayKind, Spot, WorkPlan } from './types.ts'
 
 export const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
@@ -75,4 +75,39 @@ export function daysOf(plan: WorkPlan, kind: DayKind): string {
   const names = DAY_LABELS.filter((_, i) => plan.days[i] === kind)
   if (names.length <= 1) return names.join('')
   return `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`
+}
+
+/** The check-in, if it was made on `date` ('YYYY-MM-DD', this phone's calendar). Yesterday's check-in says nothing about today. */
+export function spotToday(spot: Spot | null | undefined, date: string): Spot | null {
+  if (!spot || (spot.kind !== 'office' && spot.kind !== 'left')) return null
+  const d = new Date(spot.at)
+  if (Number.isNaN(d.getTime())) return null
+  const day = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  return day === date ? spot : null
+}
+
+export interface RightNow {
+  kind: WorkNow['kind'] | 'left'
+  text: string
+  /** True when the person checked in themselves; false when it is only what their usual week says. */
+  sure: boolean
+}
+
+/**
+ * Where someone is right now. Their own check-in today wins. Without one, the usual week is all there is,
+ * and it is worded as a guess: nobody is shown as "at the office" unless they said so.
+ */
+export function rightNow(p: { workPlan: WorkPlan | null; spot: Spot | null }, date: string, dayIndex: number, minutes: number): RightNow | null {
+  const spot = spotToday(p.spot, date)
+  if (spot) {
+    const d = new Date(spot.at)
+    const at = clock(d.getHours() * 60 + d.getMinutes())
+    return spot.kind === 'office'
+      ? { kind: 'office', text: `at the office \u00b7 checked in ${at}`, sure: true }
+      : { kind: 'left', text: `left the office ${at}`, sure: true }
+  }
+  if (!p.workPlan) return null
+  const w = workNow(p.workPlan, dayIndex, minutes)
+  if (w.kind === 'office') return { kind: 'office', text: `office day, usually there till ${clock(toMin(p.workPlan.end))} \u00b7 not checked in`, sure: false }
+  return { ...w, sure: false }
 }
