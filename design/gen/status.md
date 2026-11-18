@@ -30,9 +30,9 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | dushy/work2/wave | done | 0 |  |
 | dushy/work2/type | done | 0 |  |
 | dushy/work3/idle | done | 0 |  |
-| dushy/work3/wave | pending | 0 |  |
-| dushy/work3/coffee | pending | 0 |  |
-| dushy/out2/idle | pending | 0 |  |
+| dushy/work3/wave | done | 0 |  |
+| dushy/work3/coffee | done | 0 |  |
+| dushy/out2/idle | done | 0 |  |
 | dushy/out2/wave | pending | 0 |  |
 | dushy/out2/walk | pending | 0 |  |
 | dushy/out3/idle | pending | 0 |  |

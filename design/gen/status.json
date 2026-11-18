@@ -328,5 +328,20 @@
   "state": "done",
   "retries": 0,
   "note": ""
+ },
+ "dushy/work3/wave": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "dushy/work3/coffee": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "dushy/out2/idle": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
  }
 }
