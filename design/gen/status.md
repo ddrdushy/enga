@@ -26,10 +26,10 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | dushy/work/type | done | 1 | first attempt: ChatGPT image tool error |
 | dushy/work/coffee | done | 0 |  |
 | dushy/work/laugh | done | 0 |  |
-| dushy/work2/idle | pending | 0 |  |
-| dushy/work2/wave | pending | 0 |  |
-| dushy/work2/type | pending | 0 |  |
-| dushy/work3/idle | pending | 0 |  |
+| dushy/work2/idle | done | 0 |  |
+| dushy/work2/wave | done | 0 |  |
+| dushy/work2/type | done | 0 |  |
+| dushy/work3/idle | done | 0 |  |
 | dushy/work3/wave | pending | 0 |  |
 | dushy/work3/coffee | pending | 0 |  |
 | dushy/out2/idle | pending | 0 |  |

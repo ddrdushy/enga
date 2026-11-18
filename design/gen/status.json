@@ -308,5 +308,25 @@
   "state": "done",
   "retries": 0,
   "note": ""
+ },
+ "dushy/work2/idle": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "dushy/work2/wave": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "dushy/work2/type": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "dushy/work3/idle": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
  }
 }
