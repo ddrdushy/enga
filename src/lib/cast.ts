@@ -14,14 +14,23 @@ import { rightNow, spotToday, toMin, workNow } from './work.ts'
 import { dayProgress, dayToday } from './day.ts'
 import { nextTrip, whereIs } from './logic.ts'
 import { diffDays, mondayIndex } from './dates.ts'
-import { timeOf } from './when.ts'
+import { happeningNow, timeOf } from './when.ts'
 
 /** The poses each everyday outfit has. */
-export const CAST_POSES: Record<'out' | 'home' | 'work', string[]> = {
+// out, work and home can have variant folders (out2, out3, out4, work2, home2...): one is worn per person per day.
+// gym, party, rain and travel are outfits for special moments.
+export const CAST_POSES: Record<string, string[]> = {
   out: ['idle', 'wave', 'laugh', 'dance', 'cheer', 'walk', 'travel', 'pack', 'rain', 'birthday'],
-  home: ['tv', 'phone', 'cook', 'sleep'],
-  work: ['type', 'coffee'],
+  home: ['tv', 'phone', 'cook', 'sleep', 'laugh', 'dance', 'wave', 'cheer'],
+  work: ['type', 'coffee', 'laugh', 'dance', 'wave', 'cheer'],
+  gym: ['workout', 'idle'],
+  party: ['dance', 'idle'],
+  rain: ['walk', 'idle'],
+  travel: ['travel', 'idle'],
 }
+/** A place or event that means the gym outfit, and one that means the party outfit. */
+export const GYM = /\b(gym|fitness|workout|work out|yoga|badminton|futsal|run|running|pilates|crossfit)\b/i
+export const PARTY = /\b(dinner|party|wedding|birthday)\b/i
 /** One loop of these plays when you tap your own big character. */
 export const REACTIONS = ['laugh', 'dance', 'wave', 'cheer']
 /** How long one reaction plays, ms. */
@@ -29,7 +38,7 @@ export const REACTION_MS = 3000
 /** The background colour painted into each person's pictures, so the circle around them matches. */
 export const CAST_BG: Record<string, string> = { dushy: '#C9CFF2', ali: '#F9DCCB', kiru: '#F6D3E0' }
 
-export type CastState = 'sleep' | 'cheer' | 'birthday' | 'travel' | 'trip' | 'pack' | 'work' | 'home' | 'walk' | 'rain' | 'out'
+export type CastState = 'sleep' | 'cheer' | 'birthday' | 'travel' | 'trip' | 'pack' | 'work' | 'home' | 'walk' | 'rain' | 'out' | 'gym' | 'party'
 
 /** One preference: an outfit and a pose. `loose`: any pose of that outfit is better than the next preference. */
 export interface CastStep { outfit: string; pose: string; loose?: boolean }
@@ -72,6 +81,10 @@ export interface CastMoment {
   festival: string | null
   /** Raining at home base right now. */
   rain: boolean
+  /** The place they last checked in at on their day, if that is where they are now. */
+  place?: string | null
+  /** An event they are going to that is on right now; `evening`: it starts at 18:00 or later. */
+  event?: { title: string; evening: boolean } | null
 }
 
 const NIGHT_FROM = 23 * 60
@@ -93,21 +106,32 @@ const step = (outfit: string, pose: string, loose = false): CastStep => (loose ?
 /** What they are doing, as a state and the outfit/pose preferences for it (before any festival outfit). */
 function baseOf(m: CastMoment): { state: CastState; chain: CastStep[] } {
   const seed = `${m.date}|${m.slug}`
-  const out = (state: CastState, poses: string[]) => ({ state, chain: [step('out', seeded(poses, `${seed}|${state}`))] })
-  const home = () => ({ state: 'home' as const, chain: [step('home', seeded(['tv', 'phone', 'cook'], `${seed}|home`))] })
-  const work = () => ({ state: 'work' as const, chain: [step('work', seeded(['type', 'coffee'], `${seed}|work`))] })
-  const walk = () => (m.rain ? { state: 'rain' as const, chain: [step('out', 'rain'), step('out', 'walk')] } : { state: 'walk' as const, chain: [step('out', 'walk')] })
-  const about = () => (m.rain ? { state: 'rain' as const, chain: [step('out', 'rain'), step('out', seeded(['idle', 'wave'], `${seed}|out`))] } : out('out', ['idle', 'wave']))
+  const pick = (options: string[], key: string) => seeded(options, `${seed}|${key}`)
+  const home = () => ({ state: 'home' as const, chain: [step('home', pick(['tv', 'phone', 'cook'], 'home'))] })
+  const work = () => ({ state: 'work' as const, chain: [step('work', pick(['type', 'coffee'], 'work'))] })
+  // Rain: the rain outfit walking (on the move) or standing (at a place); out/rain and the dry pose after it.
+  const wet = (pose: 'walk' | 'idle', dry: CastStep) => ({ state: 'rain' as const, chain: [step('rain', pose), step('rain', pose === 'walk' ? 'idle' : 'walk'), step('out', 'rain'), dry] })
+  const walk = () => (m.rain ? wet('walk', step('out', 'walk')) : { state: 'walk' as const, chain: [step('out', 'walk')] })
+  const about = () => { const dry = step('out', pick(['idle', 'wave'], 'out')); return m.rain ? wet('idle', dry) : { state: 'out' as const, chain: [dry] } }
+  /** At a place or an event: the gym, a party, or just out. */
+  const at = (name: string, evening: boolean) => {
+    if (GYM.test(name)) return { state: 'gym' as const, chain: [step('gym', 'workout'), step('gym', 'idle'), step('out', 'idle')] }
+    if (evening || PARTY.test(name)) { const p = pick(['dance', 'idle'], 'party'); return { state: 'party' as const, chain: [step('party', p), step('party', p === 'dance' ? 'idle' : 'dance'), step('out', p)] } }
+    return about()
+  }
 
-  if (m.away) return m.travelDay ? { state: 'travel', chain: [step('out', 'travel')] } : out('trip', ['idle', 'wave'])
+  if (m.away) {
+    const pose = m.travelDay ? 'travel' : 'idle'
+    return { state: m.travelDay ? 'travel' : 'trip', chain: [step('travel', pose), step('out', m.travelDay ? 'travel' : pick(['idle', 'wave'], 'trip'))] }
+  }
   const n = m.now
   if (n?.sure) {
     if (n.kind === 'office') return work()
     if (n.kind === 'home') return home()
     if (n.kind === 'left') return walk()
-    if (n.kind === 'stop') return about()
+    if (n.kind === 'stop') return at(m.place ?? n.head ?? '', false)
   }
-  if (n?.kind === 'plan' && n.text.includes('planned')) return about() // an event they are going to, on right now
+  if (m.event) return at(m.event.title, m.event.evening) // an event they are going to, on right now
   if (m.workPlan) {
     const w = workNow(m.workPlan, m.dayIndex, m.minutes)
     if (w.kind === 'office' || w.kind === 'home-working') return work()
@@ -146,10 +170,13 @@ export function castMoment(data: Data, p: Person, env: { date: string; minutes: 
   const next = w.later ?? nextTrip(data, p.id, date)
   const tripInDays = next ? Math.max(0, diffDays(date, next.start)) : null
   const travelDay = !!w.trip && (w.trip.start === date || w.trip.end === date)
+  const on = data.events.find((e) => e.keen[p.id] === 'going' && happeningNow(e, date, minutes))
+  const event = on ? { title: on.title, evening: !!timeOf(on.startTime) && toMin(timeOf(on.startTime)) >= EVENING } : null
+  const place = now?.sure && now.kind === 'stop' ? last?.name ?? null : null
   return {
     slug: slugOf(p.name), date, minutes, nowMs: env.nowMs, now, workPlan: p.workPlan, dayIndex: mondayIndex(date),
     away: !w.home, travelDay, tripInDays, lastCheckInMs: times.length ? Math.max(...times) : null,
-    birthday: !!p.birthday && p.birthday === date.slice(5), festival: env.festival ?? null, rain: !!env.rain && w.home,
+    birthday: !!p.birthday && p.birthday === date.slice(5), festival: env.festival ?? null, rain: !!env.rain && w.home, place, event,
   }
 }
 
@@ -201,26 +228,70 @@ export function headerMoment(data: Data, date: string, minutes: number): HeaderM
 /** File name (relative to src/assets/cast, e.g. 'ali/out/wave.anim.webp') to its URL. */
 export type CastFiles = Record<string, string>
 
-/** The candidate pictures for a pick, best first. `moving`: animated ones first at each step; otherwise stills only. */
-export function castCandidates(files: CastFiles, slug: string, chain: CastStep[], moving: boolean): string[] {
+/** The everyday outfit kinds; each can have variant folders (out2, out3, work2, home2...). */
+const KINDS = ['out', 'work', 'home']
+/** 'out2' -> 'out'; anything else (a festival) is its own kind. */
+export const kindOf = (outfit: string) => { const m = /^(out|work|home)\d*$/.exec(outfit); return m ? m[1] : outfit }
+
+/** The folders of one outfit kind this person has: the base first, then variants in order. */
+export function variantsOf(files: CastFiles, slug: string, kind: string): string[] {
+  if (!KINDS.includes(kind)) return [kind]
+  const found = new Set<string>()
+  for (const k of Object.keys(files)) {
+    const parts = k.split('/')
+    if (parts.length === 3 && parts[0] === slug && kindOf(parts[1]) === kind && parts[1] !== kind) found.add(parts[1])
+  }
+  return [kind, ...[...found].sort((a, b) => a.localeCompare(b, 'en', { numeric: true }))]
+}
+
+/**
+ * The candidate pictures for a pick, best first. `moving`: animated ones first at each step; otherwise stills only.
+ * `seed` (the date): which variant of an outfit (out, out2, out3...) the person wears that day. The day's variant is
+ * used when it has the pose; otherwise another variant that has it; the base folder after that.
+ */
+export function castCandidates(files: CastFiles, slug: string, chain: CastStep[], moving: boolean, seed = ''): string[] {
   const out: string[] = []
-  const add = (outfit: string, pose: string) => {
-    const anim = files[`${slug}/${outfit}/${pose}.anim.webp`]
-    const still = files[`${slug}/${outfit}/${pose}.webp`]
+  const has = (folder: string, pose: string) => !!files[`${slug}/${folder}/${pose}.webp`] || (moving && !!files[`${slug}/${folder}/${pose}.anim.webp`])
+  const push = (folder: string, pose: string) => {
+    const anim = files[`${slug}/${folder}/${pose}.anim.webp`]
+    const still = files[`${slug}/${folder}/${pose}.webp`]
     if (moving && anim) out.push(anim)
     if (still) out.push(still)
   }
-  const posesIn = (outfit: string) => {
-    const prefix = `${slug}/${outfit}/`
+  /** The variant worn today, of the kind of `outfit`. */
+  const worn = (outfit: string) => { const v = variantsOf(files, slug, kindOf(outfit)); return v.length > 1 ? seeded(v, `${seed}|${slug}|${kindOf(outfit)}`) : v[0] }
+  const add = (outfit: string, pose: string) => {
+    const kind = kindOf(outfit)
+    if (outfit !== kind) { push(outfit, pose); return } // a variant asked for by name
+    const all = variantsOf(files, slug, kind)
+    const today = worn(outfit)
+    const withPose = all.filter((v) => has(v, pose))
+    const pick = withPose.includes(today) ? today : withPose.filter((v) => v !== kind).length ? seeded(withPose.filter((v) => v !== kind), `${seed}|${slug}|${kind}|${pose}`) : undefined
+    if (pick) push(pick, pose)
+    push(kind, pose)
+  }
+  const posesIn = (folder: string) => {
+    const prefix = `${slug}/${folder}/`
     const found = new Set(Object.keys(files).filter((k) => k.startsWith(prefix)).map((k) => k.slice(prefix.length).replace(/(\.anim)?\.webp$/, '')))
-    const known = (CAST_POSES as Record<string, string[]>)[outfit] ?? []
+    const known = (CAST_POSES as Record<string, string[]>)[kindOf(folder)] ?? []
     return [...known.filter((x) => found.has(x)), ...[...found].filter((x) => !known.includes(x)).sort()]
   }
-  const anyIn = (outfit: string) => { for (const pose of posesIn(outfit)) add(outfit, pose) }
+  const anyIn = (outfit: string) => {
+    const kind = kindOf(outfit)
+    const folders = [...new Set([worn(outfit), ...variantsOf(files, slug, kind)])]
+    for (const f of folders) for (const pose of posesIn(f)) push(f, pose)
+  }
   for (const s of chain) { add(s.outfit, s.pose); if (s.loose) anyIn(s.outfit) }
   for (const s of chain) anyIn(s.outfit)
   add('out', 'idle')
   return [...new Set(out)]
+}
+
+/** The steps for a reaction (laugh, dance, wave, cheer): in the outfit they are wearing now first, then in out. */
+export function reactionChain(reaction: string, current: CastStep[]): CastStep[] {
+  const kind = kindOf(current[0]?.outfit ?? 'out')
+  const steps: CastStep[] = kind === 'out' ? [{ outfit: 'out', pose: reaction }] : [{ outfit: kind, pose: reaction }, { outfit: 'out', pose: reaction }]
+  return [...steps, ...current]
 }
 
 /** Whether this person has any picture in an outfit (used for festival outfits). */

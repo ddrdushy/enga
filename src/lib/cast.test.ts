@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Data, Person, Trip } from './types'
-import { CAST_POSES, castCandidates, castMoment, castPick, greeting, groupArt, hasOutfit, hash, headerMoment, isNight, nextReaction, seeded } from './cast'
+import { CAST_POSES, castCandidates, castMoment, castPick, greeting, groupArt, hasOutfit, hash, headerMoment, isNight, kindOf, nextReaction, reactionChain, seeded, variantsOf } from './cast'
 import type { CastMoment } from './cast'
 import { defaultPlan } from './work'
 import { fromCache, isRaining } from './weather'
@@ -68,9 +68,11 @@ describe('cast: outfit and pose', () => {
   it('on a trip: travel on its first and last day, otherwise idle or wave', () => {
     const a = person('a', 'Ali')
     const data = { ...empty, people: [a], trips: [trip('t', 'a', '2026-11-17', '2026-11-20')] }
-    expect(at(data, a, 12)).toMatchObject({ outfit: 'out', state: 'trip' })
-    expect(['idle', 'wave']).toContain(at(data, a, 12).pose)
-    expect(at(data, a, 12, 0, { date: '2026-11-17' })).toMatchObject({ pose: 'travel', state: 'travel' })
+    expect(at(data, a, 12)).toMatchObject({ outfit: 'travel', pose: 'idle', state: 'trip' })
+    expect(at(data, a, 12).chain[1].outfit).toBe('out')
+    expect(['idle', 'wave']).toContain(at(data, a, 12).chain[1].pose)
+    expect(at(data, a, 12, 0, { date: '2026-11-17' })).toMatchObject({ outfit: 'travel', pose: 'travel', state: 'travel' })
+    expect(at(data, a, 12, 0, { date: '2026-11-17' }).chain[1]).toEqual({ outfit: 'out', pose: 'travel' })
     expect(at(data, a, 12, 0, { date: '2026-11-20' }).pose).toBe('travel')
   })
 
@@ -89,10 +91,44 @@ describe('cast: outfit and pose', () => {
 
   it('rain for people out or on the move, not at home or away', () => {
     const m = person('m', 'Kiru', { spot: { kind: 'left', at: iso(10) } })
-    expect(at({ ...empty, people: [m] }, m, 11, 0, { rain: true })).toMatchObject({ outfit: 'out', pose: 'rain', state: 'rain' })
-    expect(at({ ...empty, people: [m] }, m, 11, 0, { rain: true }).chain[1]).toEqual({ outfit: 'out', pose: 'walk' })
+    const wet = at({ ...empty, people: [m] }, m, 11, 0, { rain: true })
+    expect(wet).toMatchObject({ outfit: 'rain', pose: 'walk', state: 'rain' })
+    expect(wet.chain).toEqual([{ outfit: 'rain', pose: 'walk' }, { outfit: 'rain', pose: 'idle' }, { outfit: 'out', pose: 'rain' }, { outfit: 'out', pose: 'walk' }])
+    expect(at({ ...empty, people: [m] }, m, 11, 0, { rain: false }).outfit).toBe('out')
+    // at a place in the rain: standing in the rain outfit
+    const s = person('s', 'Ali', { days: [{ date: T, stops: [{ id: 'x', name: 'Mid Valley', state: 'done', at: iso(10) }] }] })
+    expect(at({ ...empty, people: [s] }, s, 11, 0, { rain: true })).toMatchObject({ outfit: 'rain', pose: 'idle' })
+    // away on a trip: their weather is not KL's
+    const t = person('t', 'Dushy')
+    expect(at({ ...empty, people: [t], trips: [trip('x', 't', '2026-11-17', '2026-11-20')] }, t, 11, 0, { rain: true }).outfit).toBe('travel')
     const h = person('h', 'Ali', { spot: { kind: 'home', at: iso(10) } })
     expect(at({ ...empty, people: [h] }, h, 11, 0, { rain: true }).outfit).toBe('home')
+  })
+
+  it('gym clothes at a place that sounds like a workout, not at a brunch', () => {
+    const g = (name: string) => person('g', 'Kiru', { days: [{ date: T, stops: [{ id: 'x', name, state: 'done', at: iso(7, 0) }] }] })
+    for (const name of ['Gym', 'Anytime Fitness', 'yoga class', 'Badminton at Cheras', 'futsal', 'Morning run']) {
+      const p = g(name)
+      expect(at({ ...empty, people: [p] }, p, 8), name).toMatchObject({ outfit: 'gym', pose: 'workout', state: 'gym' })
+    }
+    const b = g('Brunch at VCR')
+    expect(at({ ...empty, people: [b] }, b, 8).state).toBe('out')
+    const p = g('Gym')
+    expect(at({ ...empty, people: [p] }, p, 8).chain).toEqual([{ outfit: 'gym', pose: 'workout' }, { outfit: 'gym', pose: 'idle' }, { outfit: 'out', pose: 'idle' }])
+  })
+
+  it('party clothes at an evening event they are going to, or a dinner, party, wedding or birthday', () => {
+    const p = person('p', 'Ali')
+    const ev = (startTime: string) => ({ id: 'e', ownerId: 'p', title: 'Jazz night', place: 'KL', date: T, link: '', keen: { p: 'going' as const }, createdAt: T, startTime, endTime: '23:00' })
+    const evening = at({ ...empty, people: [p], events: [ev('19:30')] }, p, 20)
+    expect(evening).toMatchObject({ outfit: 'party', state: 'party' })
+    expect(['dance', 'idle']).toContain(evening.pose)
+    expect(evening.chain[2].outfit).toBe('out')
+    expect(at({ ...empty, people: [p], events: [ev('14:00')] }, p, 15).state).toBe('out')
+    const d = person('d', 'Kiru', { days: [{ date: T, stops: [{ id: 'x', name: "Dinner at Nando's", state: 'done', at: iso(19) }] }] })
+    expect(at({ ...empty, people: [d] }, d, 20).outfit).toBe('party')
+    const w = person('w', 'Kiru', { days: [{ date: T, stops: [{ id: 'x', name: 'Wedding', state: 'done', at: iso(11) }] }] })
+    expect(at({ ...empty, people: [w] }, w, 13).outfit).toBe('party')
   })
 
   it('birthday outfit all day except asleep', () => {
@@ -106,6 +142,7 @@ describe('cast: outfit and pose', () => {
   it('a festival that is theirs puts the festival outfit first, the normal one after', () => {
     const d = person('d', 'Dushy', { workPlan: office })
     const pick = at({ ...empty, people: [d] }, d, 11, 0, { festival: 'deepavali' })
+    expect(pick.state).toBe('work')
     expect(pick.outfit).toBe('deepavali')
     expect(pick.chain[0].loose).toBe(true)
     expect(pick.chain[1].outfit).toBe('work')
@@ -171,9 +208,67 @@ describe('cast: finding the pictures', () => {
     expect(groupArt(files, 'hello', true)).toBe('hello.png')
     expect(groupArt(files, 'birthday', true)).toBeUndefined()
   })
+  it('special outfits fall back cleanly when their folder is missing', () => {
+    const f = { 'ali/out/idle.webp': 'idle.png', 'ali/out/walk.webp': 'walk.png', 'ali/gym/idle.webp': 'gym-idle.png' }
+    expect(castCandidates(f, 'ali', [{ outfit: 'rain', pose: 'walk' }, { outfit: 'rain', pose: 'idle' }, { outfit: 'out', pose: 'rain' }, { outfit: 'out', pose: 'walk' }], false)[0]).toBe('walk.png')
+    expect(castCandidates(f, 'ali', [{ outfit: 'gym', pose: 'workout' }, { outfit: 'gym', pose: 'idle' }, { outfit: 'out', pose: 'idle' }], false)[0]).toBe('gym-idle.png')
+    expect(castCandidates(f, 'ali', [{ outfit: 'party', pose: 'dance' }, { outfit: 'party', pose: 'idle' }, { outfit: 'out', pose: 'dance' }], false)[0]).toBe('idle.png')
+    expect(castCandidates(f, 'ali', [{ outfit: 'travel', pose: 'travel' }, { outfit: 'out', pose: 'travel' }], false)).toEqual(['idle.png', 'walk.png'])
+  })
   it('a tap never plays the same reaction twice in a row', () => {
     for (const r of [0, 0.3, 0.6, 0.99]) expect(nextReaction('laugh', r)).not.toBe('laugh')
     expect(nextReaction(null, 0)).toBe('laugh')
+  })
+})
+
+describe('cast: outfit variants', () => {
+  const files = {
+    'kiru/out/idle.webp': 'o-idle', 'kiru/out/wave.webp': 'o-wave', 'kiru/out/walk.webp': 'o-walk',
+    'kiru/out2/idle.webp': 'o2-idle', 'kiru/out2/wave.webp': 'o2-wave',
+    'kiru/out3/idle.webp': 'o3-idle',
+    'kiru/work/type.webp': 'w-type', 'kiru/work2/type.webp': 'w2-type', 'kiru/work2/laugh.webp': 'w2-laugh',
+    'kiru/home/tv.webp': 'h-tv',
+    'kiru/out/laugh.webp': 'o-laugh',
+  }
+  const days = Array.from({ length: 30 }, (_, i) => `2026-12-${String(i + 1).padStart(2, '0')}`)
+
+  it('knows the kind of a folder and the variants a person has', () => {
+    expect(kindOf('out3')).toBe('out')
+    expect(kindOf('work2')).toBe('work')
+    expect(kindOf('deepavali')).toBe('deepavali')
+    expect(variantsOf(files, 'kiru', 'out')).toEqual(['out', 'out2', 'out3'])
+    expect(variantsOf(files, 'kiru', 'home')).toEqual(['home'])
+    expect(variantsOf(files, 'ali', 'out')).toEqual(['out'])
+  })
+
+  it('wears one variant a day, the same all day, and different ones over the month', () => {
+    const firsts = days.map((d) => castCandidates(files, 'kiru', [{ outfit: 'out', pose: 'idle' }], false, d)[0])
+    expect(new Set(firsts)).toEqual(new Set(['o-idle', 'o2-idle', 'o3-idle']))
+    for (const d of days) {
+      const idle = castCandidates(files, 'kiru', [{ outfit: 'out', pose: 'idle' }], false, d)[0]
+      expect(castCandidates(files, 'kiru', [{ outfit: 'out', pose: 'idle' }], false, d)[0]).toBe(idle)
+      // the base folder always follows as the fallback
+      expect(castCandidates(files, 'kiru', [{ outfit: 'out', pose: 'idle' }], false, d)).toContain('o-idle')
+    }
+  })
+
+  it('only picks among variants that have the pose, then the base folder', () => {
+    for (const d of days) {
+      const wave = castCandidates(files, 'kiru', [{ outfit: 'out', pose: 'wave' }], false, d)
+      expect(['o-wave', 'o2-wave']).toContain(wave[0])
+      expect(castCandidates(files, 'kiru', [{ outfit: 'out', pose: 'walk' }], false, d)[0]).toBe('o-walk')
+      expect(castCandidates(files, 'kiru', [{ outfit: 'home', pose: 'tv' }], false, d)[0]).toBe('h-tv')
+    }
+    // a pose no folder has: any pose of the day's variant, then the others
+    const cook = castCandidates(files, 'kiru', [{ outfit: 'home', pose: 'cook' }], false, '2026-12-01')
+    expect(cook[0]).toBe('h-tv')
+  })
+
+  it('reactions try the outfit worn now, then out', () => {
+    expect(reactionChain('laugh', [{ outfit: 'work', pose: 'type' }]).slice(0, 2)).toEqual([{ outfit: 'work', pose: 'laugh' }, { outfit: 'out', pose: 'laugh' }])
+    expect(reactionChain('laugh', [{ outfit: 'out', pose: 'idle' }])[0]).toEqual({ outfit: 'out', pose: 'laugh' })
+    expect(castCandidates(files, 'kiru', reactionChain('laugh', [{ outfit: 'work', pose: 'type' }]), false, '2026-12-01')[0]).toBe('w2-laugh')
+    expect(castCandidates(files, 'kiru', reactionChain('laugh', [{ outfit: 'home', pose: 'tv' }]), false, '2026-12-01')[0]).toBe('o-laugh')
   })
 })
 

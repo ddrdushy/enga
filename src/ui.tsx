@@ -3,7 +3,7 @@ import type { CSSProperties, ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { addDays, dayNum, dow, monthShort, today } from './lib/dates'
 import type { CastPick, CastStep } from './lib/cast'
-import { CAST_BG, REACTION_MS, castCandidates, groupArt, nextReaction, slugOf } from './lib/cast'
+import { CAST_BG, REACTION_MS, castCandidates, groupArt, nextReaction, reactionChain, slugOf } from './lib/cast'
 import { CAST_FILES } from './lib/castFiles'
 
 /* ---------- icons ---------- */
@@ -61,10 +61,10 @@ export function Avatar({ p, size = 40, style, moving = false, pick, reactive = f
   useEffect(() => () => window.clearTimeout(timer.current), [])
   const animate = moving && size >= MOVING_MIN && !calm()
   const base = pick ? (Array.isArray(pick) ? pick : pick.chain) : IDLE
-  const chain = react ? [{ outfit: 'out', pose: react }, ...base] : base
+  const chain = react ? reactionChain(react, base) : base
   const key = chain.map((c) => `${c.outfit}/${c.pose}${c.loose ? '*' : ''}`).join(',')
   const candidates = useMemo(() => {
-    const list = slug ? castCandidates(CAST_FILES, slug, chain, animate || (!!react && size >= MOVING_MIN && !calm())) : []
+    const list = slug ? castCandidates(CAST_FILES, slug, chain, animate || (!!react && size >= MOVING_MIN && !calm()), today()) : []
     const art = avatarArt(p.name, animate)
     const still = avatarArt(p.name, false)
     return [...list, ...[art, still].filter((x): x is string => !!x)]
