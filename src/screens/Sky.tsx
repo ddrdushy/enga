@@ -10,6 +10,7 @@ export function useSky(nowMs: number, mode: SkyMode): Sky {
     const root = document.documentElement
     for (const [k, v] of Object.entries(sky.vars)) root.style.setProperty(`--${k}`, v)
     root.dataset.sky = sky.phase
+    root.dataset.dark = String(sky.dark)
     root.style.colorScheme = sky.dark ? 'dark' : 'light'
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', sky.theme)
   }, [sky])

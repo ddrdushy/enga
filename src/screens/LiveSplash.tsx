@@ -15,8 +15,8 @@ const FADE = 'radial-gradient(ellipse 58% 56% at 50% 50%, #000 80%, transparent 
 export function FriendsScene({ height, scene = 'hello' }: { height: number; scene?: string }) {
   const style = { margin: '0 auto', WebkitMaskImage: FADE, maskImage: FADE, animation: calm() ? undefined : 'pop .7s cubic-bezier(.2,1.4,.4,1) both', borderRadius: 0 }
   const name = hasGroup(scene) ? scene : hasGroup('hello') ? 'hello' : ''
-  if (name) return <GroupScene name={name} height={height} style={style} />
-  return <img src={sceneStill} alt="" aria-hidden="true" draggable={false} style={{ display: 'block', height, width: 'auto', maxWidth: '100%', objectFit: 'contain', ...style }} />
+  if (name) return <span className="friends-scene" style={{ display: 'block' }}><GroupScene name={name} height={height} style={style} /></span>
+  return <img className="friends-scene" src={sceneStill} alt="" aria-hidden="true" draggable={false} style={{ display: 'block', height, width: 'auto', maxWidth: '100%', objectFit: 'contain', ...style }} />
 }
 
 /**

@@ -236,3 +236,6 @@ select.word { appearance: none; -webkit-appearance: none; font: inherit; color: 
 /* a face flies into the sheet that opens on a tap (View Transitions, where the browser has them) */
 ::view-transition-group(*) { animation-duration: 0.38s; animation-timing-function: cubic-bezier(0.2, 1.2, 0.4, 1); }
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 0.2s; }
+/* at night the light clay scene sits in a soft oval of light instead of a bright box */
+html[data-dark='true'] .friends-scene, html[data-dark='true'] .friends-scene img { -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 52%, #000 58%, transparent 100%) !important; mask-image: radial-gradient(ellipse 50% 50% at 50% 52%, #000 58%, transparent 100%) !important; }
+html[data-dark='true'] span.friends-scene { -webkit-mask-image: none !important; mask-image: none !important; }
