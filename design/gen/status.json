@@ -123,5 +123,35 @@
   "state": "done",
   "retries": 0,
   "note": ""
+ },
+ "ali/home/tv": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "ali/home/phone": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "ali/home/cook": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "ali/home/sleep": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "ali/work/type": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "ali/work/coffee": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
  }
 }
