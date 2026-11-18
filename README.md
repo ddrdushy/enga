@@ -106,3 +106,7 @@ A place on "my day" can carry a time and friends ("Lunch at Nando\u2019s, 1:00 p
 ## Smoke check
 
 `.github/workflows/smoke.yml` runs each time Vercel reports a finished deploy and checks that the app, `/version.json` and the two server functions answer.
+
+## Around town on the home circle
+
+Someone in the home city who has checked in away from home (at the office, at a place on their day, or on the move) is drawn on the inner ring with a yellow label ("at office · KL Sentral", "Mid Valley · since 1:31 pm") instead of inside the green home-base circle. Up to three people are placed this way; a fourth stays in the middle. Without a check-in a person is shown at home base as before.

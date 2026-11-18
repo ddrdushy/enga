@@ -30,6 +30,12 @@ const NEXT_PREFS = {
   away: [['TR', 'TL', 'BR', 'BL', 'XR', 'XL'], ['TL', 'TR', 'BL', 'BR', 'XL', 'XR'], ['BL', 'XR', 'XL', 'TR', 'TL'], ['XL', 'XR', 'TL', 'TR']],
 }
 const COL_LEFT = { L: 2, R: 182 }
+/* People who are in their home city but have checked in somewhere other than home (the office, a place on
+   their day, on the move) sit on the inner ring, apart from the people at home, each with a two-line label
+   underneath. These three spots keep clear of every sticker row above. A fourth person stays in the middle. */
+const TOWN_SLOTS: { x: number; y: number; prefs: string[] }[] = [
+  { x: 54, y: 180, prefs: ['TL', 'XL', 'BR', 'TR', 'XR', 'BL'] }, { x: 304, y: 180, prefs: ['TR', 'XR', 'BL', 'TL', 'XL', 'BR'] }, { x: 179, y: 80, prefs: ['TL', 'TR', 'BL', 'BR', 'XL', 'XR'] },
+]
 const LINE = ['#5B6BBF', '#B5701F', '#C4578A', '#3F8573', '#8A7A1F']
 
 function openTrip(ctx: Ctx, t: Trip) {
@@ -58,28 +64,39 @@ export function OrbitScreen(ctx: Ctx) {
   }, [])
 
   const spots = data.people.map((p, i) => ({ p, i, w: whereIs(data, p, date), next: nextTrip(data, p.id, date) }))
-  const home = spots.filter((s) => s.w.home)
+  const base = spots.filter((s) => s.w.home)
+  const nowOf = new Map(base.map((s) => [s.p.id, date === t ? rightNow(s.p, t, mondayIndex(t), minutes) : null]))
   // Everyone at home base who has something to say about today, and always you (so you can check in).
-  const rightRows = home.map((s) => ({ p: s.p, w: rightNow(s.p, t, mondayIndex(t), minutes) })).filter((r) => r.w || r.p.id === me.id)
+  const rightRows = date === t ? base.map((s) => ({ p: s.p, w: nowOf.get(s.p.id) ?? null })).filter((r) => r.w || r.p.id === me.id) : []
+  // In the home city but checked in away from home: drawn apart from the people at home.
+  const town = base.filter((s) => { const r = nowOf.get(s.p.id); return !!r?.sure && (r.kind === 'office' || r.kind === 'stop' || r.kind === 'left') }).slice(0, TOWN_SLOTS.length)
+  const home = base.filter((s) => !town.includes(s))
   const away = spots.filter((s) => !s.w.home)
   const homeX = (k: number) => 179 + (k - (home.length - 1) / 2) * 48
   const awaySlot = (s: (typeof spots)[number]) => AWAY_SLOTS[away.indexOf(s) % AWAY_SLOTS.length]
   const posOf = (s: (typeof spots)[number]) => {
     const h = home.indexOf(s)
-    return h >= 0 ? { x: homeX(h), y: 189 } : awaySlot(s)
+    const o = town.indexOf(s)
+    return h >= 0 ? { x: homeX(h), y: 189 } : o >= 0 ? TOWN_SLOTS[o] : awaySlot(s)
   }
   // Hand out "where next" spots: faces near the top get a top spot, people at home get the bottom
   // corners left to right (so lines do not cross), and a spot under a far-away face is never used.
   const taken = new Set<string>()
   if (away.length >= 3) taken.add('BR')
   if (away.length >= 4) taken.add('BL')
+  // a line from home base to a bottom corner would run through the label under a town face on that side
+  if (town[0]) taken.add('BL')
+  if (town[1]) taken.add('BR')
   const claim = (prefs: string[]) => { const k = prefs.find((p) => !taken.has(p)) ?? prefs[0]; taken.add(k); return NEXT_SLOTS[k] }
   const mid = (home.length - 1) / 2
-  const order = [...away.slice(0, 2), ...home, ...away.slice(2)].filter((s) => s.next)
+  const order = [...away.slice(0, 2), ...home, ...town, ...away.slice(2)].filter((s) => s.next)
   const nexts = order.map((s) => {
     const h = home.indexOf(s)
     const a = away.indexOf(s)
-    const prefs = h >= 0
+    const o = town.indexOf(s)
+    const prefs = o >= 0
+      ? TOWN_SLOTS[o].prefs
+      : h >= 0
       ? (home.length === 1 || h < mid ? NEXT_PREFS.homeLeft : h > mid ? NEXT_PREFS.homeRight : NEXT_PREFS.homeMid)
       : a === 0 && away.length === 1 ? NEXT_PREFS.away[1] : NEXT_PREFS.away[a % 4]
     return { ...s, from: posOf(s), to: claim(prefs) }
@@ -103,7 +120,7 @@ export function OrbitScreen(ctx: Ctx) {
   const events = upcomingEvents(data, t)
   const brief = date === t && !briefSeen ? digest(data, me.id, t) : []
   const shown = eventId ? data.events.find((e) => e.id === eventId) : undefined
-  const summary = spots.map((s) => `${s.p.id === me.id ? 'You are' : s.p.name + ' is'} in ${s.w.place}`).join('. ')
+  const summary = spots.map((s) => { const r = nowOf.get(s.p.id); return `${s.p.id === me.id ? 'You are' : s.p.name + ' is'} ${town.includes(s) && r?.head ? r.head : `in ${s.w.place}`}` }).join('. ')
 
   return (
     <div className="screen">
@@ -144,15 +161,29 @@ export function OrbitScreen(ctx: Ctx) {
 
           <div className="abs" style={{ left: 99, top: 222, width: 160, textAlign: 'center' }}>
             <div className="display" style={{ fontSize: 15 }}>{me.home}</div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#2F5A3D' }}>{home.length ? 'home base' : 'nobody home'}</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#2F5A3D' }}>{home.length ? 'home base' : town.length ? 'everyone is out' : 'nobody home'}</div>
           </div>
 
           {spots.map((s) => {
             const pos = posOf(s)
             return (
               <button key={s.p.id} type="button" className="abs" style={{ left: pos.x - 29, top: pos.y - 29, borderRadius: '50%', animation: s.w.home ? undefined : 'float 5s ease-in-out infinite' }}
-                aria-label={`${s.p.name}, ${s.w.place}`} onClick={() => setPersonId(s.p.id)}>
-                <Avatar p={s.p} size={58} moving style={{ border: `4px solid ${s.w.home ? 'var(--sage)' : 'var(--mist)'}` }} />
+                aria-label={`${s.p.name}, ${town.includes(s) ? nowOf.get(s.p.id)?.head ?? s.w.place : s.w.place}`} onClick={() => setPersonId(s.p.id)}>
+                <Avatar p={s.p} size={58} moving style={{ border: `4px solid ${town.includes(s) ? 'var(--butter)' : s.w.home ? 'var(--sage)' : 'var(--mist)'}` }} />
+              </button>
+            )
+          })}
+          {town.map((s, k) => {
+            const r = nowOf.get(s.p.id)
+            const slot = TOWN_SLOTS[k]
+            // office: where the office is; a place: since when; on the move: since when
+            const first = r?.kind === 'office' ? 'at office' : r?.kind === 'left' ? 'on the move' : (r?.head ?? '').replace(/^at /, '')
+            const second = r?.kind === 'office' ? (s.p.office || (r.tail ?? '').replace('checked in', 'since')) : (r?.tail ?? '').split(' \u00b7 ')[0]
+            return (
+              <button key={s.p.id} type="button" className="abs" aria-label={`${s.p.name}: ${r?.text ?? ''}`} onClick={() => setPersonId(s.p.id)}
+                style={{ left: slot.x - 52, top: slot.y + 33, width: 104, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4px 8px', borderRadius: 14, background: 'var(--butter)', lineHeight: 1.25 }}>
+                <span className="cut" style={{ maxWidth: '100%', fontSize: 12, fontWeight: 700 }}>{first}</span>
+                {second && <span className="cut" style={{ maxWidth: '100%', fontSize: 11, fontWeight: 500, color: 'var(--ink2)' }}>{second}</span>}
               </button>
             )
           })}
