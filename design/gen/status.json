@@ -288,5 +288,25 @@
   "state": "done",
   "retries": 0,
   "note": "party hats tight at the top edge"
+ },
+ "dushy/work/wave": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "dushy/work/laugh": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "dushy/home/wave": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "dushy/home/laugh": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
  }
 }
