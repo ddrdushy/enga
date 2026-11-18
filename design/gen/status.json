@@ -438,5 +438,15 @@
   "state": "done",
   "retries": 0,
   "note": "small snap sparks drawn near the fingers"
+ },
+ "dushy/rain/idle": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "dushy/rain/wave": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
  }
 }

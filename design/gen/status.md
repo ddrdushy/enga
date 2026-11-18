@@ -52,8 +52,8 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | dushy/party/idle | done | 0 |  |
 | dushy/party/wave | done | 0 |  |
 | dushy/party/dance | done | 0 | small snap sparks drawn near the fingers |
-| dushy/rain/idle | pending | 0 |  |
-| dushy/rain/wave | pending | 0 |  |
+| dushy/rain/idle | done | 0 |  |
+| dushy/rain/wave | done | 0 |  |
 | dushy/rain/walk | pending | 0 |  |
 | dushy/travel/idle | pending | 0 |  |
 | dushy/travel/wave | pending | 0 |  |
