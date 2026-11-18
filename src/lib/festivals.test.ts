@@ -59,7 +59,7 @@ describe('festivals', () => {
     const data: Data = { people: [d, { ...a, birthday: '11-08' }, k], trips: [], events: [], cards: [], checkins: [] }
     const lines = digest(data, 'd', '2026-11-08')
     expect(lines[0]).toBe('Happy Deepavali, Dushy and Kiru!')
-    expect(lines[1]).toBe('Happy birthday, Ali!')
+    expect(lines[1]).toBe("It's Ali's birthday today. Send a wish!")
     expect(digest(data, 'd', '2026-11-09').some((l) => l.startsWith('Happy'))).toBe(false)
   })
 })

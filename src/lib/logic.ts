@@ -1,4 +1,5 @@
 import type { Data, EventItem, ID, Person, Stop, Trip } from './types.ts'
+import { REMIND_DAYS, birthdayWhen, isBirthday, turning, upcomingBirthdays } from './birthday.ts'
 import { dayProgress, dayToday, myDayRows } from './day.ts'
 import { addDays, diffDays, fmt, fmtRange, inDays, mondayIndex, toIso } from './dates.ts'
 import { clock, rightNow, workLine } from './work.ts'
@@ -120,8 +121,19 @@ export function digest(data: Data, meId: ID, date: string): string[] {
   if (opts.mine || opts.friends || opts.news) {
     const fest = festivalLine(data.people, date)
     if (fest) lines.push(fest)
-    const bday = data.people.filter((p) => p.birthday && p.birthday === date.slice(5))
-    if (bday.length) lines.push(`Happy birthday, ${bday.map((p) => p.name).join(' and ')}!`)
+  }
+  // Birthdays: yours on the day; friends' a week before, three days before, the day before and on the day.
+  if (isBirthday(me.birthday, date)) {
+    const age = turning(me.birthday, date)
+    lines.push(`Happy birthday, ${me.name}!${age ? ` ${age} today.` : ''}`)
+  }
+  if (opts.friends || opts.news) {
+    for (const { p, days } of upcomingBirthdays(data.people.filter((x) => x.id !== meId), date, 7)) {
+      if (!REMIND_DAYS.includes(days)) continue
+      const age = turning(p.birthday, date)
+      if (days === 0) lines.push(`It's ${p.name}'s birthday today${age ? ` (turns ${age})` : ''}. Send a wish!`)
+      else lines.push(`${p.name}'s birthday is ${days === 1 ? 'tomorrow' : `in ${days} days`}, ${birthdayWhen(p.birthday, date)}.`)
+    }
   }
 
   if (opts.mine) {

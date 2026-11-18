@@ -6,6 +6,7 @@ import { MEMBERS, createStore } from './lib/store'
 import { toIso, today } from './lib/dates'
 import { eventDemo, tripDemo, withSamples } from './lib/sample'
 import { whereDetail } from './lib/logic'
+import { isBirthday } from './lib/birthday'
 import { castMoment, castPick } from './lib/cast'
 import { festivalFor } from './lib/festivals'
 import type { CastPick } from './lib/cast'
@@ -115,7 +116,7 @@ export default function App() {
       return { face: p, who: p.id === meId ? 'you' : p.name, headline: d.headline, sub: d.sub, pick: cast(p) }
     })
   }, [splash, data, meId, cast])
-  const splashScene = data?.people.some((p) => p.birthday && p.birthday === today().slice(5)) ? 'birthday' : 'hello'
+  const splashScene = data?.people.some((p) => isBirthday(p.birthday, today())) ? 'birthday' : 'hello'
   const hasLive = !!live?.length
 
   useEffect(() => {

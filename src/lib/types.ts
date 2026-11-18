@@ -79,7 +79,7 @@ export interface Person {
   emergencyContacts: Contact[]
   reminderTime: string
   reminderOpts: ReminderOpts
-  /** Birthday as 'MM-DD' (no year); '' or missing when not set. */
+  /** Birthday as 'MM-DD', or 'YYYY-MM-DD' when the year was given; '' or missing when not set. */
   birthday?: string
   /** Keys of the festivals this person marks as theirs (see festivals.ts); null or missing = the defaults. */
   festivals?: string[] | null

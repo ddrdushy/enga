@@ -4,6 +4,7 @@
 // They live there so that they needed no database change; columns of their own can replace this
 // later without touching the rest of the app. Anything malformed is dropped on reading.
 import { MAX_NAME, MAX_STOPS } from './day.ts'
+import { cleanBirthday } from './birthday.ts'
 import type { DayPlan, ReminderOpts, Spot, Stop } from './types.ts'
 
 /** How many days' lists are kept: today and what is planned ahead. */
@@ -58,15 +59,14 @@ export function plansOf(raw: unknown): DayPlan[] {
 
 /** Personal settings kept beside the rest: birthday and festivals. */
 export interface Personal {
-  /** 'MM-DD', or '' when not set. */
+  /** 'MM-DD', or 'YYYY-MM-DD' when the year was given; '' when not set. */
   birthday: string
   /** Festival keys this person marks as theirs; null = the defaults. */
   festivals: string[] | null
 }
 
-const MMDD = /^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/
-/** A usable 'MM-DD' birthday, or ''. */
-export const birthdayOf = (raw: unknown): string => { const b = bag(raw).birthday; return typeof b === 'string' && MMDD.test(b) ? b : '' }
+/** A usable birthday ('MM-DD' or 'YYYY-MM-DD'), or ''. */
+export const birthdayOf = (raw: unknown): string => cleanBirthday(bag(raw).birthday)
 /** The festivals someone picked, or null when they never picked (then the defaults apply). */
 export function festivalsOf(raw: unknown): string[] | null {
   const f = bag(raw).festivals
@@ -79,7 +79,7 @@ export const personalOf = (raw: unknown): Personal => ({ birthday: birthdayOf(ra
 export function packExtras(opts: ReminderOpts, spot: Spot | null, days: DayPlan[], today: string, personal: Personal = { birthday: '', festivals: null }): Bag {
   const plans = days.filter((d) => d.date >= today && d.stops.length > 0).sort((a, b) => a.date.localeCompare(b.date)).slice(0, MAX_PLANS)
   const out: Bag = { mine: opts.mine, friends: opts.friends, news: opts.news, spot, day: plans.find((d) => d.date === today) ?? null, plans }
-  if (personal.birthday && MMDD.test(personal.birthday)) out.birthday = personal.birthday
+  if (cleanBirthday(personal.birthday)) out.birthday = personal.birthday
   if (personal.festivals) out.festivals = personal.festivals
   return out
 }

@@ -8,6 +8,7 @@
 // castPick() is pure: give it the moment (where they are, the time, the date) and it says which
 // outfit and pose. Where a state has several poses, the pose is chosen from the date and the person,
 // so it changes every day, stays the same all day, and is the same on everyone's phone.
+import { isBirthday } from './birthday.ts'
 import type { Data, Person, WorkPlan } from './types.ts'
 import type { RightNow } from './work.ts'
 import { rightNow, spotToday, toMin, workNow } from './work.ts'
@@ -176,7 +177,7 @@ export function castMoment(data: Data, p: Person, env: { date: string; minutes: 
   return {
     slug: slugOf(p.name), date, minutes, nowMs: env.nowMs, now, workPlan: p.workPlan, dayIndex: mondayIndex(date),
     away: !w.home, travelDay, tripInDays, lastCheckInMs: times.length ? Math.max(...times) : null,
-    birthday: !!p.birthday && p.birthday === date.slice(5), festival: env.festival ?? null, rain: !!env.rain && w.home, place, event,
+    birthday: isBirthday(p.birthday, date), festival: env.festival ?? null, rain: !!env.rain && w.home, place, event,
   }
 }
 
@@ -203,7 +204,7 @@ export function greeting(minutes: number): string {
  * today (after their back time, when they gave one), everyone home together in the evening, else a greeting.
  */
 export function headerMoment(data: Data, date: string, minutes: number): HeaderMoment {
-  const birthdays = data.people.filter((p) => p.birthday && p.birthday === date.slice(5))
+  const birthdays = data.people.filter((p) => isBirthday(p.birthday, date))
   if (birthdays.length) return { kind: 'birthday', who: birthdays }
   for (const p of data.people) {
     const ended = data.trips.find((t) => t.end === date && (t.ownerId === p.id || t.rsvps[p.id] === 'in'))

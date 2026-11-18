@@ -3,6 +3,7 @@ import { withSamples } from './sample.ts'
 import { rightNow, spotToday } from './work.ts'
 import { plansOf, optsOf, spotOf } from './store.ts'
 import { packExtras } from './extras.ts'
+import { birthdayWhen, cleanBirthday, daysToBirthday, isBirthday, nextBirthday, turning, upcomingBirthdays } from './birthday.ts'
 import { awayAt, eventWhen, happeningNow, nextOn, occursOn, timeRange, tripTimes } from './when.ts'
 import { addStop, answerInvite, checkInAt, companions, dayProgress, dayToday, invitesFor, moveStop, myDayRows, removeStop, reopenStop, skipStop, upcomingInvites, withDay } from './day.ts'
 import type { Stop } from './types'
@@ -536,4 +537,47 @@ it('a day trip comes back the same day', () => {
   const trip: Trip = { id: 't', ownerId: 'k', place: 'Shah Alam', start: '2026-11-18', end: '2026-11-18', open: false, rsvps: {}, createdAt: '2026-11-01T00:00:00Z' }
   expect(digest({ people, trips: [trip], events: [], cards: [], checkins: [] }, 'd', '2026-11-18')).toContain('Kiru goes to Shah Alam today, back the same day.')
   expect(digest({ people, trips: [{ ...trip, backAt: '18:00' }], events: [], cards: [], checkins: [] }, 'd', '2026-11-18')).toContain('Kiru goes to Shah Alam today, back about 6:00 pm.')
+})
+
+describe('birthdays', () => {
+  const base = { home: 'Kuala Lumpur', house: '', office: '', workPlan: null, spot: null, days: [], reminderOpts: { mine: true, friends: true, news: true } }
+  const d = { ...base, id: 'd', name: 'Dushy', birthday: '1990-11-25' } as unknown as Person
+  const a = { ...base, id: 'a', name: 'Ali', birthday: '02-29' } as unknown as Person
+  const k = { ...base, id: 'k', name: 'Kiru' } as unknown as Person
+  const data: Data = { people: [d, a, k], trips: [], events: [], cards: [], checkins: [] }
+
+  it('works with or without the year, and keeps 29 Feb on 28 Feb in other years', () => {
+    expect(cleanBirthday('1990-11-25')).toBe('1990-11-25')
+    expect(cleanBirthday('11-25')).toBe('11-25')
+    expect(cleanBirthday('1990-13-01')).toBe('')
+    expect(cleanBirthday('25/11/1990')).toBe('')
+    expect(nextBirthday('1990-11-25', '2026-11-18')).toBe('2026-11-25')
+    expect(nextBirthday('1990-11-25', '2026-11-26')).toBe('2027-11-25')
+    expect(nextBirthday('02-29', '2026-11-18')).toBe('2027-02-28')
+    expect(nextBirthday('02-29', '2027-12-01')).toBe('2028-02-29')
+    expect(daysToBirthday('1990-11-25', '2026-11-18')).toBe(7)
+    expect(isBirthday('11-25', '2026-11-25')).toBe(true)
+    expect(turning('1990-11-25', '2026-11-18')).toBe(36)
+    expect(turning('11-25', '2026-11-18')).toBeNull()
+    expect(birthdayWhen('1990-11-25', '2026-11-18')).toBe('Wed 25 Nov (turns 36)')
+  })
+
+  it('reminds friends a week, three days and a day before, and on the day', () => {
+    const say = (date: string) => digest(data, 'k', date).filter((l) => l.includes('birthday'))
+    expect(say('2026-11-18')).toEqual(["Dushy's birthday is in 7 days, Wed 25 Nov (turns 36)."])
+    expect(say('2026-11-19')).toEqual([])
+    expect(say('2026-11-22')).toEqual(["Dushy's birthday is in 3 days, Wed 25 Nov (turns 36)."])
+    expect(say('2026-11-24')).toEqual(["Dushy's birthday is tomorrow, Wed 25 Nov (turns 36)."])
+    expect(say('2026-11-25')).toEqual(["It's Dushy's birthday today (turns 36). Send a wish!"])
+  })
+
+  it('wishes the person themselves on the day, and does not remind them ahead', () => {
+    expect(digest(data, 'd', '2026-11-25')).toContain('Happy birthday, Dushy! 36 today.')
+    expect(digest(data, 'd', '2026-11-18').join(' ')).not.toContain('birthday')
+  })
+
+  it('lists the coming month\u2019s birthdays, soonest first', () => {
+    expect(upcomingBirthdays(data.people, '2026-11-18', 30).map((x) => [x.p.name, x.days])).toEqual([['Dushy', 7]])
+    expect(upcomingBirthdays(data.people, '2027-02-20', 30).map((x) => [x.p.name, x.on])).toEqual([['Ali', '2027-02-28']])
+  })
 })

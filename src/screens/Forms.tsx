@@ -450,15 +450,19 @@ export function MeScreen(ctx: Ctx) {
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 const DAYS_IN = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
-/** Birthday (day and month, no year) and which festivals are yours. Saved straight away; friends see them. */
+/** Birthday (day and month; the year is optional) and which festivals are yours. Saved straight away; friends see them and get reminders. */
 function Personal({ ctx }: { ctx: Ctx }) {
   const { me } = ctx
-  const [mm, dd] = me.birthday ? [Number(me.birthday.slice(0, 2)), Number(me.birthday.slice(3))] : [0, 0]
-  const setBirthday = (m: number, d: number) => {
+  const b = me.birthday ?? ''
+  const yy = b.length === 10 ? Number(b.slice(0, 4)) : 0
+  const [mm, dd] = b ? [Number(b.slice(-5, -3)), Number(b.slice(-2))] : [0, 0]
+  const setBirthday = (m: number, d: number, y = yy) => {
     if (!m || !d) return void ctx.run(() => ctx.store.savePersonal({ birthday: '' }))
     const day = Math.min(d, DAYS_IN[m - 1])
-    void ctx.run(() => ctx.store.savePersonal({ birthday: `${String(m).padStart(2, '0')}-${String(day).padStart(2, '0')}` }))
+    const mmdd = `${String(m).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+    void ctx.run(() => ctx.store.savePersonal({ birthday: y ? `${y}-${mmdd}` : mmdd }))
   }
+  const thisYear = new Date().getFullYear()
   const mine = theirFestivals(me)
   const flipFest = (key: string) => void ctx.run(() => ctx.store.savePersonal({ festivals: mine.includes(key) ? mine.filter((k) => k !== key) : [...mine, key] }))
   return (
@@ -473,6 +477,10 @@ function Personal({ ctx }: { ctx: Ctx }) {
           <select className="word" aria-label="Birthday month" value={mm || ''} onChange={(e) => setBirthday(Number(e.target.value), dd || 1)} style={{ background: 'var(--lav)' }}>
             <option value="">month</option>
             {MONTHS.map((m, i) => <option key={m} value={i + 1}>{m}</option>)}
+          </select>{' '}
+          <select className="word" aria-label="Birthday year, optional" value={yy || ''} onChange={(e) => setBirthday(mm || 1, dd || 1, Number(e.target.value))} style={{ background: 'var(--lav)' }}>
+            <option value="">year (optional)</option>
+            {Array.from({ length: 90 }, (_, i) => thisYear - 10 - i).map((y) => <option key={y} value={y}>{y}</option>)}
           </select>.
         </span>
         {me.birthday && <button type="button" className="textbtn" style={{ fontSize: 13, verticalAlign: 'middle' }} onClick={() => setBirthday(0, 0)}>clear</button>}

@@ -150,3 +150,7 @@ Every face in the app is that person's clay character, dressed and posed for wha
 ## Motion
 
 Tapping a face on the home circle opens its sheet with a View Transition where the browser has one: the face flies into the sheet. Sheets close by dragging their top down. Buttons give a small spring when pressed. All of it stops with reduced motion.
+
+## Birthdays and reminders
+
+Me tab: "My birthday is [day] [month] [year]" — the year is optional (with it, the app says "turns 36"). Someone without a birthday sees a small "add your birthday" card on home until they add it or close it. Friends are reminded in their morning message a week before, three days before, the day before and on the day ("Ali's birthday is in 3 days, Sat 21 Nov (turns 32)."); the person themselves gets "Happy birthday" on the day. Birthdays in the next 30 days show as tiles in "what's on", on the person sheet, and in the month view. 29 Feb birthdays fall on 28 Feb in other years. Logic: `src/lib/birthday.ts`. Stored in `reminder_opts.birthday` as 'MM-DD' or 'YYYY-MM-DD'.

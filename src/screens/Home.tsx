@@ -12,6 +12,7 @@ import { festivalLine, festivalToday } from '../lib/festivals'
 import { FestiveStrip } from './Festive'
 import type { CastPick } from '../lib/cast'
 import { MyDay, StopList } from './Day'
+import { birthdayWhen, daysToBirthday, inDaysWord, isBirthday, turning, upcomingBirthdays } from '../lib/birthday'
 import { eventWhen, occursOn, timeOf, timeRange, weekday } from '../lib/when'
 
 const nowMinutes = () => { const n = new Date(); return n.getHours() * 60 + n.getMinutes() }
@@ -123,6 +124,8 @@ export function OrbitScreen(ctx: Ctx) {
   }
   const plans = openPlansFor(data, me.id, t)
   const events = upcomingEvents(data, t)
+  const bdays = upcomingBirthdays(data.people, t, 30)
+  const [bdayNudge, setBdayNudge] = useState(() => { try { return !me.birthday && localStorage.getItem(`enga-bday-nudge-${me.id}`) !== 'no' } catch { return false } })
   const brief = date === t && !briefSeen ? digest(data, me.id, t) : []
   const shown = eventId ? data.events.find((e) => e.id === eventId) : undefined
   const summary = spots.map((s) => { const r = nowOf.get(s.p.id); return `${s.p.id === me.id ? 'You are' : s.p.name + ' is'} ${town.includes(s) && r?.head ? r.head : `in ${s.w.place}`}` }).join('. ')
@@ -249,9 +252,25 @@ export function OrbitScreen(ctx: Ctx) {
 
       {date === t && <MyDay ctx={ctx} />}
 
+      {date === t && bdayNudge && !me.birthday && (
+        <div className="card" style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'var(--lav)' }}>
+          <span className="grow" style={{ fontSize: 14, fontWeight: 600 }}>Add your birthday, so {data.people.filter((x) => x.id !== me.id).map((x) => x.name).join(' and ') || 'your friends'} get a reminder before it.</span>
+          <button type="button" className="pill dark" style={{ flex: 'none' }} onClick={() => ctx.setTab('me')}>add</button>
+          <button type="button" className="round" style={{ width: 36, height: 36 }} aria-label="Not now" onClick={() => { try { localStorage.setItem(`enga-bday-nudge-${me.id}`, 'no') } catch { /* ignore */ } setBdayNudge(false) }}><span style={{ display: 'flex', scale: '0.7' }}><Icon.close /></span></button>
+        </div>
+      )}
+
       <div className="h2">what's on</div>
-      {plans.length + events.length === 0 && <div className="small">Nothing yet. Tap + to add a trip or an event.</div>}
+      {plans.length + events.length + bdays.length === 0 && <div className="small">Nothing yet. Tap + to add a trip or an event.</div>}
       <div className="tiles">
+        {bdays.map(({ p, on, days }) => (
+          <button key={`bday-${p.id}`} type="button" className="tile" style={{ background: 'var(--lav)', borderRadius: '28px 6px 28px 28px' }} onClick={() => setPersonId(p.id)}>
+            <span className="eyebrow" style={{ color: 'var(--ink2)' }}>birthday · {fmtShort(on)}</span>
+            <span className="row" style={{ gap: 8 }}><Avatar p={p} size={34} /><span className="display" style={{ fontSize: 21 }}>{p.id === me.id ? 'you' : p.name}</span></span>
+            <span className="small" style={{ color: 'var(--ink2)' }}>{turning(p.birthday, t) ? `turns ${turning(p.birthday, t)}` : fmt(on)}</span>
+            <span style={{ fontSize: 13, fontWeight: 700, marginTop: 4 }}>{days === 0 ? (p.id === me.id ? 'happy birthday!' : 'today! send a wish') : inDaysWord(days)}</span>
+          </button>
+        ))}
         {plans.map((p) => {
           const owner = person(data, p.ownerId)
           const free = isFree(data, me.id, p.start, p.end)
@@ -387,6 +406,7 @@ function PersonSheet({ ctx, id, onClose }: { ctx: Ctx; id: string; onClose: () =
         {plan && row('hours', `${clock(plan.start)} to ${clock(plan.end)}`)}
         {plan && goesToOffice(plan) && row('commute', `leaves ${clock(plan.leaveAt)}, about ${duration(plan.commuteMin)}`)}
         {row('next trip', next ? `${next.place} · ${fmtRange(next.start, next.end)}` : 'nothing planned')}
+        {row('birthday', p.birthday ? `${birthdayWhen(p.birthday, today())} · ${inDaysWord(daysToBirthday(p.birthday, today()))}` : '')}
       </div>
       {where.stops && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -551,7 +571,7 @@ function Month({ ctx, toggle }: { ctx: Ctx; toggle: ReactNode }) {
         {Array.from({ length: blanks }, (_, i) => <span key={`b${i}`} />)}
         {days.map((d) => {
           const out = data.people.filter((p) => currentTrip(data, p.id, d))
-          const hasEvent = data.events.some((e) => occursOn(e, d))
+          const hasEvent = data.events.some((e) => occursOn(e, d)) || data.people.some((p) => isBirthday(p.birthday, d))
           const cls = ['d', d === date ? 'sel' : hasEvent ? 'event' : out.length === 0 ? 'allhome' : '', d === t ? 'today' : ''].filter(Boolean).join(' ')
           return (
             <button key={d} type="button" aria-pressed={d === date} aria-label={`${fmt(d)}, ${out.length ? out.map((p) => p.name).join(', ') + ' away' : 'everyone home'}${hasEvent ? ', event' : ''}`} onClick={() => ctx.setDate(d)}>
@@ -563,7 +583,7 @@ function Month({ ctx, toggle }: { ctx: Ctx; toggle: ReactNode }) {
       </div>
       <div className="chips small" style={{ justifyContent: 'center', gap: '6px 12px', fontSize: 12 }}>
         <span className="row" style={{ gap: 5 }}><i style={{ width: 12, height: 12, borderRadius: '50%', background: 'var(--sage)' }} />everyone home</span>
-        <span className="row" style={{ gap: 5 }}><i style={{ width: 12, height: 12, borderRadius: '50%', background: 'var(--butter)' }} />event</span>
+        <span className="row" style={{ gap: 5 }}><i style={{ width: 12, height: 12, borderRadius: '50%', background: 'var(--butter)' }} />event or birthday</span>
         <span className="row" style={{ gap: 5 }}><i style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--ink)' }} />dot = someone away</span>
       </div>
       <div className="card" key={date} style={{ display: 'flex', flexDirection: 'column', gap: 10, animation: 'pop .3s ease-out both' }}>
@@ -574,6 +594,7 @@ function Month({ ctx, toggle }: { ctx: Ctx; toggle: ReactNode }) {
         <div className="chips">
           {there.map(({ p, w }) => <span key={p.id} className="pill" style={{ height: 36, paddingLeft: 4, background: w.home ? 'var(--sage)' : 'var(--lav)', fontWeight: 700, fontSize: 13 }}><Avatar p={p} size={28} />{p.id === me.id ? `you · ${w.place}` : w.place}</span>)}
         </div>
+        {data.people.filter((p) => isBirthday(p.birthday, date)).map((p) => <div key={`b-${p.id}`} className="small" style={{ color: 'var(--ink)', fontWeight: 600 }}>{p.id === me.id ? 'your' : `${p.name}'s`} birthday{turning(p.birthday, date) ? ` · turns ${turning(p.birthday, date)}` : ''}</div>)}
         {dayEvents.map((e) => <div key={e.id} className="small" style={{ color: 'var(--ink)', fontWeight: 600 }}>{[e.title, timeRange(e.startTime, e.endTime), e.place].filter(Boolean).join(' · ')}</div>)}
         <div className="row">
           <button type="button" className="pill mist" onClick={() => ctx.open({ k: 'trip', start: date })}>trip from this day</button>
