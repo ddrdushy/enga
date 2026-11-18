@@ -167,7 +167,7 @@ function PassTop({ ctx, trip, label }: { ctx: Ctx; trip: Trip; label: string }) 
       </div>
       <div className="row" style={{ gap: 10, flexWrap: 'wrap' }}>
         <span className="display" style={{ fontSize: 20 }}>{owner?.home ?? 'home'}</span>
-        <span className="route" aria-hidden="true"><i /><span style={{ display: 'flex', animation: 'nudge 1.8s ease-in-out infinite' }}>{Icon.arrow(18)}</span></span>
+        <span className="route" aria-hidden="true"><i /><span style={{ display: 'flex' }}>{Icon.arrow(18)}</span></span>
         <span className="dest">{trip.place}</span>
       </div>
       <div style={{ fontSize: 15, opacity: 0.85 }}>{fmtRange(trip.start, trip.end)} · {diffDays(trip.start, trip.end) + 1} days</div>

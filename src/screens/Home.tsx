@@ -186,7 +186,7 @@ export function OrbitScreen(ctx: Ctx) {
             return (
               <div key={p.id} style={{ display: 'flex', gap: 6, alignItems: 'stretch' }}>
                 <button type="button" className="pill" style={{ flex: 1, minWidth: 0, paddingLeft: 4, height: 'auto', minHeight: 44, whiteSpace: 'normal', textAlign: 'left', justifyContent: 'flex-start', background: w?.sure && w.kind === 'office' ? 'var(--butter)' : moving ? 'var(--peach)' : 'var(--card)' }} onClick={() => setPersonId(p.id)}>
-                  <Avatar p={p} size={34} style={{ animation: moving ? 'nudge 1.8s ease-in-out infinite' : undefined }} />
+                  <Avatar p={p} size={34} />
                   <span><b>{isMe ? 'you' : p.name}</b> · {w ? w.text : 'not checked in today'}</span>
                 </button>
                 {isMe && p.workType !== 'from home' && (
