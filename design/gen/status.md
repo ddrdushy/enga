@@ -171,7 +171,7 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | group/welcome-dushy | done | 0 | Dushy steps in from the left edge (suitcase cut at the edge in first frames); Kiru's trousers came out olive instead of black |
 | group/welcome-ali | done | 0 | arrival plays once per loop: Ali enters from the right, so frame 0 (without Ali) differs from the last frame; restart reads as a replay after the 2.5 s pause |
 | group/welcome-kiru | done | 0 | frames 8-15 drifted down up to 12 px with a strip of another frame at the top; re-aligned the frames and cropped 13 px rows in conversion |
-| group/birthday | pending | 0 |  |
+| group/birthday | done | 0 | party hats tight at the top edge |
 | sheets/wardrobe-v1 | done | 1 | first try came out as an animated pan; asked again for a still |
 | sheets/expressions-v1 | done | 0 | 8 expressions x 3 people |
 | sheets/outfits-daily-v1 | done | 0 | columns: work2, work3, out2, out3, out4, home2 |

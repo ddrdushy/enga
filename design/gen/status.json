@@ -283,5 +283,10 @@
   "state": "done",
   "retries": 0,
   "note": ""
+ },
+ "group/birthday": {
+  "state": "done",
+  "retries": 0,
+  "note": "party hats tight at the top edge"
  }
 }
