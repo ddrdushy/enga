@@ -583,5 +583,20 @@
   "state": "done",
   "retries": 0,
   "note": ""
+ },
+ "ali/home2/phone": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "ali/home2/sleep": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "ali/gym/idle": {
+  "state": "pending",
+  "retries": 0,
+  "note": "NEXT: ChatGPT image limit hit ('out of image creations, try again tomorrow at 1:08 AM'); prompt was sent but not generated. Resume here."
  }
 }
