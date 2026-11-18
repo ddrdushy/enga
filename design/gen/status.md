@@ -124,14 +124,14 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/out/birthday | pending | 0 |  |
 | kiru/home/idle | pending | 0 |  |
 | kiru/home/wave | pending | 0 |  |
-| kiru/home/tv | pending | 0 |  |
-| kiru/home/phone | pending | 0 |  |
-| kiru/home/cook | pending | 0 |  |
-| kiru/home/sleep | pending | 0 |  |
+| kiru/home/tv | done | 0 |  |
+| kiru/home/phone | done | 0 |  |
+| kiru/home/cook | done | 0 |  |
+| kiru/home/sleep | done | 0 |  |
 | kiru/home/laugh | pending | 0 |  |
 | kiru/work/idle | pending | 0 |  |
 | kiru/work/wave | pending | 0 |  |
-| kiru/work/type | pending | 0 |  |
+| kiru/work/type | done | 0 | hair renders a little more reddish-brown |
 | kiru/work/coffee | pending | 0 |  |
 | kiru/work/laugh | pending | 0 |  |
 | kiru/work2/idle | pending | 0 |  |

@@ -188,5 +188,30 @@
   "state": "done",
   "retries": 0,
   "note": ""
+ },
+ "kiru/home/tv": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "kiru/home/phone": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "kiru/home/cook": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "kiru/home/sleep": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "kiru/work/type": {
+  "state": "done",
+  "retries": 0,
+  "note": "hair renders a little more reddish-brown"
  }
 }
