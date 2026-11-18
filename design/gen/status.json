@@ -233,5 +233,15 @@
   "state": "done",
   "retries": 0,
   "note": ""
+ },
+ "group/welcome-ali": {
+  "state": "done",
+  "retries": 0,
+  "note": "arrival plays once per loop: Ali enters from the right, so frame 0 (without Ali) differs from the last frame; restart reads as a replay after the 2.5 s pause"
+ },
+ "kiru/out/pack": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
  }
 }

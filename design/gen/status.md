@@ -119,7 +119,7 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/out/cheer | done | 1 | an earlier master-sheet-look version was discarded |
 | kiru/out/walk | done | 0 |  |
 | kiru/out/travel | done | 0 |  |
-| kiru/out/pack | pending | 0 |  |
+| kiru/out/pack | done | 0 |  |
 | kiru/out/rain | pending | 0 |  |
 | kiru/out/birthday | pending | 0 |  |
 | kiru/home/idle | pending | 0 |  |
@@ -169,7 +169,7 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | group/hello | done | 3 | redone with Kiru v2 look; 2 versions rejected (ghost second glass in one frame; glass switching hands + figures cut off); final: Kiru holds ONE glass in the same hand in all 16 frames (checked frame by frame) |
 | group/hug | pending | 0 |  |
 | group/welcome-dushy | done | 0 | Dushy steps in from the left edge (suitcase cut at the edge in first frames); Kiru's trousers came out olive instead of black |
-| group/welcome-ali | pending | 0 |  |
+| group/welcome-ali | done | 0 | arrival plays once per loop: Ali enters from the right, so frame 0 (without Ali) differs from the last frame; restart reads as a replay after the 2.5 s pause |
 | group/welcome-kiru | pending | 0 |  |
 | group/birthday | pending | 0 |  |
 | sheets/wardrobe-v1 | done | 1 | first try came out as an animated pan; asked again for a still |
