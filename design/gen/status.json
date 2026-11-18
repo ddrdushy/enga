@@ -213,5 +213,10 @@
   "state": "done",
   "retries": 0,
   "note": "hair renders a little more reddish-brown"
+ },
+ "kiru/work/coffee": {
+  "state": "done",
+  "retries": 0,
+  "note": "tea break with ONE glass of milky tea (checked every frame)"
  }
 }

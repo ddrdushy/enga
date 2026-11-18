@@ -132,7 +132,7 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/work/idle | pending | 0 |  |
 | kiru/work/wave | pending | 0 |  |
 | kiru/work/type | done | 0 | hair renders a little more reddish-brown |
-| kiru/work/coffee | pending | 0 |  |
+| kiru/work/coffee | done | 0 | tea break with ONE glass of milky tea (checked every frame) |
 | kiru/work/laugh | pending | 0 |  |
 | kiru/work2/idle | pending | 0 |  |
 | kiru/work2/wave | pending | 0 |  |
