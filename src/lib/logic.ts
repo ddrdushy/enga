@@ -1,5 +1,5 @@
 import type { Data, EventItem, ID, Person, Stop, Trip } from './types.ts'
-import { dayProgress, dayToday } from './day.ts'
+import { dayProgress, dayToday, myDayRows } from './day.ts'
 import { addDays, diffDays, fmt, fmtRange, inDays, mondayIndex, toIso } from './dates.ts'
 import { clock, rightNow, workLine } from './work.ts'
 
@@ -122,6 +122,12 @@ export function digest(data: Data, meId: ID, date: string): string[] {
       const work = workLine(me.workPlan, mondayIndex(date))
       if (work) lines.push(work)
     }
+    // The places listed for today, including invites not answered yet.
+    const places = myDayRows(data.people, meId, date).filter((r) => r.stop.state !== 'skipped').map((r) => {
+      const extra = [r.stop.time ? clock(r.stop.time) : '', r.pending ? `invite from ${r.invite?.ownerName ?? 'a friend'}` : ''].filter(Boolean).join(', ')
+      return extra ? `${r.stop.name} (${extra})` : r.stop.name
+    })
+    if (places.length) lines.push(`Your places today: ${places.join(', ')}.`)
   }
 
   if (opts.friends) {
@@ -177,10 +183,10 @@ export function whereDetail(data: Data, p: Person, viewerId: ID, date: string, t
   const w = whereIs(data, p, date)
   const rows: [string, string][] = []
   const isToday = date === today
-  const stops = isToday ? dayToday(p.day, date)?.stops : undefined
+  const stops = date >= today ? dayToday(p.days, date)?.stops : undefined
   const now = isToday ? rightNow(p, date, mondayIndex(date), minutes) : null
   const progress = stops ? dayProgress(stops) : null
-  const today_ = progress ? `${progress.done} of ${progress.total} places done${progress.skipped ? `, ${progress.skipped} skipped` : ''}` : ''
+  const today_ = !progress ? '' : isToday ? `${progress.done} of ${progress.total} places done${progress.skipped ? `, ${progress.skipped} skipped` : ''}` : `${progress.total} place${progress.total === 1 ? '' : 's'} planned`
   if (w.trip) {
     const t = w.trip
     const total = diffDays(t.start, t.end) + 1
@@ -199,13 +205,13 @@ export function whereDetail(data: Data, p: Person, viewerId: ID, date: string, t
     } else {
       rows.push(['staying at', p.id === viewerId ? 'not added yet' : 'not shared yet'])
     }
-    if (today_) rows.push(['today', today_])
+    if (today_) rows.push([isToday ? 'today' : 'that day', today_])
     return { headline: `in ${t.place}`, sub: `day ${diffDays(t.start, date) + 1} of ${total} \u00b7 back ${fmt(t.end)}${isToday ? ` (${inDays(date, t.end)})` : ''}`, rows, trip: t, stops }
   }
   const home = [p.house, p.home].filter(Boolean).join(', ')
   if (home) rows.push(['lives in', home])
   if (p.office) rows.push(['office', p.office])
-  if (today_) rows.push(['today', today_])
+  if (today_) rows.push([isToday ? 'today' : 'that day', today_])
   if (now?.sure && now.kind === 'office') return { headline: 'at the office', sub: [now.tail, p.office].filter(Boolean).join(' \u00b7 '), rows, stops }
   if (now?.sure && now.kind === 'stop') return { headline: now.head ?? '', sub: now.tail ?? '', rows, stops }
   if (now?.sure && now.kind === 'home') return { headline: 'at home', sub: [now.tail, p.house].filter(Boolean).join(' \u00b7 '), rows, stops }

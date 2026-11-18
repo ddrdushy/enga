@@ -1,8 +1,9 @@
 import { isNewer, latestFrom } from './update.ts'
 import { withSamples } from './sample.ts'
 import { rightNow, spotToday } from './work.ts'
-import { dayOf, optsOf, spotOf } from './store.ts'
-import { addStop, answerInvite, checkInAt, companions, dayProgress, dayToday, invitesFor, moveStop, myDayRows, removeStop, reopenStop, skipStop } from './day.ts'
+import { plansOf, optsOf, spotOf } from './store.ts'
+import { packExtras } from './extras.ts'
+import { addStop, answerInvite, checkInAt, companions, dayProgress, dayToday, invitesFor, moveStop, myDayRows, removeStop, reopenStop, skipStop, upcomingInvites, withDay } from './day.ts'
 import type { Stop } from './types'
 import { describe, expect, it } from 'vitest'
 import type { Data, Person, Trip } from './types'
@@ -11,7 +12,7 @@ import { addDays, addMonths, daysInMonth, diffDays, fmt, fmtRange, inDays, monda
 import { clock, daysOf, defaultPlan, duration, workLine, workNow } from './work'
 
 const person = (id: string, name: string): Person => ({
-  id, name, initial: name[0], color: '#000', ink: '#fff', home: 'Kuala Lumpur', house: '', office: '', workType: '', spot: null, day: null, workPlan: null,
+  id, name, initial: name[0], color: '#000', ink: '#fff', home: 'Kuala Lumpur', house: '', office: '', workType: '', spot: null, days: [], workPlan: null,
   emergencyContacts: [], reminderTime: '08:00', reminderOpts: { mine: true, friends: true, news: true },
 })
 const trip = (id: string, ownerId: string, place: string, start: string, end: string, extra: Partial<Trip> = {}): Trip => ({
@@ -279,25 +280,25 @@ describe("today's places", () => {
   })
 
   it('counts only on its own day', () => {
-    expect(dayToday({ date: '2026-11-18', stops: five }, '2026-11-18')?.stops).toHaveLength(5)
-    expect(dayToday({ date: '2026-11-17', stops: five }, '2026-11-18')).toBeNull()
+    expect(dayToday([{ date: '2026-11-18', stops: five }], '2026-11-18')?.stops).toHaveLength(5)
+    expect(dayToday([{ date: '2026-11-17', stops: five }], '2026-11-18')).toBeNull()
     expect(dayToday(null, '2026-11-18')).toBeNull()
   })
 
   it('shows the latest check-in, whichever kind it was', () => {
     const stops = checkInAt(checkInAt(five, id('Bangsar South'), at(9, 50)), id('Mid Valley'), at(11, 40))
-    const day = { date: '2026-11-18', stops }
-    expect(rightNow({ workPlan: null, spot: null, day }, '2026-11-18', 2, 720)).toMatchObject({ kind: 'stop', sure: true, text: 'at Mid Valley \u00b7 since 11:40 am \u00b7 2 of 5 places' })
+    const days = [{ date: '2026-11-18', stops }]
+    expect(rightNow({ workPlan: null, spot: null, days }, '2026-11-18', 2, 720)).toMatchObject({ kind: 'stop', sure: true, text: 'at Mid Valley \u00b7 since 11:40 am \u00b7 2 of 5 places' })
     // an office check-in after the last stop wins; one before it does not
-    expect(rightNow({ workPlan: null, spot: { kind: 'office', at: at(14, 0) }, day }, '2026-11-18', 2, 900)?.kind).toBe('office')
-    expect(rightNow({ workPlan: null, spot: { kind: 'office', at: at(9, 0) }, day }, '2026-11-18', 2, 900)?.kind).toBe('stop')
+    expect(rightNow({ workPlan: null, spot: { kind: 'office', at: at(14, 0) }, days }, '2026-11-18', 2, 900)?.kind).toBe('office')
+    expect(rightNow({ workPlan: null, spot: { kind: 'office', at: at(9, 0) }, days }, '2026-11-18', 2, 900)?.kind).toBe('stop')
     // a list with nothing checked in yet is only a plan
-    expect(rightNow({ workPlan: null, spot: null, day: { date: '2026-11-18', stops: five } }, '2026-11-18', 2, 600)).toEqual({ kind: 'plan', text: '5 places today \u00b7 first Bangsar South \u00b7 not checked in', sure: false })
+    expect(rightNow({ workPlan: null, spot: null, days: [{ date: '2026-11-18', stops: five }] }, '2026-11-18', 2, 600)).toEqual({ kind: 'plan', text: '5 places today \u00b7 first Bangsar South \u00b7 not checked in', sure: false })
   })
 
   it('appears in the person details, at home or on a trip', () => {
     const stops = skipStop(checkInAt(five, id('Bangsar South'), at(9, 50)), id('Mid Valley'))
-    const p = { id: 'k', name: 'Kiru', home: 'Kuala Lumpur', house: '', office: '', workPlan: null, spot: null, day: { date: '2026-11-18', stops } } as Person
+    const p = { id: 'k', name: 'Kiru', home: 'Kuala Lumpur', house: '', office: '', workPlan: null, spot: null, days: [{ date: '2026-11-18', stops }] } as Person
     const data: Data = { people: [p], trips: [], events: [], cards: [], checkins: [] }
     const home = whereDetail(data, p, 'me', '2026-11-18', '2026-11-18', 700)
     expect(home.headline).toBe('at Bangsar South')
@@ -314,17 +315,17 @@ describe("today's places", () => {
 
   it('survives being stored beside the reminder switches, and drops rubbish', () => {
     const stored = { mine: true, friends: true, news: false, spot: null, day: { date: '2026-11-18', stops: [{ id: 'a', name: 'KLCC', state: 'done', at: at(9, 0) }, { id: 'b', name: '', state: 'todo' }, { name: 'no id' }, { id: 'c', name: 'TTDI', state: 'flying' }] } }
-    expect(dayOf(stored)).toEqual({ date: '2026-11-18', stops: [{ id: 'a', name: 'KLCC', state: 'done', at: at(9, 0) }, { id: 'c', name: 'TTDI', state: 'todo' }] })
+    expect(plansOf(stored)).toEqual([{ date: '2026-11-18', stops: [{ id: 'a', name: 'KLCC', state: 'done', at: at(9, 0) }, { id: 'c', name: 'TTDI', state: 'todo' }] }])
     expect(optsOf(stored)).toEqual({ mine: true, friends: true, news: false })
-    expect(dayOf({ mine: true })).toBeNull()
-    expect(dayOf({ day: { date: '2026-11-18', stops: 'nope' } })).toBeNull()
+    expect(plansOf({ mine: true })).toEqual([])
+    expect(plansOf({ day: { date: '2026-11-18', stops: 'nope' } })).toEqual([])
   })
 })
 
 describe('home check-in and shared places', () => {
   const at = (h: number, m: number) => new Date(2026, 10, 18, h, m).toISOString()
   const D = '2026-11-18'
-  const person = (id: string, name: string, stops: Stop[] = []) => ({ id, name, home: 'Kuala Lumpur', house: 'Wangsa Maju', office: '', workPlan: null, spot: null, day: stops.length ? { date: D, stops } : null }) as Person
+  const person = (id: string, name: string, stops: Stop[] = []) => ({ id, name, home: 'Kuala Lumpur', house: 'Wangsa Maju', office: '', workPlan: null, spot: null, days: stops.length ? [{ date: D, stops }] : [] }) as Person
 
   it('"at home" shows as a check-in, with the area', () => {
     const p = { ...person('d', 'Dushy'), spot: { kind: 'home' as const, at: at(19, 5) } }
@@ -351,7 +352,7 @@ describe('home check-in and shared places', () => {
     expect(myDayRows(people, 'a', '2026-11-19')).toEqual([])
 
     // Ali checks in: her own copy goes on her list, and Kiru sees that she is there
-    const aliStops = answerInvite(ali.day!.stops, rows[1], 'done', at(13, 5))
+    const aliStops = answerInvite(ali.days[0].stops, rows[1], 'done', at(13, 5))
     expect(aliStops).toHaveLength(2)
     expect(aliStops[1]).toMatchObject({ state: 'done', ref: `k/${lunch.id}`, time: '13:00', with: ['k'] })
     const after = [dushy, person('a', 'Ali', aliStops), kiru]
@@ -373,7 +374,58 @@ describe('home check-in and shared places', () => {
 
   it('stores times, people and invite copies, and drops malformed ones', () => {
     const stored = { day: { date: D, stops: [{ id: 'a', name: 'Lunch', state: 'todo', time: '13:00', with: ['k', 7], ref: 'k/x1' }, { id: 'b', name: 'Bank', state: 'todo', time: '1pm', with: 'k', ref: 'nope' }] } }
-    expect(dayOf(stored)?.stops).toEqual([{ id: 'a', name: 'Lunch', state: 'todo', time: '13:00', with: ['k'], ref: 'k/x1' }, { id: 'b', name: 'Bank', state: 'todo' }])
+    expect(plansOf(stored)[0]?.stops).toEqual([{ id: 'a', name: 'Lunch', state: 'todo', time: '13:00', with: ['k'], ref: 'k/x1' }, { id: 'b', name: 'Bank', state: 'todo' }])
     expect(spotOf({ spot: { kind: 'home', at: at(19, 0) } })).toEqual({ kind: 'home', at: at(19, 0) })
+  })
+})
+
+describe('planning days ahead', () => {
+  const T = '2026-11-18'
+  const lunch = addStop([], 'Lunch at Nando\u2019s', { time: '13:00', with: ['a'] })
+  const person = (id: string, name: string, days: { date: string; stops: Stop[] }[] = []) => ({ id, name, home: 'Kuala Lumpur', house: '', office: '', workPlan: null, spot: null, days, reminderOpts: { mine: true, friends: true, news: true } }) as Person
+
+  it('keeps one list per day, replaces or clears a day, and drops days that have passed', () => {
+    let days = withDay([], '2026-11-20', lunch, T)
+    days = withDay(days, T, addStop([], 'Bank'), T)
+    expect(days.map((d) => d.date)).toEqual([T, '2026-11-20'])
+    expect(withDay(days, '2026-11-20', [], T).map((d) => d.date)).toEqual([T])
+    expect(withDay(days, '2026-11-21', addStop([], 'Gym'), '2026-11-19').map((d) => d.date)).toEqual(['2026-11-20', '2026-11-21'])
+    expect(withDay(days, '2026-11-10', addStop([], 'Past'), T).map((d) => d.date)).toEqual([T, '2026-11-20'])
+    expect(dayToday(days, '2026-11-20')?.stops[0].name).toBe('Lunch at Nando\u2019s')
+    expect(dayToday(days, '2026-11-19')).toBeNull()
+  })
+
+  it('a plan for another day does not look like today', () => {
+    const p = person('k', 'Kiru', [{ date: '2026-11-20', stops: lunch }])
+    expect(rightNow(p, T, 2, 600)).toBeNull()
+    const data: Data = { people: [p], trips: [], events: [], cards: [], checkins: [] }
+    expect(whereDetail(data, p, 'x', T, T, 600).stops).toBeUndefined()
+    const friday = whereDetail(data, p, 'x', '2026-11-20', T, 600)
+    expect(friday.stops).toHaveLength(1)
+    expect(friday.rows).toContainEqual(['that day', '1 place planned'])
+  })
+
+  it('tells the invited person ahead of time, and again in that morning\u2019s message', () => {
+    const kiru = person('k', 'Kiru', [{ date: '2026-11-20', stops: lunch }])
+    const ali = person('a', 'Ali')
+    const data: Data = { people: [ali, kiru], trips: [], events: [], cards: [], checkins: [] }
+    expect(upcomingInvites(data.people, 'a', T).map((u) => [u.date, u.invite.ownerName, u.invite.stop.name])).toEqual([['2026-11-20', 'Kiru', 'Lunch at Nando\u2019s']])
+    expect(upcomingInvites(data.people, 'k', T)).toEqual([])
+    expect(digest(data, 'a', T).join(' ')).not.toContain('Lunch')
+    expect(digest(data, 'a', '2026-11-20')).toContain('Your places today: Lunch at Nando\u2019s (1:00 pm, invite from Kiru).')
+    expect(digest(data, 'k', '2026-11-20')).toContain('Your places today: Lunch at Nando\u2019s (1:00 pm).')
+    // once answered it is no longer "upcoming"
+    const answered = person('a', 'Ali', [{ date: '2026-11-20', stops: answerInvite([], myDayRows(data.people, 'a', '2026-11-20')[0], 'skipped', '') }])
+    expect(upcomingInvites([answered, kiru], 'a', T)).toEqual([])
+  })
+
+  it('stores all days, reads the older single-day shape, and keeps today\u2019s list where older copies of the app look', () => {
+    const days = [{ date: '2026-11-17', stops: addStop([], 'Old') }, { date: T, stops: addStop([], 'Bank') }, { date: '2026-11-20', stops: lunch }]
+    const packed = packExtras({ mine: true, friends: false, news: true }, null, days, T)
+    expect((packed.plans as { date: string }[]).map((d) => d.date)).toEqual([T, '2026-11-20'])
+    expect((packed.day as { date: string }).date).toBe(T)
+    expect(plansOf(packed).map((d) => d.date)).toEqual([T, '2026-11-20'])
+    expect(optsOf(packed)).toEqual({ mine: true, friends: false, news: true })
+    expect(plansOf({ day: { date: T, stops: [{ id: 'a', name: 'KLCC', state: 'todo' }] } }).map((d) => d.date)).toEqual([T])
   })
 })

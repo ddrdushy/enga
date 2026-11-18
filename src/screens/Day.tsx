@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import type { Ctx } from '../ctx'
 import type { ID, Person, Stop } from '../lib/types'
-import { today } from '../lib/dates'
-import { MAX_NAME, MAX_STOPS, addStop, answerInvite, checkInAt, companions, dayToday, moveStop, myDayRows, removeStop, reopenStop, skipStop } from '../lib/day'
+import { addDays, fmt, today } from '../lib/dates'
+import { MAX_NAME, MAX_STOPS, addStop, answerInvite, checkInAt, companions, dayToday, moveStop, myDayRows, removeStop, reopenStop, skipStop, upcomingInvites } from '../lib/day'
 import type { DayRow } from '../lib/day'
 import { clock } from '../lib/work'
 import { Avatar, Icon } from '../ui'
@@ -20,8 +20,8 @@ function withLine(people: Person[], viewerId: ID, ownerId: ID, stop: Stop, date:
 }
 
 /** A read-only list of someone's places for today: done with the time, skipped struck through, the rest numbered. */
-export function StopList({ stops, people, ownerId, viewerId }: { stops: Stop[]; people: Person[]; ownerId: ID; viewerId: ID }) {
-  const t = today()
+export function StopList({ stops, people, ownerId, viewerId, date }: { stops: Stop[]; people: Person[]; ownerId: ID; viewerId: ID; date: string }) {
+  const t = date
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
       {stops.map((s, i) => {
@@ -56,10 +56,15 @@ function Dot({ stop, n }: { stop: Stop; n: number }) {
  * it then shows on their day too, and each of you checks in for yourself. Friends see where you last checked in.
  */
 export function MyDay({ ctx }: { ctx: Ctx }) {
-  const t = today()
+  const now_ = today()
   const { me, data } = ctx
-  const stops = dayToday(me.day, t)?.stops ?? []
+  // The day being looked at: today, or a day ahead being planned.
+  const [day, setDay] = useState(now_)
+  const t = day < now_ ? now_ : day
+  const ahead = t > now_
+  const stops = dayToday(me.days, t)?.stops ?? []
   const rows = myDayRows(data.people, me.id, t)
+  const coming = upcomingInvites(data.people, me.id, now_)
   const others = data.people.filter((p) => p.id !== me.id)
   const [name, setName] = useState('')
   const [time, setTime] = useState('')
@@ -70,7 +75,7 @@ export function MyDay({ ctx }: { ctx: Ctx }) {
   const save = (next: Stop[]) => {
     if (next === stops || busy) return
     setBusy(true)
-    void ctx.run(() => ctx.store.setDay(next)).finally(() => setBusy(false))
+    void ctx.run(() => ctx.store.setDay(t, next)).finally(() => setBusy(false))
   }
   const add = () => {
     const next = addStop(stops, name, { time, with: friends })
@@ -88,10 +93,27 @@ export function MyDay({ ctx }: { ctx: Ctx }) {
   return (
     <div data-tour="myday" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
       <div className="between">
-        <div className="h2">my day{rows.length > 0 && <span style={{ fontWeight: 500, color: 'var(--muted)' }}> · {done} of {rows.length}</span>}</div>
+        <div className="h2">{ahead ? `my plan · ${fmt(t)}` : 'my day'}{rows.length > 0 && <span style={{ fontWeight: 500, color: 'var(--muted)' }}> · {ahead ? `${rows.length} place${rows.length === 1 ? '' : 's'}` : `${done} of ${rows.length}`}</span>}</div>
         {stops.length > 1 && <button type="button" className={`pill${sorting ? ' dark' : ''}`} style={{ height: 36 }} aria-pressed={sorting} onClick={() => setSorting(!sorting)}>{sorting ? 'done' : 'reorder'}</button>}
       </div>
-      {rows.length === 0 && <div className="small">Going to a few places today? List them, then check in at each one. Add a friend to a place, lunch say, and it shows on their day too.</div>}
+      <div className="chips" role="group" aria-label="Which day" style={{ alignItems: 'center' }}>
+        <button type="button" className={`pill${t === now_ ? ' dark' : ''}`} style={{ height: 36 }} aria-pressed={t === now_} onClick={() => setDay(now_)}>today</button>
+        <button type="button" className={`pill${t === addDays(now_, 1) ? ' dark' : ''}`} style={{ height: 36 }} aria-pressed={t === addDays(now_, 1)} onClick={() => setDay(addDays(now_, 1))}>tomorrow</button>
+        <label className={`pill${t > addDays(now_, 1) ? ' dark' : ''}`} style={{ height: 36, gap: 6, position: 'relative' }}>
+          {t > addDays(now_, 1) ? fmt(t) : 'another day'}
+          <input type="date" aria-label="Plan another day" min={now_} value={t} onChange={(e) => { if (e.target.value) setDay(e.target.value) }} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0 }} />
+        </label>
+      </div>
+      {coming.length > 0 && (
+        <div className="chips">
+          {coming.map(({ date, invite }) => (
+            <button key={invite.ref} type="button" className="pill" style={{ height: 'auto', minHeight: 36, whiteSpace: 'normal', textAlign: 'left', background: 'var(--peach)' }} onClick={() => setDay(date)}>
+              {invite.ownerName} invited you · {invite.stop.name} · {fmt(date)}
+            </button>
+          ))}
+        </div>
+      )}
+      {rows.length === 0 && <div className="small">{ahead ? `Nothing planned for ${fmt(t)} yet. Add a place; add a friend to it and it shows on their day too.` : 'Going to a few places today? List them, then check in at each one. Add a friend to a place, lunch say, and it shows on their day too.'}</div>}
       {rows.map((r, i) => {
         const s = r.stop
         const line = sub(r)
@@ -106,7 +128,9 @@ export function MyDay({ ctx }: { ctx: Ctx }) {
             {r.pending ? (
               <>
                 <button type="button" className="pill mist" style={small} aria-label={`Not going to ${s.name}`} onClick={() => save(answerInvite(stops, r, 'skipped', now()))}>skip</button>
-                <button type="button" className="pill dark" style={small} aria-label={`Check in at ${s.name}`} onClick={() => save(answerInvite(stops, r, 'done', now()))}>here</button>
+                {ahead
+                  ? <button type="button" className="pill dark" style={small} aria-label={`Join ${s.name}`} onClick={() => save(answerInvite(stops, r, 'todo', now()))}>join</button>
+                  : <button type="button" className="pill dark" style={small} aria-label={`Check in at ${s.name}`} onClick={() => save(answerInvite(stops, r, 'done', now()))}>here</button>}
               </>
             ) : sorting ? (
               <>
@@ -114,6 +138,8 @@ export function MyDay({ ctx }: { ctx: Ctx }) {
                 <button type="button" className="round" style={iconBtn} disabled={at === stops.length - 1} aria-label={`Move ${s.name} down`} onClick={() => save(moveStop(stops, s.id, 1))}><span style={{ display: 'flex', rotate: '-90deg', opacity: at === stops.length - 1 ? 0.3 : 1 }}><Icon.back /></span></button>
                 <button type="button" className="round" style={iconBtn} aria-label={`Remove ${s.name}`} onClick={() => save(removeStop(stops, s.id))}><Icon.close /></button>
               </>
+            ) : s.state === 'todo' && ahead ? (
+              <button type="button" className="round" style={iconBtn} aria-label={`Remove ${s.name}`} onClick={() => save(removeStop(stops, s.id))}><Icon.close /></button>
             ) : s.state === 'todo' ? (
               <>
                 <button type="button" className="pill mist" style={small} aria-label={`Skip ${s.name}`} onClick={() => save(skipStop(stops, s.id))}>skip</button>
@@ -128,7 +154,7 @@ export function MyDay({ ctx }: { ctx: Ctx }) {
       {stops.length < MAX_STOPS && (
         <form style={{ display: 'flex', flexDirection: 'column', gap: 8 }} onSubmit={(e) => { e.preventDefault(); add() }}>
           <div className="row" style={{ gap: 6 }}>
-            <input className="field plain grow" aria-label="Add a place for today" placeholder={rows.length ? 'add another place' : 'first place today'} maxLength={MAX_NAME} enterKeyHint="done" value={name} onChange={(e) => setName(e.target.value)} />
+            <input className="field plain grow" aria-label={ahead ? `Add a place for ${fmt(t)}` : 'Add a place for today'} placeholder={rows.length ? 'add another place' : ahead ? 'first place that day' : 'first place today'} maxLength={MAX_NAME} enterKeyHint="done" value={name} onChange={(e) => setName(e.target.value)} />
             <button type="submit" className="pill dark" style={{ height: 48, borderRadius: 16, flex: 'none', opacity: name.trim() ? 1 : 0.4 }} disabled={!name.trim()}>add</button>
           </div>
           {name.trim() !== '' && (

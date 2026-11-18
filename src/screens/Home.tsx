@@ -288,8 +288,8 @@ function PersonSheet({ ctx, id, onClose }: { ctx: Ctx; id: string; onClose: () =
       </div>
       {where.stops && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <div className="label">{isMe ? 'your places today' : `${p.name}'s places today`}</div>
-          <StopList stops={where.stops} people={data.people} ownerId={p.id} viewerId={me.id} />
+          <div className="label">{isMe ? 'your places' : `${p.name}'s places`} {date === today() ? 'today' : `on ${fmt(date)}`}</div>
+          <StopList stops={where.stops} people={data.people} ownerId={p.id} viewerId={me.id} date={date} />
         </div>
       )}
       <div className="row" style={{ flexWrap: 'wrap' }}>

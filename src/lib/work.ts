@@ -105,9 +105,9 @@ const timeOf = (iso: string) => { const d = new Date(iso); return clock(d.getHou
  * places on their list for the day. Without one there is only a plan or the usual week, worded as such:
  * nobody is shown as "at" somewhere unless they said so.
  */
-export function rightNow(p: { workPlan: WorkPlan | null; spot: Spot | null; day?: DayPlan | null }, date: string, dayIndex: number, minutes: number): RightNow | null {
+export function rightNow(p: { workPlan: WorkPlan | null; spot: Spot | null; days?: DayPlan[] | null }, date: string, dayIndex: number, minutes: number): RightNow | null {
   const spot = spotToday(p.spot, date)
-  const day = dayToday(p.day, date)
+  const day = dayToday(p.days, date)
   const progress = day ? dayProgress(day.stops) : null
   const last = progress?.last
   if (last?.at && (!spot || last.at > spot.at)) {

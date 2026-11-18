@@ -1,6 +1,9 @@
-import type { Checkin, Contact, Data, EventItem, ID, Keen, Member, Person, DayPlan, ReminderOpts, Rsvp, SafetyCard, Spot, Stop, Trip } from './types'
-import { MAX_NAME, MAX_STOPS } from './day'
+import type { Checkin, Contact, Data, EventItem, ID, Keen, Member, Person, Rsvp, SafetyCard, Spot, Stop, Trip } from './types'
+import { withDay } from './day'
+import { plansOf, optsOf, packExtras, spotOf } from './extras'
 import { today as todayIso } from './dates'
+
+export { plansOf, optsOf, spotOf }
 import { addDays, today } from './dates'
 
 export interface TripInput {
@@ -40,8 +43,8 @@ export interface Store {
   checkin(tripId: ID): Promise<void>
   /** "I am home" / "I am at the office" / "I am on the move" for today; null clears it. Friends see it straight away. */
   setSpot(kind: Spot['kind'] | null): Promise<void>
-  /** Today's list of places, in order, with which are done or skipped. An empty list clears it. */
-  setDay(stops: Stop[]): Promise<void>
+  /** The list of places for one day ('YYYY-MM-DD', today or later), in order. An empty list clears that day. */
+  setDay(date: string, stops: Stop[]): Promise<void>
   saveProfile(patch: ProfilePatch): Promise<void>
   /** This phone's push subscription, for the morning notification. */
   savePush(sub: { endpoint: string; p256dh: string; auth: string }): Promise<void>
@@ -84,46 +87,11 @@ interface DemoState extends Data {
   me: ID | null
 }
 
-/** The three reminder switches, whatever else is stored beside them. */
-export function optsOf(raw: unknown): ReminderOpts {
-  const o = (typeof raw === 'object' && raw !== null ? raw : {}) as Record<string, unknown>
-  return { mine: o.mine !== false, friends: o.friends !== false, news: o.news !== false }
-}
-
-/**
- * The office check-in. It is kept inside the profile's reminder_opts JSON, under "spot", so that it
- * needed no database change; a column of its own can replace this later without touching the app.
- */
-export function spotOf(raw: unknown): Spot | null {
-  const spot = (typeof raw === 'object' && raw !== null ? (raw as Record<string, unknown>).spot : null) as Record<string, unknown> | null | undefined
-  if (!spot || typeof spot.at !== 'string' || (spot.kind !== 'office' && spot.kind !== 'left' && spot.kind !== 'home')) return null
-  return { kind: spot.kind, at: spot.at }
-}
-
-/** Today's list of places, kept beside the check-in under "day" in the same JSON. Anything malformed is dropped. */
-export function dayOf(raw: unknown): DayPlan | null {
-  const day = (typeof raw === 'object' && raw !== null ? (raw as Record<string, unknown>).day : null) as Record<string, unknown> | null | undefined
-  if (!day || typeof day.date !== 'string' || !Array.isArray(day.stops)) return null
-  const stops: Stop[] = []
-  for (const s of day.stops as Record<string, unknown>[]) {
-    if (!s || typeof s.id !== 'string' || typeof s.name !== 'string' || !s.name.trim()) continue
-    const state = s.state === 'done' || s.state === 'skipped' ? s.state : 'todo'
-    const stop: Stop = { id: s.id, name: s.name.slice(0, MAX_NAME), state }
-    if (state === 'done' && typeof s.at === 'string') stop.at = s.at
-    if (typeof s.time === 'string' && /^\d\d:\d\d$/.test(s.time)) stop.time = s.time
-    if (Array.isArray(s.with)) { const ids = (s.with as unknown[]).filter((x): x is string => typeof x === 'string').slice(0, 8); if (ids.length) stop.with = ids }
-    if (typeof s.ref === 'string' && s.ref.includes('/')) stop.ref = s.ref
-    stops.push(stop)
-    if (stops.length >= MAX_STOPS) break
-  }
-  return stops.length ? { date: day.date, stops } : null
-}
-
 function seed(): DemoState {
   const t = today()
   const now = new Date().toISOString()
   const people: Person[] = MEMBERS.map((m) => ({
-    id: m.slug, name: m.name, initial: m.initial, color: m.color, ink: m.ink, home: 'Kuala Lumpur', house: '', office: '', workType: '', workPlan: null, spot: null, day: null,
+    id: m.slug, name: m.name, initial: m.initial, color: m.color, ink: m.ink, home: 'Kuala Lumpur', house: '', office: '', workType: '', workPlan: null, spot: null, days: [],
     emergencyContacts: [], reminderTime: '08:00', reminderOpts: { mine: true, friends: true, news: true },
   }))
   const [a, b, c] = people.map((p) => p.id)
@@ -147,7 +115,7 @@ function demoStore(): Store {
       if (raw) {
         const saved = JSON.parse(raw) as DemoState
         // Older demo data may be missing newer fields.
-        for (const p of saved.people) { p.emergencyContacts ??= []; p.workPlan ??= null; p.spot ??= null; p.day ??= null; p.house ??= ''; p.office ??= ''; p.workType ??= '' }
+        for (const p of saved.people) { p.emergencyContacts ??= []; p.workPlan ??= null; p.spot ??= null; p.days ??= plansOf({ day: (p as unknown as { day?: unknown }).day }); p.house ??= ''; p.office ??= ''; p.workType ??= '' }
         return saved
       }
     } catch { /* fall through to a fresh seed */ }
@@ -224,9 +192,9 @@ function demoStore(): Store {
       const p = state.people.find((x) => x.id === me())
       if (p) { p.spot = kind ? { kind, at: new Date().toISOString() } : null; commit() }
     },
-    async setDay(stops) {
+    async setDay(date, stops) {
       const p = state.people.find((x) => x.id === me())
-      if (p) { p.day = stops.length ? { date: todayIso(), stops } : null; commit() }
+      if (p) { p.days = withDay(p.days, date, stops, todayIso()); commit() }
     },
     async saveProfile(patch) {
       const p = state.people.find((x) => x.id === me())
@@ -315,7 +283,7 @@ async function cloudStore(url: string, anonKey: string): Promise<Store> {
           return {
           id: r.id, name: r.name, initial: String(r.name ?? '?')[0].toUpperCase(),
           color: r.color ?? paint.color, ink: r.ink ?? paint.ink,
-          home: r.home ?? 'Kuala Lumpur', house: r.house ?? '', office: r.office ?? '', workType: r.work_type ?? '', workPlan: r.work_plan ?? null, spot: spotOf(r.reminder_opts), day: dayOf(r.reminder_opts), emergencyContacts: contactsOf(r),
+          home: r.home ?? 'Kuala Lumpur', house: r.house ?? '', office: r.office ?? '', workType: r.work_type ?? '', workPlan: r.work_plan ?? null, spot: spotOf(r.reminder_opts), days: plansOf(r.reminder_opts), emergencyContacts: contactsOf(r),
           reminderTime: r.reminder_time ?? '08:00', reminderOpts: optsOf(r.reminder_opts),
           }
         }),
@@ -367,13 +335,13 @@ async function cloudStore(url: string, anonKey: string): Promise<Store> {
       const id = await myId()
       const spot: Spot | null = kind ? { kind, at: new Date().toISOString() } : null
       const saved = await savedOpts(id)
-      check(await sb.from('profiles').update({ reminder_opts: { ...optsOf(saved), spot, day: dayOf(saved) } }).eq('id', id))
+      check(await sb.from('profiles').update({ reminder_opts: packExtras(optsOf(saved), spot, plansOf(saved), todayIso()) }).eq('id', id))
     },
-    async setDay(stops) {
+    async setDay(date, stops) {
       const id = await myId()
       const saved = await savedOpts(id)
-      const day: DayPlan | null = stops.length ? { date: todayIso(), stops } : null
-      check(await sb.from('profiles').update({ reminder_opts: { ...optsOf(saved), spot: spotOf(saved), day } }).eq('id', id))
+      const t = todayIso()
+      check(await sb.from('profiles').update({ reminder_opts: packExtras(optsOf(saved), spotOf(saved), withDay(plansOf(saved), date, stops, t), t) }).eq('id', id))
     },
     async saveProfile(patch) {
       const row: Row = {}
@@ -391,8 +359,8 @@ async function cloudStore(url: string, anonKey: string): Promise<Store> {
       }
       if (patch.reminderTime !== undefined) row.reminder_time = patch.reminderTime
       const id = await myId()
-      // The check-ins share this column (see spotOf and dayOf), so changing the reminder words must not wipe them.
-      if (patch.reminderOpts !== undefined) { const saved = await savedOpts(id); row.reminder_opts = { ...optsOf(patch.reminderOpts), spot: spotOf(saved), day: dayOf(saved) } }
+      // The check-ins and day lists share this column (see extras.ts), so changing the reminder words must not wipe them.
+      if (patch.reminderOpts !== undefined) { const saved = await savedOpts(id); row.reminder_opts = packExtras(optsOf(patch.reminderOpts), spotOf(saved), plansOf(saved), todayIso()) }
       check(await sb.from('profiles').update(row).eq('id', id))
     },
     async savePush(sub) {

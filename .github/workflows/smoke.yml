@@ -1,0 +1,20 @@
+# After Vercel reports a finished deploy, check that the live site and its two server functions still answer.
+# A function that fails to load answers 500; a healthy one answers 401 to a caller without the job secret.
+name: smoke
+on: status
+jobs:
+  live:
+    if: github.event.state == 'success' && github.event.context == 'Vercel'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the live app
+        run: |
+          APP=https://enga-nu.vercel.app
+          fail=0
+          check() { got=$(curl -s -o /dev/null -m 30 -w '%{http_code}' "${@:3}" "$2"); echo "$1: $got (want ${WANT})"; [ "$got" = "$WANT" ] || fail=1; }
+          WANT=200 check "app" "$APP/"
+          WANT=200 check "version" "$APP/version.json?t=$(date +%s)"
+          WANT=401 check "morning message function" "$APP/api/morning"
+          WANT=401 check "update notice function" "$APP/api/update" -X POST
+          curl -s -m 30 "$APP/version.json?t=$(date +%s)"; echo
+          exit $fail

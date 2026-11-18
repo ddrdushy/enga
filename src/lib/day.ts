@@ -4,9 +4,17 @@ import type { DayPlan, ID, Stop } from './types.ts'
 export const MAX_STOPS = 12
 export const MAX_NAME = 60
 
-/** The plan, if it was made for `date` ('YYYY-MM-DD'). Yesterday's list says nothing about today. */
-export function dayToday(day: DayPlan | null | undefined, date: string): DayPlan | null {
-  return day && day.date === date && day.stops.length > 0 ? day : null
+/** The list made for `date` ('YYYY-MM-DD'), if there is one. Another day's list says nothing about this one. */
+export function dayToday(days: DayPlan[] | null | undefined, date: string): DayPlan | null {
+  const day = days?.find((d) => d.date === date)
+  return day && day.stops.length > 0 ? day : null
+}
+
+/** The lists with one day's replaced (an empty list removes that day). Days before `today` are dropped. */
+export function withDay(days: DayPlan[] | null | undefined, date: string, stops: Stop[], today: string): DayPlan[] {
+  const rest = (days ?? []).filter((d) => d.date !== date && d.date >= today)
+  if (stops.length && date >= today) rest.push({ date, stops })
+  return rest.sort((a, b) => a.date.localeCompare(b.date))
 }
 
 const newId = () => Math.random().toString(36).slice(2, 10)
@@ -62,7 +70,7 @@ export function dayProgress(stops: Stop[]): DayProgress {
 
 /* ---------- places shared with other people ("lunch with Ali") ---------- */
 
-interface HasDay { id: ID; name: string; day?: DayPlan | null }
+interface HasDay { id: ID; name: string; days?: DayPlan[] | null }
 
 /** A place someone else put on their day and invited you to. */
 export interface Invite { ownerId: ID; ownerName: string; stop: Stop; ref: string }
@@ -72,7 +80,7 @@ export function invitesFor(people: HasDay[], meId: ID, date: string): Invite[] {
   const out: Invite[] = []
   for (const p of people) {
     if (p.id === meId) continue
-    for (const stop of dayToday(p.day, date)?.stops ?? []) {
+    for (const stop of dayToday(p.days, date)?.stops ?? []) {
       if (stop.with?.includes(meId) && stop.state !== 'skipped' && !stop.ref) out.push({ ownerId: p.id, ownerName: p.name, stop, ref: `${p.id}/${stop.id}` })
     }
   }
@@ -87,7 +95,7 @@ export interface DayRow { stop: Stop; invite?: Invite; pending: boolean }
  * A copy of an invite keeps the inviter's latest name and time, so a change on their side shows on yours.
  */
 export function myDayRows(people: HasDay[], meId: ID, date: string): DayRow[] {
-  const mine = dayToday(people.find((p) => p.id === meId)?.day, date)?.stops ?? []
+  const mine = dayToday(people.find((p) => p.id === meId)?.days, date)?.stops ?? []
   const invites = invitesFor(people, meId, date)
   const rows: DayRow[] = mine.map((stop) => {
     const invite = stop.ref ? invites.find((i) => i.ref === stop.ref) : undefined
@@ -101,8 +109,8 @@ export function myDayRows(people: HasDay[], meId: ID, date: string): DayRow[] {
   return rows
 }
 
-/** Answer an invite: put your own copy on your list, checked in ('done') or declined ('skipped'). */
-export function answerInvite(stops: Stop[], row: DayRow, state: 'done' | 'skipped', at: string): Stop[] {
+/** Answer an invite: put your own copy on your list: checked in ('done'), declined ('skipped'), or going ('todo', for a day ahead). */
+export function answerInvite(stops: Stop[], row: DayRow, state: Stop['state'], at: string): Stop[] {
   if (!row.pending || stops.length >= MAX_STOPS) return stops
   const copy: Stop = { id: newId(), name: row.stop.name, state, ref: row.stop.ref, with: row.stop.with }
   if (row.stop.time) copy.time = row.stop.time
@@ -114,15 +122,27 @@ export function answerInvite(stops: Stop[], row: DayRow, state: 'done' | 'skippe
 export function companions(people: HasDay[], meId: ID, stop: Stop, date: string): { id: ID; name: string; state: Stop['state']; at?: string }[] {
   const [ownerId, ownerStopId] = stop.ref ? stop.ref.split('/') : [meId, stop.id]
   const ref = `${ownerId}/${ownerStopId}`
-  const ownerStop = dayToday(people.find((p) => p.id === ownerId)?.day, date)?.stops.find((s) => s.id === ownerStopId)
+  const ownerStop = dayToday(people.find((p) => p.id === ownerId)?.days, date)?.stops.find((s) => s.id === ownerStopId)
   const everyone = [ownerId, ...(ownerStop?.with ?? stop.with ?? [])]
   const out: { id: ID; name: string; state: Stop['state']; at?: string }[] = []
   for (const id of [...new Set(everyone)]) {
     if (id === meId) continue
     const person = people.find((p) => p.id === id)
     if (!person) continue
-    const theirs = id === ownerId ? ownerStop : dayToday(person.day, date)?.stops.find((s) => s.ref === ref)
+    const theirs = id === ownerId ? ownerStop : dayToday(person.days, date)?.stops.find((s) => s.ref === ref)
     out.push({ id, name: person.name, state: theirs?.state ?? 'todo', at: theirs?.at })
+  }
+  return out
+}
+
+/** Invites on days after `today` that the person has not answered yet, soonest first: something to look at ahead of time. */
+export function upcomingInvites(people: HasDay[], meId: ID, today: string): { date: string; invite: Invite }[] {
+  const dates = new Set<string>()
+  for (const p of people) if (p.id !== meId) for (const d of p.days ?? []) if (d.date > today) dates.add(d.date)
+  const out: { date: string; invite: Invite }[] = []
+  for (const date of [...dates].sort()) {
+    const mine = dayToday(people.find((p) => p.id === meId)?.days, date)?.stops ?? []
+    for (const invite of invitesFor(people, meId, date)) if (!mine.some((s) => s.ref === invite.ref)) out.push({ date, invite })
   }
   return out
 }

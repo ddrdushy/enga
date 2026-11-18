@@ -98,3 +98,11 @@ Logic is in `src/lib/day.ts`; like the office check-in, the list is stored insid
 "right now" on your own row has three one-tap check-ins: "at home", "at office" and "on the move". The latest check-in of any kind (these, or a place on your day) is what friends see; tapping the one that is on turns it off.
 
 A place on "my day" can carry a time and friends ("Lunch at Nando\u2019s, 1:00 pm, with Ali"). It then appears on each invited friend\u2019s day as an invite; they tap "here" or "skip" for themselves, and everyone on it sees who has arrived. Either person can be the one to set it up. Each person\u2019s answer is stored in their own profile, as a copy that points back to the inviter\u2019s place (`ref`), which is why it needs no shared table. If the inviter renames it or changes the time, the copies follow; if the inviter skips it, unanswered invites disappear.
+
+## Planning days ahead
+
+"my day" has a day switch: today, tomorrow, or another day. A day ahead works the same way without the check-in: add places, a time, friends; reorder or remove. A friend you add sees "Kiru invited you \u00b7 Dinner \u00b7 Sat 21 Nov" on their home screen straight away and can join or skip; on the day it is on their list like any other place, and that morning\u2019s message lists "Your places today". Lists are kept for today and up to three weeks ahead (`plans` inside `reminder_opts`, see `src/lib/extras.ts`); past days are dropped.
+
+## Smoke check
+
+`.github/workflows/smoke.yml` runs each time Vercel reports a finished deploy and checks that the app, `/version.json` and the two server functions answer.

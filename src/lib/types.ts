@@ -73,8 +73,8 @@ export interface Person {
   workPlan: WorkPlan | null
   /** Their latest office check-in; null if they never made one. */
   spot: Spot | null
-  /** Their list of places for a day; null if they never made one. Only counts on its own date. */
-  day: DayPlan | null
+  /** Their lists of places, one per day, for today and days ahead. */
+  days: DayPlan[]
   /** People to call if something is wrong; shown on this person's safety cards. */
   emergencyContacts: Contact[]
   reminderTime: string
