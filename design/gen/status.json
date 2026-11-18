@@ -455,8 +455,13 @@
   "note": "first attempt: ChatGPT 'Error in message stream'"
  },
  "dushy/travel/idle": {
-  "state": "pending",
+  "state": "done",
   "retries": 0,
-  "note": "IN PROGRESS when paused: prompt was sent in ChatGPT; result not yet reviewed. Resume here."
+  "note": "generated just before the pause; reviewed after resume"
+ },
+ "dushy/travel/wave": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
  }
 }

@@ -55,8 +55,8 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | dushy/rain/idle | done | 0 |  |
 | dushy/rain/wave | done | 0 |  |
 | dushy/rain/walk | done | 1 | first attempt: ChatGPT 'Error in message stream' |
-| dushy/travel/idle | pending | 0 | IN PROGRESS when paused: prompt was sent in ChatGPT; result not yet reviewed. Resume here. |
-| dushy/travel/wave | pending | 0 |  |
+| dushy/travel/idle | done | 0 | generated just before the pause; reviewed after resume |
+| dushy/travel/wave | done | 0 |  |
 | dushy/travel/travel | pending | 0 |  |
 | ali/out/idle | done | 1 | first try drifted (hoop earrings, no nose stud) |
 | ali/out/wave | done | 2 | retry 1: hoop earrings + no nose stud; retry 2: waving hand jumped sides |
