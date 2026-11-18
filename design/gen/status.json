@@ -463,5 +463,20 @@
   "state": "done",
   "retries": 0,
   "note": ""
+ },
+ "dushy/travel/travel": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "dushy/home/idle": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "dushy/work/idle": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
  }
 }

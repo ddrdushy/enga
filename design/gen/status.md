@@ -14,14 +14,14 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | dushy/out/pack | done | 0 |  |
 | dushy/out/rain | done | 0 |  |
 | dushy/out/birthday | done | 0 |  |
-| dushy/home/idle | pending | 0 |  |
+| dushy/home/idle | done | 0 |  |
 | dushy/home/wave | done | 0 |  |
 | dushy/home/tv | done | 0 |  |
 | dushy/home/phone | done | 0 |  |
 | dushy/home/cook | done | 0 |  |
 | dushy/home/sleep | done | 0 |  |
 | dushy/home/laugh | done | 0 |  |
-| dushy/work/idle | pending | 0 |  |
+| dushy/work/idle | done | 0 |  |
 | dushy/work/wave | done | 0 |  |
 | dushy/work/type | done | 1 | first attempt: ChatGPT image tool error |
 | dushy/work/coffee | done | 0 |  |
@@ -57,7 +57,7 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | dushy/rain/walk | done | 1 | first attempt: ChatGPT 'Error in message stream' |
 | dushy/travel/idle | done | 0 | generated just before the pause; reviewed after resume |
 | dushy/travel/wave | done | 0 |  |
-| dushy/travel/travel | pending | 0 |  |
+| dushy/travel/travel | done | 0 |  |
 | ali/out/idle | done | 1 | first try drifted (hoop earrings, no nose stud) |
 | ali/out/wave | done | 2 | retry 1: hoop earrings + no nose stud; retry 2: waving hand jumped sides |
 | ali/out/laugh | done | 0 | ChatGPT offered two versions; kept one |
