@@ -423,5 +423,20 @@
   "state": "done",
   "retries": 0,
   "note": ""
+ },
+ "dushy/party/idle": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "dushy/party/wave": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "dushy/party/dance": {
+  "state": "done",
+  "retries": 0,
+  "note": "small snap sparks drawn near the fingers"
  }
 }

@@ -49,9 +49,9 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | dushy/gym/idle | done | 0 |  |
 | dushy/gym/wave | done | 0 |  |
 | dushy/gym/workout | done | 0 |  |
-| dushy/party/idle | pending | 0 |  |
-| dushy/party/wave | pending | 0 |  |
-| dushy/party/dance | pending | 0 |  |
+| dushy/party/idle | done | 0 |  |
+| dushy/party/wave | done | 0 |  |
+| dushy/party/dance | done | 0 | small snap sparks drawn near the fingers |
 | dushy/rain/idle | pending | 0 |  |
 | dushy/rain/wave | pending | 0 |  |
 | dushy/rain/walk | pending | 0 |  |
