@@ -7,12 +7,14 @@ import sceneStill from '../assets/scenes/friends.webp'
 const BG = ['var(--card)', 'var(--peach)', 'var(--butter)', 'var(--lav)']
 // Fades only the corners and the very edges, so the people at either end stay fully visible.
 const FADE = 'radial-gradient(ellipse 58% 56% at 50% 50%, #000 80%, transparent 100%)'
+const SCENE_MOVES = false
 const calm = () => { try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches } catch { return false } }
 
 /** The clay picture of the three friends, faded into the page so its own background never shows an edge. */
 export function FriendsScene({ height, moving = true }: { height: number; moving?: boolean }) {
   return (
-    <img src={moving && !calm() ? sceneMoving : sceneStill} alt="" aria-hidden="true" draggable={false}
+    // The moving version shows a second tea glass in some frames, so the still one is used until it is redrawn.
+    <img src={moving && !calm() && SCENE_MOVES ? sceneMoving : sceneStill} alt="" aria-hidden="true" draggable={false}
       style={{ display: 'block', height, width: 'auto', maxWidth: '100%', objectFit: 'contain', margin: '0 auto', WebkitMaskImage: FADE, maskImage: FADE, animation: 'pop .7s cubic-bezier(.2,1.4,.4,1) both' }} />
   )
 }
