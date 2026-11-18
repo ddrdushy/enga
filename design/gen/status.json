@@ -253,5 +253,15 @@
   "state": "done",
   "retries": 0,
   "note": "home outfits"
+ },
+ "dushy/out/rain": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "ali/out/rain": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
  }
 }

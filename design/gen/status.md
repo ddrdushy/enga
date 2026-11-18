@@ -12,7 +12,7 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | dushy/out/walk | done | 1 | redo for shared framing (first version full body); beard grey at the chin a bit stronger than the sheet |
 | dushy/out/travel | done | 1 | redo for shared framing (first version full body) |
 | dushy/out/pack | done | 0 |  |
-| dushy/out/rain | pending | 0 |  |
+| dushy/out/rain | done | 0 |  |
 | dushy/out/birthday | pending | 0 |  |
 | dushy/home/idle | pending | 0 |  |
 | dushy/home/wave | pending | 0 |  |
@@ -66,7 +66,7 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | ali/out/walk | done | 1 | redo for shared framing (first version full body) |
 | ali/out/travel | done | 1 | redo for shared framing (first version full body) |
 | ali/out/pack | done | 0 |  |
-| ali/out/rain | pending | 0 |  |
+| ali/out/rain | done | 0 |  |
 | ali/out/birthday | pending | 0 |  |
 | ali/home/idle | pending | 0 |  |
 | ali/home/wave | pending | 0 |  |
