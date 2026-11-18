@@ -82,3 +82,7 @@ The check-in is stored inside the profile's `reminder_opts` JSON, under `spot` (
 ## Avatars
 
 `avatars.json` lists a picture per person (name in lower case → address of the still, and of an animated GIF once there is one). When that file changes on `main`, the `avatars` GitHub workflow downloads the pictures (`scripts/fetch-avatars.mjs`), saves 256px copies in `src/assets/avatars/` and commits them. The app shows the picture in place of the initial for any person whose name matches a file; the animated copy is used only for the big faces (home circle, the sheet that opens on a tap, the Me tab) and never when the phone asks for reduced motion.
+
+## Live splash
+
+For someone who is signed in, the opening screen lists where each person is right now (the same wording as the sheet that opens on a tap: `whereDetail` in `src/lib/logic.ts`). It stays for about three seconds, or until a tap. Signed out, it is the plain brand screen.

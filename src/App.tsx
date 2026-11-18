@@ -5,8 +5,10 @@ import type { Store } from './lib/store'
 import { MEMBERS, createStore } from './lib/store'
 import { today } from './lib/dates'
 import { eventDemo, tripDemo, withSamples } from './lib/sample'
+import { whereDetail } from './lib/logic'
 import { Icon } from './ui'
 import { Login, Splash } from './screens/Entry'
+import type { LiveRow } from './screens/Entry'
 import { Onboarding } from './screens/Onboarding'
 import { Tour } from './screens/Tour'
 import { NextScreen, OrbitScreen } from './screens/Home'
@@ -18,6 +20,9 @@ const pendingOnboard = (id: ID) => { try { return localStorage.getItem(`enga-onb
 export default function App() {
   const [store, setStore] = useState<Store | null>(null)
   const [splash, setSplash] = useState(true)
+  // The splash stays for a short minimum, and until the app knows whether anyone is signed in.
+  const [booted, setBooted] = useState(false)
+  const [minDone, setMinDone] = useState(false)
   const [meId, setMeId] = useState<ID | null>(null)
   const [data, setData] = useState<Data | null>(null)
   const [tab, setTab] = useState<Tab>('now')
@@ -49,15 +54,37 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setSplash(false), 1600)
+    const timer = window.setTimeout(() => setMinDone(true), 1600)
     void createStore().then(async (s) => {
       storeRef.current = s
       setStore(s)
       const id = await s.session()
       if (id) { setMeId(id); setData(await s.load()); setOnboarding(pendingOnboard(id)); setTour(!tourSeen(id)) } else setClaimed(await s.claimed().catch(() => null))
-    }).catch((e: unknown) => setToast(e instanceof Error ? e.message : 'Could not start'))
+    }).catch((e: unknown) => setToast(e instanceof Error ? e.message : 'Could not start')).finally(() => setBooted(true))
     return () => window.clearTimeout(timer)
   }, [])
+
+  // Signed in: the splash shows where everyone is right now, for a few seconds or until a tap.
+  const live = useMemo<LiveRow[] | undefined>(() => {
+    if (!splash || !data || !meId || pendingOnboard(meId)) return undefined
+    const t = today()
+    const now = new Date()
+    const minutes = now.getHours() * 60 + now.getMinutes()
+    return data.people.map((p) => {
+      const d = whereDetail(data, p, meId, t, t, minutes)
+      return { face: p, who: p.id === meId ? 'you' : p.name, headline: d.headline, sub: d.sub }
+    })
+  }, [splash, data, meId])
+  const hasLive = !!live?.length
+
+  useEffect(() => {
+    if (!splash || !booted || !hasLive) return
+    const id = window.setTimeout(() => setSplash(false), 3200)
+    return () => window.clearTimeout(id)
+  }, [splash, booted, hasLive])
+  useEffect(() => {
+    if (splash && booted && minDone && !hasLive) setSplash(false)
+  }, [splash, booted, minDone, hasLive])
 
   useEffect(() => {
     if (!store || !meId) return
@@ -72,7 +99,7 @@ export default function App() {
 
   const shown = useMemo(() => (data && meId && tour && stage !== null ? withSamples(data, meId, today(), stage) : data), [data, meId, tour, stage])
 
-  if (splash || !store) return <div className="app"><Splash members={MEMBERS} /></div>
+  if (splash || !store) return <div className="app"><Splash members={MEMBERS} live={live} onOpen={() => { if (store) setSplash(false) }} /></div>
 
   if (!meId || !data) {
     return (
