@@ -45,9 +45,9 @@
   "note": "columns: gym, party, rain, travel"
  },
  "group/hello": {
-  "state": "done, redo pending",
-  "retries": 0,
-  "note": "redo requested: Kiru in v2 look"
+  "state": "done",
+  "retries": 3,
+  "note": "redone with Kiru v2 look; 2 versions rejected (ghost second glass in one frame; glass switching hands + figures cut off); final: Kiru holds ONE glass in the same hand in all 16 frames (checked frame by frame)"
  },
  "dushy/out/walk": {
   "state": "done, redo pending",
@@ -168,5 +168,15 @@
   "state": "done",
   "retries": 1,
   "note": "redone in Kiru v2 look"
+ },
+ "kiru/out/dance": {
+  "state": "done",
+  "retries": 1,
+  "note": "an earlier master-sheet-look version was discarded"
+ },
+ "kiru/out/cheer": {
+  "state": "done",
+  "retries": 1,
+  "note": "an earlier master-sheet-look version was discarded"
  }
 }

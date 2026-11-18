@@ -115,8 +115,8 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/out/idle | done | 0 | provided by the user (chai-time blink, Kiru v2 look); not regenerated |
 | kiru/out/wave | done | 2 | redone in Kiru v2 look (earlier master-sheet-look versions replaced) |
 | kiru/out/laugh | done | 1 | redone in Kiru v2 look |
-| kiru/out/dance | pending | 0 |  |
-| kiru/out/cheer | pending | 0 |  |
+| kiru/out/dance | done | 1 | an earlier master-sheet-look version was discarded |
+| kiru/out/cheer | done | 1 | an earlier master-sheet-look version was discarded |
 | kiru/out/walk | pending | 0 |  |
 | kiru/out/travel | pending | 0 |  |
 | kiru/out/pack | pending | 0 |  |
@@ -166,7 +166,7 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/travel/idle | pending | 0 |  |
 | kiru/travel/wave | pending | 0 |  |
 | kiru/travel/travel | pending | 0 |  |
-| group/hello | done, redo pending | 0 | redo requested: Kiru in v2 look |
+| group/hello | done | 3 | redone with Kiru v2 look; 2 versions rejected (ghost second glass in one frame; glass switching hands + figures cut off); final: Kiru holds ONE glass in the same hand in all 16 frames (checked frame by frame) |
 | group/hug | pending | 0 |  |
 | group/welcome-dushy | pending | 0 |  |
 | group/welcome-ali | pending | 0 |  |
