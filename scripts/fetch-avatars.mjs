@@ -8,6 +8,8 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import sharp from 'sharp'
 
+/** How long an animation rests on its last frame before playing again. */
+const REST_MS = 3500
 const ALLOWED = /^https:\/\/[a-z0-9]+\.cloudfront\.net\//
 const list = JSON.parse(await readFile(process.argv[2] ?? 'avatars.json', 'utf8'))
 
@@ -32,7 +34,12 @@ for (const [name, art] of Object.entries(list)) {
       console.log(`${name}: still saved`)
     }
     if (art.anim) {
-      const out = await sharp(await bytes(art.anim), { animated: true }).resize(256, 256, { fit: 'cover' }).webp({ quality: 80, effort: 5, loop: 0 }).toBuffer()
+      const gif = await bytes(art.anim)
+      // Rest on the last frame before looping, so the faces are still most of the time.
+      const meta = await sharp(gif, { animated: true }).metadata()
+      const delay = Array.from({ length: meta.pages ?? 1 }, (_, i) => meta.delay?.[i] ?? 150)
+      delay[delay.length - 1] = REST_MS
+      const out = await sharp(gif, { animated: true }).resize(256, 256, { fit: 'cover' }).webp({ quality: 80, effort: 5, loop: 0, delay }).toBuffer()
       await writeFile(`src/assets/avatars/${name}.anim.webp`, out)
       console.log(`${name}: animation saved (${Math.round(out.length / 1024)} KB)`)
     }
