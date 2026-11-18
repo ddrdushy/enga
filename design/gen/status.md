@@ -58,13 +58,13 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | dushy/travel/idle | pending | 0 |  |
 | dushy/travel/wave | pending | 0 |  |
 | dushy/travel/travel | pending | 0 |  |
-| ali/out/idle | pending | 0 |  |
-| ali/out/wave | pending | 0 |  |
-| ali/out/laugh | pending | 0 |  |
-| ali/out/dance | pending | 0 |  |
-| ali/out/cheer | pending | 0 |  |
-| ali/out/walk | pending | 0 |  |
-| ali/out/travel | pending | 0 |  |
+| ali/out/idle | done | 1 | first try drifted (hoop earrings, no nose stud) |
+| ali/out/wave | done | 2 | retry 1: hoop earrings + no nose stud; retry 2: waving hand jumped sides |
+| ali/out/laugh | done | 0 | ChatGPT offered two versions; kept one |
+| ali/out/dance | done | 0 |  |
+| ali/out/cheer | done | 0 |  |
+| ali/out/walk | done | 0 |  |
+| ali/out/travel | done | 0 |  |
 | ali/out/pack | pending | 0 |  |
 | ali/out/rain | pending | 0 |  |
 | ali/out/birthday | pending | 0 |  |

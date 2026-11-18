@@ -88,5 +88,40 @@
   "state": "done",
   "retries": 0,
   "note": ""
+ },
+ "ali/out/idle": {
+  "state": "done",
+  "retries": 1,
+  "note": "first try drifted (hoop earrings, no nose stud)"
+ },
+ "ali/out/laugh": {
+  "state": "done",
+  "retries": 0,
+  "note": "ChatGPT offered two versions; kept one"
+ },
+ "ali/out/wave": {
+  "state": "done",
+  "retries": 2,
+  "note": "retry 1: hoop earrings + no nose stud; retry 2: waving hand jumped sides"
+ },
+ "ali/out/dance": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "ali/out/cheer": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "ali/out/walk": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "ali/out/travel": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
  }
 }
