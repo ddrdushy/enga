@@ -78,3 +78,7 @@ Each build gets a stamp (`vite.config.ts`). The app carries it as `__BUILD__` an
 On the home screen, "right now" has an "at office" button on your own row. Tapping it tells your friends you are at the office, with the time; "leave" marks that you have gone. A check-in only counts on the day it was made. Without one, the app shows what the usual week says, worded as a guess ("office day, usually there till 6:00 pm · not checked in"), never as "at the office".
 
 The check-in is stored inside the profile's `reminder_opts` JSON, under `spot` (`spotOf` / `optsOf` in `src/lib/store.ts`), so it needed no database change.
+
+## Avatars
+
+`avatars.json` lists a picture per person (name in lower case → address of the still, and of an animated GIF once there is one). When that file changes on `main`, the `avatars` GitHub workflow downloads the pictures (`scripts/fetch-avatars.mjs`), saves 256px copies in `src/assets/avatars/` and commits them. The app shows the picture in place of the initial for any person whose name matches a file; the animated copy is used only for the big faces (home circle, the sheet that opens on a tap, the Me tab) and never when the phone asks for reduced motion.

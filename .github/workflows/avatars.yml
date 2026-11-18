@@ -1,0 +1,33 @@
+# Fetches the avatar pictures named in avatars.json and commits app-sized copies.
+name: avatars
+on:
+  push:
+    branches: [main]
+    paths: [avatars.json, scripts/fetch-avatars.mjs, .github/workflows/avatars.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: avatars
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Download and resize
+        run: |
+          # The script runs from its own folder so that "sharp" resolves there, without touching the app's packages.
+          mkdir -p /tmp/tools && cp scripts/fetch-avatars.mjs /tmp/tools/ && cd /tmp/tools
+          npm init -y > /dev/null && npm install --no-audit --no-fund sharp > /dev/null
+          cd "$GITHUB_WORKSPACE" && node /tmp/tools/fetch-avatars.mjs avatars.json
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/assets/avatars design/avatars
+          if git diff --cached --quiet; then echo "nothing new"; exit 0; fi
+          git commit -m "Avatars: fetched from avatars.json"
+          git pull --rebase origin main
+          git push origin HEAD:main

@@ -151,7 +151,7 @@ export function OrbitScreen(ctx: Ctx) {
             return (
               <button key={s.p.id} type="button" className="abs" style={{ left: pos.x - 29, top: pos.y - 29, borderRadius: '50%', animation: s.w.home ? undefined : 'float 5s ease-in-out infinite' }}
                 aria-label={`${s.p.name}, ${s.w.place}`} onClick={() => setPersonId(s.p.id)}>
-                <Avatar p={s.p} size={58} style={{ border: `4px solid ${s.w.home ? 'var(--sage)' : 'var(--mist)'}` }} />
+                <Avatar p={s.p} size={58} moving style={{ border: `4px solid ${s.w.home ? 'var(--sage)' : 'var(--mist)'}` }} />
               </button>
             )
           })}
@@ -256,7 +256,7 @@ function PersonSheet({ ctx, id, onClose }: { ctx: Ctx; id: string; onClose: () =
   return (
     <Sheet title={isMe ? 'you' : p.name} onClose={onClose}>
       <div className="row" style={{ gap: 12 }}>
-        <Avatar p={p} size={56} />
+        <Avatar p={p} size={72} moving />
         <div style={{ minWidth: 0 }}>
           <div className="display" style={{ fontSize: 22, overflowWrap: 'anywhere' }}>{where.headline}</div>
           <div className="small">{where.sub}</div>

@@ -22,9 +22,28 @@ export const Icon = {
 }
 
 /* ---------- avatar ---------- */
-export interface Face { initial: string; color: string; ink: string }
-export function Avatar({ p, size = 40, style }: { p: Face; size?: number; style?: CSSProperties }) {
-  return <span className="avatar" style={{ width: size, height: size, background: p.color, color: p.ink, fontSize: Math.round(size * 0.42), ...style }}>{p.initial}</span>
+export interface Face { initial: string; color: string; ink: string; name?: string }
+
+// Pictures in src/assets/avatars, by file name: "<name>.webp" is the still and "<name>.anim.webp" the animation.
+// They are put there by scripts/fetch-avatars.mjs from avatars.json. Anyone without a picture keeps their initial.
+const ART = import.meta.glob('./assets/avatars/*.webp', { eager: true, query: '?url', import: 'default' }) as Record<string, string>
+const calm = () => { try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches } catch { return false } }
+
+/** The picture for a name, if there is one. `moving` asks for the animated one. */
+export function avatarArt(name: string | undefined, moving: boolean): string | undefined {
+  const slug = name?.trim().toLowerCase()
+  if (!slug) return undefined
+  return (moving && !calm() ? ART[`./assets/avatars/${slug}.anim.webp`] : undefined) ?? ART[`./assets/avatars/${slug}.webp`]
+}
+
+/** `moving`: use the animated picture where there is one (kept for the few big faces, so the screen stays calm). */
+export function Avatar({ p, size = 40, style, moving = false }: { p: Face; size?: number; style?: CSSProperties; moving?: boolean }) {
+  const src = avatarArt(p.name, moving)
+  return (
+    <span className="avatar" style={{ width: size, height: size, background: p.color, color: p.ink, fontSize: Math.round(size * 0.42), overflow: 'hidden', ...style }}>
+      {src ? <img src={src} alt="" draggable={false} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} /> : p.initial}
+    </span>
+  )
 }
 
 /* ---------- slide to confirm ---------- */
