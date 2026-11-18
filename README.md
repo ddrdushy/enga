@@ -122,3 +122,7 @@ Logic is in `src/lib/when.ts`; the columns are added by `supabase/migrations/000
 ## "Who's coming": one entry for two people
 
 The trip and event forms have "who's coming with you?". Tapping a friend puts them on it straight away: a trip goes on their lane and home circle (their answer is set to "in"), an event is marked "going" for them and shows on their day. A friend who already has a trip then is flagged on the button. Their next morning message says "Dushy put you on the Penang trip" or "Dushy is taking you to Movie night". Anyone put on something can take themselves off: "I can't make it" on the trip pass or the event. The person who added it can take people off by editing, or cancel the whole thing. Database rules for this are in `supabase/migrations/0009_with_people.sql`.
+
+## Splash: the three friends in clay
+
+The opening screen shows a clay scene of the three friends (`src/assets/scenes/friends.*.webp`, listed under `_scenes` in `avatars.json` and fetched by the same workflow as the avatars). Signed in, it is followed by one card per person saying where they are right now. The cards swipe sideways: they tilt, shrink and fade as they leave the middle, and the face that lands in the middle bounces and plays its animation. Untouched, the app opens after about four and a half seconds; once someone swipes or touches, it waits for "open". Reduced motion shows the still picture.

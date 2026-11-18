@@ -1,57 +1,23 @@
 import { useEffect, useState } from 'react'
 import type { Member } from '../lib/types'
 import { Avatar } from '../ui'
+import { FriendsScene, LiveSplash } from './LiveSplash'
 import type { Face } from '../ui'
 
 /** One line of the live splash: where a person is right now. */
 export interface LiveRow { face: Face; who: string; headline: string; sub: string }
 
-const LIVE_BG = ['var(--card)', 'var(--peach)', 'var(--butter)', 'var(--lav)']
-const LIVE_TILT = [-3, 2, -2, 3]
 
 /**
  * The opening screen. Before sign-in it is the brand with a few sample tags.
  * Once signed in it shows, live, where each person is: a glance is enough, and a tap opens the app.
  */
 export function Splash({ members, live, onOpen }: { members: Member[]; live?: LiveRow[]; onOpen?: () => void }) {
-  const tags = [
-    { text: 'Kuala Lumpur', top: 150, left: 70, rot: -7, bg: 'var(--card)', dur: 5 },
-    { text: 'Singapore', top: 246, left: 190, rot: 6, bg: 'var(--peach)', dur: 6 },
-    { text: 'where next?', top: 352, left: 110, rot: -4, bg: 'var(--butter)', dur: 7 },
-  ]
-  if (live?.length) {
-    return (
-      <div className="screen pad" role="button" tabIndex={0} aria-label="Open enga?" onClick={onOpen} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onOpen?.() }} style={{ position: 'relative', overflow: 'hidden', padding: '28px 24px 40px', gap: 0, animation: 'none', cursor: 'pointer' }}>
-        <div aria-hidden="true" style={{ position: 'absolute', top: -90, right: -110, width: 320, height: 320, borderRadius: '50%', background: 'var(--lav)' }} />
-        <div aria-hidden="true" style={{ position: 'absolute', bottom: 120, left: -90, width: 220, height: 220, borderRadius: '50%', background: 'var(--sage)' }} />
-        <div className="eyebrow" style={{ position: 'relative', color: 'var(--ink2)' }}>right now</div>
-        <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 18, marginTop: 18 }}>
-          {live.slice(0, 5).map((r, i) => (
-            <div key={r.who} style={{ display: 'flex', alignItems: 'center', gap: 12, marginLeft: i % 2 ? 22 : 0, animation: `pop .5s ${0.12 * i}s cubic-bezier(.2,1.4,.4,1) both` }}>
-              <Avatar p={r.face} size={68} moving style={{ border: '4px solid var(--mist)' }} />
-              <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
-                <div className="display" style={{ rotate: `${LIVE_TILT[i % 4]}deg`, background: LIVE_BG[i % 4], border: '2px solid var(--ink)', fontSize: 18, lineHeight: 1.25, padding: '8px 16px', borderRadius: 22, overflowWrap: 'anywhere' }}>{r.who} · {r.headline}</div>
-                <div className="small" style={{ paddingLeft: 6 }}>{r.sub}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div style={{ position: 'relative', marginTop: 'auto', paddingTop: 24, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12 }}>
-          <h1 className="display" style={{ margin: 0, fontSize: 64, lineHeight: 0.9, letterSpacing: -3 }}>enga<span className="q">?</span></h1>
-          <span className="pill dark" style={{ flex: 'none' }}>tap to open</span>
-        </div>
-      </div>
-    )
-  }
+  if (live?.length) return <LiveSplash live={live} onOpen={onOpen} />
   return (
     <div className="screen pad" style={{ position: 'relative', overflow: 'hidden', justifyContent: 'flex-end', padding: '0 28px 56px', animation: 'none' }}>
-      <div aria-hidden="true" style={{ position: 'absolute', top: -90, right: -110, width: 320, height: 320, borderRadius: '50%', background: 'var(--lav)' }} />
-      <div aria-hidden="true" style={{ position: 'absolute', top: 250, left: -80, width: 200, height: 200, borderRadius: '50%', background: 'var(--sage)' }} />
-      <svg aria-hidden="true" width="390" height="460" viewBox="0 0 390 460" fill="none" style={{ position: 'absolute', top: 40, left: 0 }}>
-        <path d="M60 170 C 150 60, 300 100, 320 230 S 170 400, 110 340" stroke="#1E2235" strokeWidth="2" strokeDasharray="2 10" strokeLinecap="round" style={{ animation: 'march 1.4s linear infinite' }} />
-        <circle cx="60" cy="170" r="7" fill="#1E2235" /><circle cx="320" cy="230" r="7" fill="#1E2235" /><circle cx="110" cy="340" r="7" fill="#fff" stroke="#1E2235" strokeWidth="2" />
-      </svg>
-      {tags.map((t) => <div key={t.text} aria-hidden="true" className="display" style={{ position: 'absolute', top: t.top, left: t.left, rotate: `${t.rot}deg`, background: t.bg, border: '2px solid var(--ink)', fontSize: 18, padding: '9px 18px', borderRadius: 999, animation: `float ${t.dur}s ease-in-out infinite` }}>{t.text}</div>)}
+      <div aria-hidden="true" style={{ position: 'absolute', top: 330, left: -80, width: 200, height: 200, borderRadius: '50%', background: 'var(--sage)' }} />
+      <div style={{ position: 'absolute', top: 36, left: 0, right: 0 }}><FriendsScene height={340} /></div>
       <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 18 }}>
         <div className="row" style={{ gap: 0 }}>{members.map((m, i) => <Avatar key={m.slug} p={m} size={52} style={{ border: '4px solid var(--mist)', marginLeft: i ? -14 : 0, animation: `pop .5s ${0.1 * i}s cubic-bezier(.2,1.4,.4,1) both` }} />)}</div>
         <h1 className="display" style={{ margin: 0, fontSize: 104, lineHeight: 0.9, letterSpacing: -5, animation: 'pop .8s cubic-bezier(.2,1.4,.4,1) both' }}>enga<span className="q">?</span></h1>

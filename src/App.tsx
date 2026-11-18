@@ -78,11 +78,6 @@ export default function App() {
   const hasLive = !!live?.length
 
   useEffect(() => {
-    if (!splash || !booted || !hasLive) return
-    const id = window.setTimeout(() => setSplash(false), 3200)
-    return () => window.clearTimeout(id)
-  }, [splash, booted, hasLive])
-  useEffect(() => {
     if (splash && booted && minDone && !hasLive) setSplash(false)
   }, [splash, booted, minDone, hasLive])
 
@@ -99,7 +94,9 @@ export default function App() {
 
   const shown = useMemo(() => (data && meId && tour && stage !== null ? withSamples(data, meId, today(), stage) : data), [data, meId, tour, stage])
 
-  if (splash || !store) return <div className="app"><Splash members={MEMBERS} live={live} onOpen={() => { if (store) setSplash(false) }} /></div>
+  const openApp = useCallback(() => { if (store) setSplash(false) }, [store])
+
+  if (splash || !store) return <div className="app"><Splash members={MEMBERS} live={live} onOpen={openApp} /></div>
 
   if (!meId || !data) {
     return (
