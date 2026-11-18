@@ -358,5 +358,20 @@
   "state": "done",
   "retries": 0,
   "note": ""
+ },
+ "dushy/out3/wave": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "dushy/out3/laugh": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "dushy/out4/idle": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
  }
 }
