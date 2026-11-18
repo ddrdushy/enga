@@ -178,5 +178,15 @@
   "state": "done",
   "retries": 1,
   "note": "an earlier master-sheet-look version was discarded"
+ },
+ "kiru/out/walk": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "kiru/out/travel": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
  }
 }

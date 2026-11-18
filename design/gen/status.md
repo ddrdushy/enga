@@ -117,8 +117,8 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/out/laugh | done | 1 | redone in Kiru v2 look |
 | kiru/out/dance | done | 1 | an earlier master-sheet-look version was discarded |
 | kiru/out/cheer | done | 1 | an earlier master-sheet-look version was discarded |
-| kiru/out/walk | pending | 0 |  |
-| kiru/out/travel | pending | 0 |  |
+| kiru/out/walk | done | 0 |  |
+| kiru/out/travel | done | 0 |  |
 | kiru/out/pack | pending | 0 |  |
 | kiru/out/rain | pending | 0 |  |
 | kiru/out/birthday | pending | 0 |  |
