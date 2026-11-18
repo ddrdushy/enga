@@ -69,17 +69,17 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | ali/out/rain | done | 0 |  |
 | ali/out/birthday | done | 0 | nose stud barely visible at this size |
 | ali/home/idle | pending | 0 |  |
-| ali/home/wave | pending | 0 |  |
+| ali/home/wave | done | 0 |  |
 | ali/home/tv | done | 0 |  |
 | ali/home/phone | done | 0 |  |
 | ali/home/cook | done | 0 |  |
 | ali/home/sleep | done | 0 |  |
-| ali/home/laugh | pending | 0 |  |
+| ali/home/laugh | done | 0 |  |
 | ali/work/idle | pending | 0 |  |
 | ali/work/wave | pending | 0 |  |
 | ali/work/type | done | 0 |  |
 | ali/work/coffee | done | 0 |  |
-| ali/work/laugh | pending | 0 |  |
+| ali/work/laugh | done | 0 | nose stud too small to see at this size |
 | ali/work2/idle | pending | 0 |  |
 | ali/work2/wave | pending | 0 |  |
 | ali/work2/type | pending | 0 |  |
