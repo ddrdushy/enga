@@ -45,19 +45,19 @@
   "note": "columns: gym, party, rain, travel"
  },
  "group/hello": {
-  "state": "done",
+  "state": "done, redo pending",
   "retries": 0,
-  "note": "16 frames; Kiru checked frame by frame: one glass in every frame; source GIF 311x299, upscaled to 480 wide"
+  "note": "redo requested: Kiru in v2 look"
  },
  "dushy/out/walk": {
-  "state": "done",
+  "state": "done, redo pending",
   "retries": 0,
-  "note": "bag is a backpack on one shoulder"
+  "note": "first version full body; redo requested for the shared head-to-mid-chest framing"
  },
  "dushy/out/travel": {
-  "state": "done",
+  "state": "done, redo pending",
   "retries": 0,
-  "note": "full body"
+  "note": "first version full body; redo requested for the shared head-to-mid-chest framing"
  },
  "dushy/home/tv": {
   "state": "done",
@@ -115,14 +115,14 @@
   "note": ""
  },
  "ali/out/walk": {
-  "state": "done",
+  "state": "done, redo pending",
   "retries": 0,
-  "note": ""
+  "note": "first version full body; redo requested for the shared head-to-mid-chest framing"
  },
  "ali/out/travel": {
-  "state": "done",
+  "state": "done, redo pending",
   "retries": 0,
-  "note": ""
+  "note": "first version full body; redo requested for the shared head-to-mid-chest framing"
  },
  "ali/home/tv": {
   "state": "done",
@@ -153,5 +153,20 @@
   "state": "done",
   "retries": 0,
   "note": ""
+ },
+ "kiru/out/idle": {
+  "state": "done",
+  "retries": 0,
+  "note": "provided by the user (chai-time blink, Kiru v2 look); not regenerated"
+ },
+ "kiru/out/wave": {
+  "state": "done",
+  "retries": 2,
+  "note": "redone in Kiru v2 look (earlier master-sheet-look versions replaced)"
+ },
+ "kiru/out/laugh": {
+  "state": "done",
+  "retries": 1,
+  "note": "redone in Kiru v2 look"
  }
 }

@@ -9,8 +9,8 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | dushy/out/laugh | done | 0 |  |
 | dushy/out/dance | done | 0 |  |
 | dushy/out/cheer | done | 0 |  |
-| dushy/out/walk | done | 0 | bag is a backpack on one shoulder |
-| dushy/out/travel | done | 0 | full body |
+| dushy/out/walk | done, redo pending | 0 | first version full body; redo requested for the shared head-to-mid-chest framing |
+| dushy/out/travel | done, redo pending | 0 | first version full body; redo requested for the shared head-to-mid-chest framing |
 | dushy/out/pack | pending | 0 |  |
 | dushy/out/rain | pending | 0 |  |
 | dushy/out/birthday | pending | 0 |  |
@@ -63,8 +63,8 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | ali/out/laugh | done | 0 | ChatGPT offered two versions; kept one |
 | ali/out/dance | done | 0 |  |
 | ali/out/cheer | done | 0 |  |
-| ali/out/walk | done | 0 |  |
-| ali/out/travel | done | 0 |  |
+| ali/out/walk | done, redo pending | 0 | first version full body; redo requested for the shared head-to-mid-chest framing |
+| ali/out/travel | done, redo pending | 0 | first version full body; redo requested for the shared head-to-mid-chest framing |
 | ali/out/pack | pending | 0 |  |
 | ali/out/rain | pending | 0 |  |
 | ali/out/birthday | pending | 0 |  |
@@ -112,9 +112,9 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | ali/travel/idle | pending | 0 |  |
 | ali/travel/wave | pending | 0 |  |
 | ali/travel/travel | pending | 0 |  |
-| kiru/out/idle | pending | 0 |  |
-| kiru/out/wave | pending | 0 |  |
-| kiru/out/laugh | pending | 0 |  |
+| kiru/out/idle | done | 0 | provided by the user (chai-time blink, Kiru v2 look); not regenerated |
+| kiru/out/wave | done | 2 | redone in Kiru v2 look (earlier master-sheet-look versions replaced) |
+| kiru/out/laugh | done | 1 | redone in Kiru v2 look |
 | kiru/out/dance | pending | 0 |  |
 | kiru/out/cheer | pending | 0 |  |
 | kiru/out/walk | pending | 0 |  |
@@ -166,7 +166,7 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/travel/idle | pending | 0 |  |
 | kiru/travel/wave | pending | 0 |  |
 | kiru/travel/travel | pending | 0 |  |
-| group/hello | done | 0 | 16 frames; Kiru checked frame by frame: one glass in every frame; source GIF 311x299, upscaled to 480 wide |
+| group/hello | done, redo pending | 0 | redo requested: Kiru in v2 look |
 | group/hug | pending | 0 |  |
 | group/welcome-dushy | pending | 0 |  |
 | group/welcome-ali | pending | 0 |  |
