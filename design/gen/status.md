@@ -67,7 +67,7 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | ali/out/travel | done | 1 | redo for shared framing (first version full body) |
 | ali/out/pack | done | 0 |  |
 | ali/out/rain | done | 0 |  |
-| ali/out/birthday | pending | 0 |  |
+| ali/out/birthday | done | 0 | nose stud barely visible at this size |
 | ali/home/idle | pending | 0 |  |
 | ali/home/wave | pending | 0 |  |
 | ali/home/tv | done | 0 |  |
@@ -121,7 +121,7 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/out/travel | done | 0 |  |
 | kiru/out/pack | done | 0 |  |
 | kiru/out/rain | done | 0 | end pose (eyes down) differs slightly from the start (eyes forward) |
-| kiru/out/birthday | pending | 0 |  |
+| kiru/out/birthday | done | 0 |  |
 | kiru/home/idle | pending | 0 |  |
 | kiru/home/wave | pending | 0 |  |
 | kiru/home/tv | done | 0 |  |
