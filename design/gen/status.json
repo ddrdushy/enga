@@ -343,5 +343,20 @@
   "state": "done",
   "retries": 0,
   "note": ""
+ },
+ "dushy/out2/wave": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "dushy/out2/walk": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "dushy/out3/idle": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
  }
 }
