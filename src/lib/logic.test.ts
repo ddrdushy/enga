@@ -4,7 +4,7 @@ import { rightNow, spotToday } from './work.ts'
 import { optsOf, spotOf } from './store.ts'
 import { describe, expect, it } from 'vitest'
 import type { Data, Person, Trip } from './types'
-import { allHomeRuns, currentTrip, digest, isFree, laneSegments, nextTrip, tripPeople, whereIs } from './logic'
+import { allHomeRuns, currentTrip, digest, isFree, laneSegments, nextTrip, tripPeople, whereDetail, whereIs } from './logic'
 import { addDays, addMonths, daysInMonth, diffDays, fmt, fmtRange, inDays, mondayIndex, mondayOf } from './dates'
 import { clock, daysOf, defaultPlan, duration, workLine, workNow } from './work'
 
@@ -211,5 +211,39 @@ describe('office check-in', () => {
     expect(spotOf({ mine: true })).toBeNull()
     expect(spotOf({ spot: { kind: 'moon', at: at(9, 0) } })).toBeNull()
     expect(optsOf(null)).toEqual({ mine: true, friends: true, news: true })
+  })
+})
+
+describe('where is this person, in detail', () => {
+  const kiru = { id: 'k', name: 'Kiru', home: 'Kuala Lumpur', house: 'Cheras', office: 'KLCC', workPlan: null, spot: null } as Person
+  const me = { id: 'me', name: 'Dushy', home: 'Kuala Lumpur', house: '', office: 'Bangsar South', workPlan: null, spot: null } as Person
+  const trip: Trip = { id: 't', ownerId: 'k', place: 'Penang', start: '2026-11-17', end: '2026-11-19', open: true, rsvps: { me: 'in' }, createdAt: '' }
+  const base: Data = { people: [me, kiru], trips: [trip], events: [], cards: [], checkins: [] }
+  const reachedAt = new Date(2026, 10, 17, 16, 10).toISOString()
+
+  it('away: the trip, the day, who with, the check-in, and the safety card only when it is shared', () => {
+    const d = whereDetail(base, kiru, 'me', '2026-11-18', '2026-11-18', 600)
+    expect(d.headline).toBe('in Penang')
+    expect(d.sub).toBe('day 2 of 3 \u00b7 back Thu 19 Nov (tomorrow)')
+    expect(d.rows).toEqual([['trip', fmtRange('2026-11-17', '2026-11-19')], ['with', 'you'], ['reached', 'no check-in yet'], ['staying at', 'not shared yet']])
+    expect(d.trip?.id).toBe('t')
+
+    const card = { tripId: 't', ownerId: 'k', stay: 'Hotel Jen', flightOut: 'AK6112 9am', flightBack: '', localContact: 'Mei +60 12 000', visibleTo: ['me'] }
+    const shared = whereDetail({ ...base, cards: [card], checkins: [{ id: 'c', tripId: 't', userId: 'k', at: reachedAt }] }, kiru, 'me', '2026-11-18', '2026-11-18', 600)
+    expect(shared.rows.slice(2)).toEqual([['reached', 'safely \u00b7 Tue 17 Nov, 4:10 pm'], ['staying at', 'Hotel Jen'], ['way there', 'AK6112 9am'], ['contact there', 'Mei +60 12 000']])
+
+    const hidden = whereDetail({ ...base, cards: [{ ...card, visibleTo: [] }] }, kiru, 'me', '2026-11-18', '2026-11-18', 600)
+    expect(hidden.rows.at(-1)).toEqual(['staying at', 'not shared yet'])
+  })
+
+  it('home: says "at the office" only after a check-in today', () => {
+    const quiet = whereDetail({ ...base, trips: [] }, kiru, 'me', '2026-11-18', '2026-11-18', 600)
+    expect(quiet).toEqual({ headline: 'in Kuala Lumpur', sub: 'home base \u00b7 no check-in today', rows: [['lives in', 'Cheras, Kuala Lumpur'], ['office', 'KLCC']] })
+    const inOffice = { ...kiru, spot: { kind: 'office' as const, at: new Date(2026, 10, 18, 9, 52).toISOString() } }
+    const d = whereDetail({ ...base, trips: [] }, inOffice, 'me', '2026-11-18', '2026-11-18', 600)
+    expect(d.headline).toBe('at the office')
+    expect(d.sub).toBe('checked in 9:52 am \u00b7 KLCC')
+    // looking at another day: the check-in says nothing
+    expect(whereDetail({ ...base, trips: [] }, inOffice, 'me', '2026-11-20', '2026-11-18', 600).sub).toBe('home base')
   })
 })

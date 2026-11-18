@@ -1,6 +1,6 @@
 import type { Data, EventItem, ID, Person, Trip } from './types.ts'
-import { addDays, diffDays, fmt, fmtRange, inDays, mondayIndex } from './dates.ts'
-import { workLine } from './work.ts'
+import { addDays, diffDays, fmt, fmtRange, inDays, mondayIndex, toIso } from './dates.ts'
+import { clock, rightNow, spotToday, workLine } from './work.ts'
 
 /** Owner plus everyone who answered "in". */
 export function tripPeople(t: Trip): ID[] {
@@ -145,4 +145,60 @@ export function digest(data: Data, meId: ID, date: string): string[] {
     }
   }
   return lines
+}
+
+/** "Mon 16 Nov, 4:10 pm" on this phone's clock. */
+function stamp(iso: string): string {
+  const d = new Date(iso)
+  return Number.isNaN(d.getTime()) ? '' : `${fmt(toIso(d))}, ${clock(d.getHours() * 60 + d.getMinutes())}`
+}
+const timeOf = (iso: string) => { const d = new Date(iso); return clock(d.getHours() * 60 + d.getMinutes()) }
+
+export interface WhereDetail {
+  /** "in Penang", "at the office", "in Kuala Lumpur". */
+  headline: string
+  /** One line under it: how long, back when, or what they are doing. */
+  sub: string
+  /** Label and value pairs about where exactly they are. */
+  rows: [string, string][]
+  /** The trip they are on, if any. */
+  trip?: Trip
+}
+
+/**
+ * Everything the viewer may know about where a person is on `date`.
+ * Away: the trip, who with, whether they checked in, and their safety card if it is shared with the viewer.
+ * Home: their own office check-in if they made one today; otherwise only what their usual week suggests.
+ */
+export function whereDetail(data: Data, p: Person, viewerId: ID, date: string, today: string, minutes: number): WhereDetail {
+  const w = whereIs(data, p, date)
+  const rows: [string, string][] = []
+  const isToday = date === today
+  if (w.trip) {
+    const t = w.trip
+    const total = diffDays(t.start, t.end) + 1
+    rows.push(['trip', fmtRange(t.start, t.end)])
+    const company = tripPeople(t).filter((id) => id !== p.id).map((id) => (id === viewerId ? 'you' : data.people.find((x) => x.id === id)?.name)).filter(Boolean)
+    if (company.length) rows.push(['with', company.join(' and ')])
+    const reached = data.checkins.filter((c) => c.tripId === t.id && c.userId === p.id).sort((a, b) => b.at.localeCompare(a.at))[0]
+    rows.push(['reached', reached ? `safely \u00b7 ${stamp(reached.at)}` : 'no check-in yet'])
+    const card = data.cards.find((c) => c.tripId === t.id && c.ownerId === p.id && (p.id === viewerId || c.visibleTo.includes(viewerId)))
+    if (card) {
+      if (card.stay) rows.push(['staying at', card.stay])
+      if (card.flightOut) rows.push(['way there', card.flightOut])
+      if (card.flightBack) rows.push(['way back', card.flightBack])
+      if (card.localContact) rows.push(['contact there', card.localContact])
+    } else {
+      rows.push(['staying at', p.id === viewerId ? 'not added yet' : 'not shared yet'])
+    }
+    return { headline: `in ${t.place}`, sub: `day ${diffDays(t.start, date) + 1} of ${total} \u00b7 back ${fmt(t.end)}${isToday ? ` (${inDays(date, t.end)})` : ''}`, rows, trip: t }
+  }
+  const home = [p.house, p.home].filter(Boolean).join(', ')
+  if (home) rows.push(['lives in', home])
+  if (p.office) rows.push(['office', p.office])
+  const spot = isToday ? spotToday(p.spot, date) : null
+  if (spot?.kind === 'office') return { headline: 'at the office', sub: [`checked in ${timeOf(spot.at)}`, p.office].filter(Boolean).join(' \u00b7 '), rows }
+  if (spot?.kind === 'left') return { headline: `in ${p.home}`, sub: `left the office ${timeOf(spot.at)}`, rows }
+  const guess = isToday ? rightNow(p, date, mondayIndex(date), minutes) : null
+  return { headline: `in ${p.home}`, sub: guess ? `home base \u00b7 ${guess.text}` : isToday ? 'home base \u00b7 no check-in today' : 'home base', rows }
 }

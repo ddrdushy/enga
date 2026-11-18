@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import type { Ctx } from '../ctx'
 import { person } from '../ctx'
 import type { EventItem, Keen, Person, Trip } from '../lib/types'
 import { addDays, addMonths, dayNum, daysInMonth, dow, firstOfMonth, fmt, fmtRange, fmtShort, inDays, mondayIndex, monthName, today } from '../lib/dates'
-import { allHomeRuns, currentTrip, digest, isFree, laneSegments, nextTrip, openPlansFor, tripPeople, upcomingEvents, whereIs } from '../lib/logic'
+import { allHomeRuns, currentTrip, digest, isFree, laneSegments, nextTrip, openPlansFor, tripPeople, upcomingEvents, whereDetail, whereIs } from '../lib/logic'
 import { clock, daysOf, duration, goesToOffice, rightNow, spotToday } from '../lib/work'
 import { Avatar, FaceSlider, Icon, Sheet } from '../ui'
 
@@ -248,7 +248,7 @@ function PersonSheet({ ctx, id, onClose }: { ctx: Ctx; id: string; onClose: () =
   const { data, me, date } = ctx
   const p = person(data, id)
   if (!p) return null
-  const w = whereIs(data, p, date)
+  const where = whereDetail(data, p, me.id, date, today(), nowMinutes())
   const next = nextTrip(data, p.id, date)
   const isMe = p.id === me.id
   const plan = p.workPlan
@@ -257,16 +257,14 @@ function PersonSheet({ ctx, id, onClose }: { ctx: Ctx; id: string; onClose: () =
     <Sheet title={isMe ? 'you' : p.name} onClose={onClose}>
       <div className="row" style={{ gap: 12 }}>
         <Avatar p={p} size={56} />
-        <div>
-          <div className="display" style={{ fontSize: 22 }}>{w.place}</div>
-          <div className="small">{w.home ? 'at home base' : `away, back ${fmt(w.trip!.end)}`}</div>
+        <div style={{ minWidth: 0 }}>
+          <div className="display" style={{ fontSize: 22, overflowWrap: 'anywhere' }}>{where.headline}</div>
+          <div className="small">{where.sub}</div>
         </div>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '84px minmax(0, 1fr)', gap: '6px 10px', fontSize: 14 }}>
-        {row('lives in', [p.house, p.home].filter(Boolean).join(', '))}
-        {row('office', p.office)}
+      <div style={{ display: 'grid', gridTemplateColumns: '96px minmax(0, 1fr)', gap: '6px 10px', fontSize: 14 }}>
+        {where.rows.map(([label, value]) => <Fragment key={label}>{row(label, value)}</Fragment>)}
         {row('work', p.workType ? WORK_LINE[p.workType] ?? p.workType : '')}
-        {w.home && date === today() && row('right now', rightNow(p, date, mondayIndex(date), nowMinutes())?.text ?? '')}
         {plan && row('office days', daysOf(plan, 'office'))}
         {plan && row('home days', daysOf(plan, 'home'))}
         {plan && row('hours', `${clock(plan.start)} to ${clock(plan.end)}`)}
@@ -274,7 +272,7 @@ function PersonSheet({ ctx, id, onClose }: { ctx: Ctx; id: string; onClose: () =
         {row('next trip', next ? `${next.place} · ${fmtRange(next.start, next.end)}` : 'nothing planned')}
       </div>
       <div className="row" style={{ flexWrap: 'wrap' }}>
-        {w.trip && <button type="button" className="pill dark" onClick={() => { onClose(); openTrip(ctx, w.trip!) }}>see this trip</button>}
+        {where.trip && <button type="button" className="pill dark" onClick={() => { onClose(); openTrip(ctx, where.trip!) }}>see this trip</button>}
         {next && <button type="button" className="pill mist" onClick={() => { onClose(); openTrip(ctx, next) }}>see next trip</button>}
         {isMe && <button type="button" className="pill mist" onClick={() => { onClose(); ctx.setTab('me') }}>edit my details</button>}
       </div>
