@@ -125,7 +125,7 @@ export function digest(data: Data, meId: ID, date: string): string[] {
       const hasCard = data.cards.some((c) => c.tripId === next.id && c.ownerId === meId && (c.stay || c.flightOut))
       lines.push(`${next.place} tomorrow${timeOf(next.leaveAt) ? `, leaving ${clock(timeOf(next.leaveAt))}` : ''}.${hasCard ? '' : ' Your safety card is still empty.'}`)
     } else if (next) lines.push(`No travel for you today. Next: ${next.place}, ${inDays(date, next.start)}.`)
-    else lines.push('No travel for you today, and nothing planned yet.')
+    else lines.push('No travel for you today, and no trips planned yet.')
     // On an ordinary day at home base, add what the work day looks like.
     if (!mine && me.workPlan) {
       const work = workLine(me.workPlan, mondayIndex(date))
@@ -150,7 +150,7 @@ export function digest(data: Data, meId: ID, date: string): string[] {
     for (const p of data.people) {
       if (p.id === meId) continue
       const t = currentTrip(data, p.id, date)
-      if (t && t.start === date) lines.push(`${p.name} goes to ${t.place} today${timeOf(t.leaveAt) ? ` at ${clock(timeOf(t.leaveAt))}` : ''}, back ${fmt(t.end)}.`)
+      if (t && t.start === date) lines.push(`${p.name} goes to ${t.place} today${timeOf(t.leaveAt) ? ` at ${clock(timeOf(t.leaveAt))}` : ''}, back ${t.end === date ? (timeOf(t.backAt) ? `about ${clock(timeOf(t.backAt))}` : 'the same day') : fmt(t.end)}.`)
       else if (t && t.end === date) lines.push(`${p.name} is back from ${t.place} today${timeOf(t.backAt) ? `, about ${clock(timeOf(t.backAt))}` : ''}.`)
       else if (t) lines.push(`${p.name} is in ${t.place}, back ${fmt(t.end)}.`)
     }

@@ -529,3 +529,11 @@ describe('putting friends on a trip or an event', () => {
     expect(digest(data, 'd', T).join(' ')).not.toContain('New:')
   })
 })
+
+it('a day trip comes back the same day', () => {
+  const base = { home: 'Kuala Lumpur', house: '', office: '', workPlan: null, spot: null, days: [], reminderOpts: { mine: true, friends: true, news: true } }
+  const people = [{ ...base, id: 'd', name: 'Dushy' }, { ...base, id: 'k', name: 'Kiru' }] as unknown as Person[]
+  const trip: Trip = { id: 't', ownerId: 'k', place: 'Shah Alam', start: '2026-11-18', end: '2026-11-18', open: false, rsvps: {}, createdAt: '2026-11-01T00:00:00Z' }
+  expect(digest({ people, trips: [trip], events: [], cards: [], checkins: [] }, 'd', '2026-11-18')).toContain('Kiru goes to Shah Alam today, back the same day.')
+  expect(digest({ people, trips: [{ ...trip, backAt: '18:00' }], events: [], cards: [], checkins: [] }, 'd', '2026-11-18')).toContain('Kiru goes to Shah Alam today, back about 6:00 pm.')
+})
