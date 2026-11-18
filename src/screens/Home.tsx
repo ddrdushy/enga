@@ -7,6 +7,7 @@ import { addDays, addMonths, dayNum, daysInMonth, dow, firstOfMonth, fmt, fmtRan
 import { allHomeRuns, currentTrip, digest, isFree, laneSegments, nextTrip, openPlansFor, tripPeople, upcomingEvents, whereDetail, whereIs } from '../lib/logic'
 import { clock, daysOf, duration, goesToOffice, rightNow, spotToday } from '../lib/work'
 import { Avatar, FaceSlider, Icon, Sheet } from '../ui'
+import { MyDay, StopList } from './Day'
 
 const nowMinutes = () => { const n = new Date(); return n.getHours() * 60 + n.getMinutes() }
 
@@ -182,10 +183,11 @@ export function OrbitScreen(ctx: Ctx) {
           {rightRows.map(({ p, w }) => {
             const isMe = p.id === me.id
             const moving = !!w && (w.kind === 'to-office' || w.kind === 'to-home')
+            const here = !!w?.sure && (w.kind === 'office' || w.kind === 'stop')
             const inOffice = isMe && spotToday(p.spot, t)?.kind === 'office'
             return (
               <div key={p.id} style={{ display: 'flex', gap: 6, alignItems: 'stretch' }}>
-                <button type="button" className="pill" style={{ flex: 1, minWidth: 0, paddingLeft: 4, height: 'auto', minHeight: 44, whiteSpace: 'normal', textAlign: 'left', justifyContent: 'flex-start', background: w?.sure && w.kind === 'office' ? 'var(--butter)' : moving ? 'var(--peach)' : 'var(--card)' }} onClick={() => setPersonId(p.id)}>
+                <button type="button" className="pill" style={{ flex: 1, minWidth: 0, paddingLeft: 4, height: 'auto', minHeight: 44, whiteSpace: 'normal', textAlign: 'left', justifyContent: 'flex-start', background: here ? 'var(--butter)' : moving ? 'var(--peach)' : 'var(--card)' }} onClick={() => setPersonId(p.id)}>
                   <Avatar p={p} size={34} />
                   <span><b>{isMe ? 'you' : p.name}</b> · {w ? w.text : 'not checked in today'}</span>
                 </button>
@@ -199,6 +201,8 @@ export function OrbitScreen(ctx: Ctx) {
           })}
         </div>
       )}
+
+      {date === t && <MyDay ctx={ctx} />}
 
       <div className="h2">what's on</div>
       {plans.length + events.length === 0 && <div className="small">Nothing yet. Tap + to add a trip or an event.</div>}
@@ -271,6 +275,12 @@ function PersonSheet({ ctx, id, onClose }: { ctx: Ctx; id: string; onClose: () =
         {plan && goesToOffice(plan) && row('commute', `leaves ${clock(plan.leaveAt)}, about ${duration(plan.commuteMin)}`)}
         {row('next trip', next ? `${next.place} · ${fmtRange(next.start, next.end)}` : 'nothing planned')}
       </div>
+      {where.stops && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div className="label">{isMe ? 'your places today' : `${p.name}'s places today`}</div>
+          <StopList stops={where.stops} />
+        </div>
+      )}
       <div className="row" style={{ flexWrap: 'wrap' }}>
         {where.trip && <button type="button" className="pill dark" onClick={() => { onClose(); openTrip(ctx, where.trip!) }}>see this trip</button>}
         {next && <button type="button" className="pill mist" onClick={() => { onClose(); openTrip(ctx, next) }}>see next trip</button>}

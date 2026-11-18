@@ -1,7 +1,9 @@
 import { isNewer, latestFrom } from './update.ts'
 import { withSamples } from './sample.ts'
 import { rightNow, spotToday } from './work.ts'
-import { optsOf, spotOf } from './store.ts'
+import { dayOf, optsOf, spotOf } from './store.ts'
+import { addStop, checkInAt, dayProgress, dayToday, moveStop, removeStop, reopenStop, skipStop } from './day.ts'
+import type { Stop } from './types'
 import { describe, expect, it } from 'vitest'
 import type { Data, Person, Trip } from './types'
 import { allHomeRuns, currentTrip, digest, isFree, laneSegments, nextTrip, tripPeople, whereDetail, whereIs } from './logic'
@@ -9,7 +11,7 @@ import { addDays, addMonths, daysInMonth, diffDays, fmt, fmtRange, inDays, monda
 import { clock, daysOf, defaultPlan, duration, workLine, workNow } from './work'
 
 const person = (id: string, name: string): Person => ({
-  id, name, initial: name[0], color: '#000', ink: '#fff', home: 'Kuala Lumpur', house: '', office: '', workType: '', spot: null, workPlan: null,
+  id, name, initial: name[0], color: '#000', ink: '#fff', home: 'Kuala Lumpur', house: '', office: '', workType: '', spot: null, day: null, workPlan: null,
   emergencyContacts: [], reminderTime: '08:00', reminderOpts: { mine: true, friends: true, news: true },
 })
 const trip = (id: string, ownerId: string, place: string, start: string, end: string, extra: Partial<Trip> = {}): Trip => ({
@@ -193,8 +195,8 @@ describe('office check-in', () => {
     expect(spotToday({ kind: 'office', at: 'rubbish' }, '2026-11-18')).toBeNull()
   })
   it('shows a check-in as certain, with the time, even with no usual week saved', () => {
-    expect(rightNow({ workPlan: null, spot: { kind: 'office', at: at(9, 52) } }, '2026-11-18', 2, 600)).toEqual({ kind: 'office', text: 'at the office \u00b7 checked in 9:52 am', sure: true })
-    expect(rightNow({ workPlan: null, spot: { kind: 'left', at: at(18, 10) } }, '2026-11-18', 2, 1100)).toEqual({ kind: 'left', text: 'left the office 6:10 pm', sure: true })
+    expect(rightNow({ workPlan: null, spot: { kind: 'office', at: at(9, 52) } }, '2026-11-18', 2, 600)).toMatchObject({ kind: 'office', text: 'at the office \u00b7 checked in 9:52 am', sure: true })
+    expect(rightNow({ workPlan: null, spot: { kind: 'left', at: at(18, 10) } }, '2026-11-18', 2, 1100)).toMatchObject({ kind: 'left', text: 'left the office 6:10 pm', sure: true })
   })
   it('never says "at the office" from the usual week alone', () => {
     const guess = rightNow({ workPlan: { ...plan, days: [...plan.days] }, spot: null }, '2026-11-18', 2, 600)
@@ -245,5 +247,75 @@ describe('where is this person, in detail', () => {
     expect(d.sub).toBe('checked in 9:52 am \u00b7 KLCC')
     // looking at another day: the check-in says nothing
     expect(whereDetail({ ...base, trips: [] }, inOffice, 'me', '2026-11-20', '2026-11-18', 600).sub).toBe('home base')
+  })
+})
+
+describe("today's places", () => {
+  const at = (h: number, m: number) => new Date(2026, 10, 18, h, m).toISOString()
+  const five = ['Bangsar South', 'Mid Valley', 'KLCC', 'Pavilion', 'TTDI'].reduce<Stop[]>((list, n) => addStop(list, n), [])
+  const id = (name: string) => five.find((s) => s.name === name)!.id
+
+  it('adds places in order, and ignores blanks and repeats', () => {
+    expect(five.map((s) => s.name)).toEqual(['Bangsar South', 'Mid Valley', 'KLCC', 'Pavilion', 'TTDI'])
+    expect(five.every((s) => s.state === 'todo')).toBe(true)
+    expect(addStop(five, '   ')).toBe(five)
+    expect(addStop(five, 'mid valley')).toBe(five)
+    expect(addStop(five, '  Sri   Petaling ').at(-1)?.name).toBe('Sri Petaling')
+  })
+
+  it('checks in, skips, undoes, reorders and removes', () => {
+    let s = checkInAt(five, id('Bangsar South'), at(9, 50))
+    s = skipStop(s, id('Mid Valley'))
+    s = checkInAt(s, id('KLCC'), at(11, 40))
+    expect(dayProgress(s)).toMatchObject({ total: 5, done: 2, skipped: 1 })
+    expect(dayProgress(s).last?.name).toBe('KLCC')
+    expect(dayProgress(s).next?.name).toBe('Pavilion')
+    expect(reopenStop(s, id('Mid Valley')).find((x) => x.name === 'Mid Valley')).toEqual({ id: id('Mid Valley'), name: 'Mid Valley', state: 'todo' })
+    expect(moveStop(s, id('TTDI'), -1).map((x) => x.name).slice(3)).toEqual(['TTDI', 'Pavilion'])
+    expect(moveStop(s, id('Bangsar South'), -1)).toBe(s)
+    expect(moveStop(s, id('TTDI'), 1)).toBe(s)
+    expect(removeStop(s, id('Pavilion')).map((x) => x.name)).toEqual(['Bangsar South', 'Mid Valley', 'KLCC', 'TTDI'])
+  })
+
+  it('counts only on its own day', () => {
+    expect(dayToday({ date: '2026-11-18', stops: five }, '2026-11-18')?.stops).toHaveLength(5)
+    expect(dayToday({ date: '2026-11-17', stops: five }, '2026-11-18')).toBeNull()
+    expect(dayToday(null, '2026-11-18')).toBeNull()
+  })
+
+  it('shows the latest check-in, whichever kind it was', () => {
+    const stops = checkInAt(checkInAt(five, id('Bangsar South'), at(9, 50)), id('Mid Valley'), at(11, 40))
+    const day = { date: '2026-11-18', stops }
+    expect(rightNow({ workPlan: null, spot: null, day }, '2026-11-18', 2, 720)).toMatchObject({ kind: 'stop', sure: true, text: 'at Mid Valley \u00b7 since 11:40 am \u00b7 2 of 5 places' })
+    // an office check-in after the last stop wins; one before it does not
+    expect(rightNow({ workPlan: null, spot: { kind: 'office', at: at(14, 0) }, day }, '2026-11-18', 2, 900)?.kind).toBe('office')
+    expect(rightNow({ workPlan: null, spot: { kind: 'office', at: at(9, 0) }, day }, '2026-11-18', 2, 900)?.kind).toBe('stop')
+    // a list with nothing checked in yet is only a plan
+    expect(rightNow({ workPlan: null, spot: null, day: { date: '2026-11-18', stops: five } }, '2026-11-18', 2, 600)).toEqual({ kind: 'plan', text: '5 places today \u00b7 first Bangsar South \u00b7 not checked in', sure: false })
+  })
+
+  it('appears in the person details, at home or on a trip', () => {
+    const stops = skipStop(checkInAt(five, id('Bangsar South'), at(9, 50)), id('Mid Valley'))
+    const p = { id: 'k', name: 'Kiru', home: 'Kuala Lumpur', house: '', office: '', workPlan: null, spot: null, day: { date: '2026-11-18', stops } } as Person
+    const data: Data = { people: [p], trips: [], events: [], cards: [], checkins: [] }
+    const home = whereDetail(data, p, 'me', '2026-11-18', '2026-11-18', 700)
+    expect(home.headline).toBe('at Bangsar South')
+    expect(home.sub).toBe('since 9:50 am \u00b7 1 of 5 places')
+    expect(home.rows).toContainEqual(['today', '1 of 5 places done, 1 skipped'])
+    expect(home.stops).toHaveLength(5)
+    const trip: Trip = { id: 't', ownerId: 'k', place: 'Penang', start: '2026-11-17', end: '2026-11-19', open: false, rsvps: {}, createdAt: '' }
+    const away = whereDetail({ ...data, trips: [trip] }, p, 'me', '2026-11-18', '2026-11-18', 700)
+    expect(away.headline).toBe('in Penang')
+    expect(away.rows).toContainEqual(['right now', 'at Bangsar South \u00b7 since 9:50 am \u00b7 1 of 5 places'])
+    // another day: the list is not shown
+    expect(whereDetail(data, p, 'me', '2026-11-19', '2026-11-18', 700).stops).toBeUndefined()
+  })
+
+  it('survives being stored beside the reminder switches, and drops rubbish', () => {
+    const stored = { mine: true, friends: true, news: false, spot: null, day: { date: '2026-11-18', stops: [{ id: 'a', name: 'KLCC', state: 'done', at: at(9, 0) }, { id: 'b', name: '', state: 'todo' }, { name: 'no id' }, { id: 'c', name: 'TTDI', state: 'flying' }] } }
+    expect(dayOf(stored)).toEqual({ date: '2026-11-18', stops: [{ id: 'a', name: 'KLCC', state: 'done', at: at(9, 0) }, { id: 'c', name: 'TTDI', state: 'todo' }] })
+    expect(optsOf(stored)).toEqual({ mine: true, friends: true, news: false })
+    expect(dayOf({ mine: true })).toBeNull()
+    expect(dayOf({ day: { date: '2026-11-18', stops: 'nope' } })).toBeNull()
   })
 })

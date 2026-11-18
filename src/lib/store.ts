@@ -1,4 +1,6 @@
-import type { Checkin, Contact, Data, EventItem, ID, Keen, Member, Person, ReminderOpts, Rsvp, SafetyCard, Spot, Trip } from './types'
+import type { Checkin, Contact, Data, EventItem, ID, Keen, Member, Person, DayPlan, ReminderOpts, Rsvp, SafetyCard, Spot, Stop, Trip } from './types'
+import { MAX_NAME, MAX_STOPS } from './day'
+import { today as todayIso } from './dates'
 import { addDays, today } from './dates'
 
 export interface TripInput {
@@ -38,6 +40,8 @@ export interface Store {
   checkin(tripId: ID): Promise<void>
   /** "I am at the office" / "I have left" for today; null clears it. Friends see it straight away. */
   setSpot(kind: Spot['kind'] | null): Promise<void>
+  /** Today's list of places, in order, with which are done or skipped. An empty list clears it. */
+  setDay(stops: Stop[]): Promise<void>
   saveProfile(patch: ProfilePatch): Promise<void>
   /** This phone's push subscription, for the morning notification. */
   savePush(sub: { endpoint: string; p256dh: string; auth: string }): Promise<void>
@@ -96,11 +100,27 @@ export function spotOf(raw: unknown): Spot | null {
   return { kind: spot.kind, at: spot.at }
 }
 
+/** Today's list of places, kept beside the check-in under "day" in the same JSON. Anything malformed is dropped. */
+export function dayOf(raw: unknown): DayPlan | null {
+  const day = (typeof raw === 'object' && raw !== null ? (raw as Record<string, unknown>).day : null) as Record<string, unknown> | null | undefined
+  if (!day || typeof day.date !== 'string' || !Array.isArray(day.stops)) return null
+  const stops: Stop[] = []
+  for (const s of day.stops as Record<string, unknown>[]) {
+    if (!s || typeof s.id !== 'string' || typeof s.name !== 'string' || !s.name.trim()) continue
+    const state = s.state === 'done' || s.state === 'skipped' ? s.state : 'todo'
+    const stop: Stop = { id: s.id, name: s.name.slice(0, MAX_NAME), state }
+    if (state === 'done' && typeof s.at === 'string') stop.at = s.at
+    stops.push(stop)
+    if (stops.length >= MAX_STOPS) break
+  }
+  return stops.length ? { date: day.date, stops } : null
+}
+
 function seed(): DemoState {
   const t = today()
   const now = new Date().toISOString()
   const people: Person[] = MEMBERS.map((m) => ({
-    id: m.slug, name: m.name, initial: m.initial, color: m.color, ink: m.ink, home: 'Kuala Lumpur', house: '', office: '', workType: '', workPlan: null, spot: null,
+    id: m.slug, name: m.name, initial: m.initial, color: m.color, ink: m.ink, home: 'Kuala Lumpur', house: '', office: '', workType: '', workPlan: null, spot: null, day: null,
     emergencyContacts: [], reminderTime: '08:00', reminderOpts: { mine: true, friends: true, news: true },
   }))
   const [a, b, c] = people.map((p) => p.id)
@@ -124,7 +144,7 @@ function demoStore(): Store {
       if (raw) {
         const saved = JSON.parse(raw) as DemoState
         // Older demo data may be missing newer fields.
-        for (const p of saved.people) { p.emergencyContacts ??= []; p.workPlan ??= null; p.spot ??= null; p.house ??= ''; p.office ??= ''; p.workType ??= '' }
+        for (const p of saved.people) { p.emergencyContacts ??= []; p.workPlan ??= null; p.spot ??= null; p.day ??= null; p.house ??= ''; p.office ??= ''; p.workType ??= '' }
         return saved
       }
     } catch { /* fall through to a fresh seed */ }
@@ -200,6 +220,10 @@ function demoStore(): Store {
     async setSpot(kind) {
       const p = state.people.find((x) => x.id === me())
       if (p) { p.spot = kind ? { kind, at: new Date().toISOString() } : null; commit() }
+    },
+    async setDay(stops) {
+      const p = state.people.find((x) => x.id === me())
+      if (p) { p.day = stops.length ? { date: todayIso(), stops } : null; commit() }
     },
     async saveProfile(patch) {
       const p = state.people.find((x) => x.id === me())
@@ -288,7 +312,7 @@ async function cloudStore(url: string, anonKey: string): Promise<Store> {
           return {
           id: r.id, name: r.name, initial: String(r.name ?? '?')[0].toUpperCase(),
           color: r.color ?? paint.color, ink: r.ink ?? paint.ink,
-          home: r.home ?? 'Kuala Lumpur', house: r.house ?? '', office: r.office ?? '', workType: r.work_type ?? '', workPlan: r.work_plan ?? null, spot: spotOf(r.reminder_opts), emergencyContacts: contactsOf(r),
+          home: r.home ?? 'Kuala Lumpur', house: r.house ?? '', office: r.office ?? '', workType: r.work_type ?? '', workPlan: r.work_plan ?? null, spot: spotOf(r.reminder_opts), day: dayOf(r.reminder_opts), emergencyContacts: contactsOf(r),
           reminderTime: r.reminder_time ?? '08:00', reminderOpts: optsOf(r.reminder_opts),
           }
         }),
@@ -339,7 +363,14 @@ async function cloudStore(url: string, anonKey: string): Promise<Store> {
     async setSpot(kind) {
       const id = await myId()
       const spot: Spot | null = kind ? { kind, at: new Date().toISOString() } : null
-      check(await sb.from('profiles').update({ reminder_opts: { ...optsOf(await savedOpts(id)), spot } }).eq('id', id))
+      const saved = await savedOpts(id)
+      check(await sb.from('profiles').update({ reminder_opts: { ...optsOf(saved), spot, day: dayOf(saved) } }).eq('id', id))
+    },
+    async setDay(stops) {
+      const id = await myId()
+      const saved = await savedOpts(id)
+      const day: DayPlan | null = stops.length ? { date: todayIso(), stops } : null
+      check(await sb.from('profiles').update({ reminder_opts: { ...optsOf(saved), spot: spotOf(saved), day } }).eq('id', id))
     },
     async saveProfile(patch) {
       const row: Row = {}
@@ -357,8 +388,8 @@ async function cloudStore(url: string, anonKey: string): Promise<Store> {
       }
       if (patch.reminderTime !== undefined) row.reminder_time = patch.reminderTime
       const id = await myId()
-      // The check-in shares this column (see spotOf), so changing the reminder words must not wipe it.
-      if (patch.reminderOpts !== undefined) row.reminder_opts = { ...optsOf(patch.reminderOpts), spot: spotOf(await savedOpts(id)) }
+      // The check-ins share this column (see spotOf and dayOf), so changing the reminder words must not wipe them.
+      if (patch.reminderOpts !== undefined) { const saved = await savedOpts(id); row.reminder_opts = { ...optsOf(patch.reminderOpts), spot: spotOf(saved), day: dayOf(saved) } }
       check(await sb.from('profiles').update(row).eq('id', id))
     },
     async savePush(sub) {

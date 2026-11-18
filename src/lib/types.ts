@@ -33,6 +33,22 @@ export interface Spot {
   at: string
 }
 
+/** One place on someone's list for the day. */
+export interface Stop {
+  id: string
+  name: string
+  state: 'todo' | 'done' | 'skipped'
+  /** When they checked in there, ISO time; only on done stops. */
+  at?: string
+}
+
+/** The places a person means to go on one day, in order. */
+export interface DayPlan {
+  /** 'YYYY-MM-DD' the list is for. */
+  date: string
+  stops: Stop[]
+}
+
 export interface Person {
   id: ID
   name: string
@@ -51,6 +67,8 @@ export interface Person {
   workPlan: WorkPlan | null
   /** Their latest office check-in; null if they never made one. */
   spot: Spot | null
+  /** Their list of places for a day; null if they never made one. Only counts on its own date. */
+  day: DayPlan | null
   /** People to call if something is wrong; shown on this person's safety cards. */
   emergencyContacts: Contact[]
   reminderTime: string

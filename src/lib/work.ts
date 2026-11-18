@@ -1,4 +1,5 @@
-import type { DayKind, Spot, WorkPlan } from './types.ts'
+import type { DayKind, DayPlan, Spot, WorkPlan } from './types.ts'
+import { dayProgress, dayToday } from './day.ts'
 
 export const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
@@ -87,24 +88,41 @@ export function spotToday(spot: Spot | null | undefined, date: string): Spot | n
 }
 
 export interface RightNow {
-  kind: WorkNow['kind'] | 'left'
+  kind: WorkNow['kind'] | 'left' | 'stop' | 'plan'
   text: string
-  /** True when the person checked in themselves; false when it is only what their usual week says. */
+  /** True when the person checked in themselves; false when it is only a plan or what their usual week says. */
   sure: boolean
+  /** For a check-in: "at the office", "at Mid Valley". */
+  head?: string
+  /** For a check-in: "checked in 9:52 am", "since 11:40 am · 2 of 5 places". */
+  tail?: string
 }
 
+const timeOf = (iso: string) => { const d = new Date(iso); return clock(d.getHours() * 60 + d.getMinutes()) }
+
 /**
- * Where someone is right now. Their own check-in today wins. Without one, the usual week is all there is,
- * and it is worded as a guess: nobody is shown as "at the office" unless they said so.
+ * Where someone is right now. Their own latest check-in today wins, whether at the office or at one of the
+ * places on their list for the day. Without one there is only a plan or the usual week, worded as such:
+ * nobody is shown as "at" somewhere unless they said so.
  */
-export function rightNow(p: { workPlan: WorkPlan | null; spot: Spot | null }, date: string, dayIndex: number, minutes: number): RightNow | null {
+export function rightNow(p: { workPlan: WorkPlan | null; spot: Spot | null; day?: DayPlan | null }, date: string, dayIndex: number, minutes: number): RightNow | null {
   const spot = spotToday(p.spot, date)
+  const day = dayToday(p.day, date)
+  const progress = day ? dayProgress(day.stops) : null
+  const last = progress?.last
+  if (last?.at && (!spot || last.at > spot.at)) {
+    const head = `at ${last.name}`
+    const tail = `since ${timeOf(last.at)} \u00b7 ${progress!.done} of ${progress!.total} places`
+    return { kind: 'stop', text: `${head} \u00b7 ${tail}`, sure: true, head, tail }
+  }
   if (spot) {
-    const d = new Date(spot.at)
-    const at = clock(d.getHours() * 60 + d.getMinutes())
+    const at = timeOf(spot.at)
     return spot.kind === 'office'
-      ? { kind: 'office', text: `at the office \u00b7 checked in ${at}`, sure: true }
-      : { kind: 'left', text: `left the office ${at}`, sure: true }
+      ? { kind: 'office', text: `at the office \u00b7 checked in ${at}`, sure: true, head: 'at the office', tail: `checked in ${at}` }
+      : { kind: 'left', text: `left the office ${at}`, sure: true, head: 'left the office', tail: at }
+  }
+  if (progress?.next) {
+    return { kind: 'plan', text: `${progress.total} place${progress.total === 1 ? '' : 's'} today \u00b7 first ${progress.next.name} \u00b7 not checked in`, sure: false }
   }
   if (!p.workPlan) return null
   const w = workNow(p.workPlan, dayIndex, minutes)

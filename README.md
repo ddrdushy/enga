@@ -86,3 +86,9 @@ The check-in is stored inside the profile's `reminder_opts` JSON, under `spot` (
 ## Live splash
 
 For someone who is signed in, the opening screen lists where each person is right now (the same wording as the sheet that opens on a tap: `whereDetail` in `src/lib/logic.ts`). It stays for about three seconds, or until a tap. Signed out, it is the plain brand screen.
+
+## My day: several places, a check-in at each
+
+On the home screen, under "right now", "my day" holds your list of places for today (up to 12). "here" checks in at a place with the time, "skip" drops one, "undo" reverses either, and "reorder" shows up / down / remove on every row. Friends see your latest check-in ("at KLCC · since 11:40 am · 2 of 5 places") in "right now", on the opening screen, and the whole list on the sheet that opens when they tap your face. The list only counts on its own date, and works at home or during a trip.
+
+Logic is in `src/lib/day.ts`; like the office check-in, the list is stored inside `reminder_opts`, under `day` (`dayOf` in `src/lib/store.ts`).
