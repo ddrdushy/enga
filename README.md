@@ -1,0 +1,74 @@
+# enga?
+
+Who is where, and where next. A small phone app (PWA) for a few friends.
+
+## What it does
+
+- **PIN login.** Tap your name, type your 6-digit PIN. The first time, you choose your own PIN.
+- **Home orbit.** Who is home, who is away, and each person's next trip.
+- **Where next.** Two-week lanes and a month calendar. Tap a day to see that day in orbit.
+- **Add a trip or an event** as one sentence. Events can carry an Instagram/TikTok link.
+- **Open plans.** Mark a trip "friends can join"; friends drag their face to join, maybe or can't.
+- **Trip pass.** Slide to check in on travel days. One safety card per trip, shown only to the people you pick.
+- **Morning reminder.** A notification at the time you choose (Me tab), plus a brief the first time you open the app each day.
+
+## Run it on this computer
+
+```
+npm install
+npm run dev
+```
+
+With no `.env.local` the app runs in **demo mode**: sample trips, stored only in that browser.
+With `.env.local` (written by `scripts/setup-supabase.sh`) it talks to the live Supabase project.
+
+Other commands: `npm test` (logic tests), `npm run build` (production build in `dist/`).
+
+## How it is hosted
+
+- **Supabase** project `enga` (Singapore): database, logins, security rules. Schema lives in `supabase/migrations/`.
+- **Vercel** project `enga`: the app and the `/api/morning` function that sends the morning notification.
+- A database job calls `/api/morning` every 15 minutes; it sends each person's message once, at their time.
+
+## Secrets
+
+Everything secret was generated on this Mac and lives in `.secrets/` (git-ignored): the database password,
+the circle code, the web-push key pair and the job secret. `INVITE-LINK.txt` holds the link to send to friends.
+
+## Scripts
+
+| Script | What it does |
+| --- | --- |
+| `scripts/setup-supabase.sh <ref>` | First-time database setup, auth settings, writes `.env.local` |
+| `scripts/db-push.sh` | Applies new files in `supabase/migrations/` |
+| `scripts/setup-vercel.sh` | Links the folder to Vercel and copies the client settings |
+| `scripts/setup-push.sh <ref> <https://domain>` | Creates the notification keys and stores them in Vercel |
+| `scripts/deploy.sh` | Builds and publishes to Vercel production |
+| `scripts/ship.sh ["what is new"]` | The day-to-day release: tests, database, live check, publish, then a notification to everyone. `NOTIFY=0` in front publishes quietly |
+| `scripts/notify-update.sh ["what is new"]` | Sends the "there is an update" notification again |
+| `scripts/schedule-morning.sh <https://domain>` | Starts the every-15-minutes reminder job |
+| `scripts/check-cloud.sh` | End-to-end check of the live database with a throwaway login |
+| `scripts/sql.sh -c "…"` | Runs SQL against the live database |
+
+## Adding a person later
+
+1. Add the name to `VITE_MEMBERS` in `.env.local` and in Vercel, then `bash scripts/deploy.sh`.
+2. Add `<name>@enga.app` to the allow-list:
+   `bash scripts/sql.sh -c "update private.settings set value = value || ',<name>@enga.app' where key = 'allowed_emails'"`
+3. Send them the invite link.
+
+## Known limits
+
+- Notifications on iPhone need iOS 16.4 or later and the app added to the Home Screen first.
+- Reminder times follow Kuala Lumpur time, also while someone is travelling.
+- The wrong-PIN lock (5 tries, 1 minute) is per phone; Supabase's own sign-in rate limit is the server-side guard.
+
+## How-to-use tour
+
+`src/screens/Tour.tsx` is a tour that points at the real screens. While it runs, the app shows sample trips and a sample event in place of the real ones (`src/lib/sample.ts`), opens the real add-trip and add-event forms filled with the sample, and then shows the result. The samples exist only on the screen: nothing is saved and friends never see them. It starts by itself once per person on each phone (flag `enga-tour-<id>` in localStorage) and can be replayed from Me → "how to use". Steps whose target is not on screen (no open plans, no work week yet) are skipped.
+
+## "There is an update" banner
+
+Each build gets a stamp (`vite.config.ts`). The app carries it as `__BUILD__` and the build writes the same stamp to `/version.json`. An open app re-reads that file when it comes back to the front, when the phone comes back online, and every five minutes; if the stamp differs, `src/screens/UpdateBanner.tsx` asks for a refresh. "later" hides the banner until the app is next brought forward. The service worker never caches `/version.json`.
+
+`scripts/ship.sh` also sends a notification after publishing (`/api/update`, same job secret as the morning message): "A new version of enga? is ready. Open the app and tap refresh.", plus the line you pass to the script. It reaches only phones with notifications turned on, and it waits until the new build is really being served.

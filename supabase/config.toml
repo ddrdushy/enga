@@ -1,0 +1,14 @@
+# Settings pushed to the hosted project with `supabase config push`.
+project_id = "enga"
+
+[auth]
+enabled = true
+site_url = "https://enga.vercel.app"
+# People set their own PIN the first time (guarded by the circle code trigger).
+enable_signup = true
+minimum_password_length = 6
+
+[auth.email]
+enable_signup = true
+# Logins use made-up addresses (name@enga.app), so there is no inbox to confirm.
+enable_confirmations = false

@@ -1,0 +1,351 @@
+import type { Checkin, Contact, Data, EventItem, ID, Keen, Member, Person, Rsvp, SafetyCard, Trip } from './types'
+import { addDays, today } from './dates'
+
+export interface TripInput {
+  id?: ID
+  place: string
+  start: string
+  end: string
+  open: boolean
+}
+export interface EventInput {
+  title: string
+  place: string
+  date: string
+  link: string
+  keen: Keen
+}
+export type ProfilePatch = Partial<Pick<Person, 'name' | 'home' | 'house' | 'office' | 'workType' | 'workPlan' | 'emergencyContacts' | 'reminderTime' | 'reminderOpts'>>
+
+export interface Store {
+  mode: 'demo' | 'cloud'
+  members(): Member[]
+  session(): Promise<ID | null>
+  signIn(slug: string, pin: string): Promise<ID>
+  /** Slugs of the names that already have a PIN. */
+  claimed(): Promise<string[]>
+  /** First-time setup: create this person's login with the PIN they chose. */
+  claim(slug: string, pin: string, code: string): Promise<ID>
+  signOut(): Promise<void>
+  load(): Promise<Data>
+  saveTrip(input: TripInput): Promise<ID>
+  deleteTrip(id: ID): Promise<void>
+  rsvp(tripId: ID, value: Rsvp): Promise<void>
+  saveEvent(input: EventInput): Promise<void>
+  deleteEvent(id: ID): Promise<void>
+  setKeen(eventId: ID, value: Keen): Promise<void>
+  saveCard(card: SafetyCard): Promise<void>
+  checkin(tripId: ID): Promise<void>
+  saveProfile(patch: ProfilePatch): Promise<void>
+  /** This phone's push subscription, for the morning notification. */
+  savePush(sub: { endpoint: string; p256dh: string; auth: string }): Promise<void>
+  removePush(endpoint: string): Promise<void>
+  subscribe(onChange: () => void): () => void
+}
+
+const PALETTE = [
+  { color: '#5B6BBF', ink: '#FFFFFF' },
+  { color: '#F2B880', ink: '#1E2235' },
+  { color: '#E8A0BF', ink: '#1E2235' },
+  { color: '#9CCFC0', ink: '#1E2235' },
+  { color: '#F5EBC0', ink: '#1E2235' },
+]
+
+const env = import.meta.env
+const names = String(env.VITE_MEMBERS ?? 'Dushy,Ali,Kiru').split(',').map((s) => s.trim()).filter(Boolean)
+export const MEMBERS: Member[] = names.map((name, i) => ({
+  slug: name.toLowerCase().replace(/[^a-z0-9]/g, ''),
+  name,
+  initial: name[0].toUpperCase(),
+  ...PALETTE[i % PALETTE.length],
+}))
+
+/** Contacts from a profile row; falls back to the older single name/phone columns. */
+export function contactsOf(r: { emergency_contacts?: unknown; emergency_name?: string | null; emergency_phone?: string | null }): Contact[] {
+  if (Array.isArray(r.emergency_contacts) && r.emergency_contacts.length) return r.emergency_contacts as Contact[]
+  return r.emergency_name || r.emergency_phone ? [{ name: r.emergency_name ?? '', phone: r.emergency_phone ?? '' }] : []
+}
+
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2))
+
+/* ------------------------------------------------------------------ */
+/* Demo store: everything in this phone's localStorage, sample data.   */
+/* ------------------------------------------------------------------ */
+
+const KEY = 'enga-demo-v1'
+interface DemoState extends Data {
+  pins: Record<ID, string>
+  me: ID | null
+}
+
+function seed(): DemoState {
+  const t = today()
+  const now = new Date().toISOString()
+  const people: Person[] = MEMBERS.map((m) => ({
+    id: m.slug, name: m.name, initial: m.initial, color: m.color, ink: m.ink, home: 'Kuala Lumpur', house: '', office: '', workType: '', workPlan: null,
+    emergencyContacts: [], reminderTime: '08:00', reminderOpts: { mine: true, friends: true, news: true },
+  }))
+  const [a, b, c] = people.map((p) => p.id)
+  const trips: Trip[] = []
+  const events: EventItem[] = []
+  if (a) trips.push({ id: uid(), ownerId: a, place: 'Langkawi', start: addDays(t, 9), end: addDays(t, 12), open: false, rsvps: {}, createdAt: now })
+  if (b) {
+    trips.push({ id: uid(), ownerId: b, place: 'Singapore', start: t, end: addDays(t, 2), open: false, rsvps: {}, createdAt: now })
+    trips.push({ id: uid(), ownerId: b, place: 'Colombo', start: addDays(t, 27), end: addDays(t, 31), open: false, rsvps: {}, createdAt: now })
+    events.push({ id: uid(), ownerId: b, title: 'Jazz night', place: 'Kuala Lumpur', date: addDays(t, 37), link: '', keen: { [b]: 'interested' }, createdAt: now })
+  }
+  if (c) trips.push({ id: uid(), ownerId: c, place: 'Penang', start: addDays(t, 29), end: addDays(t, 31), open: true, rsvps: b ? { [b]: 'maybe' } : {}, createdAt: now })
+  return { people, trips, events, cards: [], checkins: [], pins: {}, me: null }
+}
+
+function demoStore(): Store {
+  const listeners = new Set<() => void>()
+  const read = (): DemoState => {
+    try {
+      const raw = localStorage.getItem(KEY)
+      if (raw) {
+        const saved = JSON.parse(raw) as DemoState
+        // Older demo data may be missing newer fields.
+        for (const p of saved.people) { p.emergencyContacts ??= []; p.workPlan ??= null; p.house ??= ''; p.office ??= ''; p.workType ??= '' }
+        return saved
+      }
+    } catch { /* fall through to a fresh seed */ }
+    return seed()
+  }
+  let state = read()
+  const commit = () => {
+    try { localStorage.setItem(KEY, JSON.stringify(state)) } catch { /* private mode: keep in memory */ }
+    listeners.forEach((fn) => fn())
+  }
+  const me = (): ID => {
+    if (!state.me) throw new Error('Not signed in')
+    return state.me
+  }
+  return {
+    mode: 'demo',
+    members: () => MEMBERS,
+    session: async () => state.me,
+    async signIn(slug, pin) {
+      if (!/^\d{6}$/.test(pin)) throw new Error('PIN must be 6 digits')
+      const saved = state.pins[slug]
+      if (saved && saved !== pin) throw new Error('Wrong PIN')
+      state.pins[slug] = pin
+      state.me = slug
+      commit()
+      return slug
+    },
+    claimed: async () => Object.keys(state.pins),
+    async claim(slug, pin) { return this.signIn(slug, pin) },
+    async signOut() { state.me = null; commit() },
+    load: async () => ({ people: state.people, trips: state.trips, events: state.events, cards: state.cards, checkins: state.checkins }),
+    async saveTrip(input) {
+      const existing = input.id ? state.trips.find((t) => t.id === input.id) : undefined
+      if (existing) {
+        Object.assign(existing, { place: input.place, start: input.start, end: input.end, open: input.open })
+        commit()
+        return existing.id
+      }
+      const id = uid()
+      state.trips.push({ id, ownerId: me(), place: input.place, start: input.start, end: input.end, open: input.open, rsvps: {}, createdAt: new Date().toISOString() })
+      commit()
+      return id
+    },
+    async deleteTrip(id) {
+      state.trips = state.trips.filter((t) => t.id !== id)
+      state.cards = state.cards.filter((c) => c.tripId !== id)
+      state.checkins = state.checkins.filter((c) => c.tripId !== id)
+      commit()
+    },
+    async rsvp(tripId, value) {
+      const t = state.trips.find((x) => x.id === tripId)
+      if (t) { t.rsvps[me()] = value; commit() }
+    },
+    async saveEvent(input) {
+      state.events.push({ id: uid(), ownerId: me(), title: input.title, place: input.place, date: input.date, link: input.link, keen: { [me()]: input.keen }, createdAt: new Date().toISOString() })
+      commit()
+    },
+    async deleteEvent(id) { state.events = state.events.filter((e) => e.id !== id); commit() },
+    async setKeen(eventId, value) {
+      const e = state.events.find((x) => x.id === eventId)
+      if (e) { e.keen[me()] = value; commit() }
+    },
+    async saveCard(card) {
+      state.cards = state.cards.filter((c) => !(c.tripId === card.tripId && c.ownerId === card.ownerId))
+      state.cards.push(card)
+      commit()
+    },
+    async checkin(tripId) {
+      const entry: Checkin = { id: uid(), tripId, userId: me(), at: new Date().toISOString() }
+      state.checkins.push(entry)
+      commit()
+    },
+    async saveProfile(patch) {
+      const p = state.people.find((x) => x.id === me())
+      if (p) {
+        Object.assign(p, patch)
+        if (patch.name) p.initial = patch.name[0].toUpperCase()
+        commit()
+      }
+    },
+    async savePush() { /* demo: nothing to save */ },
+    async removePush() { /* demo: nothing to remove */ },
+    subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn) },
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Cloud store: Supabase. Used when VITE_SUPABASE_URL is set.          */
+/* ------------------------------------------------------------------ */
+
+async function cloudStore(url: string, anonKey: string): Promise<Store> {
+  const { createClient } = await import('@supabase/supabase-js')
+  const sb = createClient(url, anonKey)
+  const domain = String(env.VITE_AUTH_DOMAIN ?? 'enga.app')
+  const check = <T,>(res: { data: T; error: { message: string } | null }): T => {
+    if (res.error) throw new Error(res.error.message)
+    return res.data
+  }
+  const myId = async (): Promise<ID> => {
+    const { data } = await sb.auth.getSession()
+    const id = data.session?.user.id
+    if (!id) throw new Error('Not signed in')
+    return id
+  }
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  type Row = Record<string, any>
+  return {
+    mode: 'cloud',
+    members: () => MEMBERS,
+    async session() {
+      const { data } = await sb.auth.getSession()
+      return data.session?.user.id ?? null
+    },
+    async signIn(slug, pin) {
+      const { data, error } = await sb.auth.signInWithPassword({ email: `${slug}@${domain}`, password: pin })
+      if (error || !data.user) throw new Error('Wrong PIN')
+      return data.user.id
+    },
+    async claimed() {
+      return check<string[] | null>(await sb.rpc('claimed')) ?? []
+    },
+    async claim(slug, pin, code) {
+      const member = MEMBERS.find((m) => m.slug === slug)
+      const { data, error } = await sb.auth.signUp({
+        email: `${slug}@${domain}`,
+        password: pin,
+        options: { data: { name: member?.name ?? slug, invite: code.trim() } },
+      })
+      if (error) {
+        const text = error.message.toLowerCase()
+        if (text.includes('already')) throw new Error('That name already has a PIN. Sign in instead.')
+        if (text.includes('database') || text.includes('circle')) throw new Error('Wrong circle code.')
+        throw new Error(error.message)
+      }
+      if (!data.user || !data.session) throw new Error('Could not finish setting up. Ask whoever runs the app.')
+      if (member) await sb.from('profiles').update({ color: member.color, ink: member.ink }).eq('id', data.user.id)
+      return data.user.id
+    },
+    async signOut() { await sb.auth.signOut() },
+    async load() {
+      const [people, trips, rsvps, events, keen, cards, checkins] = await Promise.all([
+        sb.from('profiles').select('*').order('created_at'),
+        sb.from('trips').select('*'),
+        sb.from('trip_rsvps').select('*'),
+        sb.from('events').select('*'),
+        sb.from('event_keen').select('*'),
+        sb.from('safety_cards').select('*'),
+        sb.from('checkins').select('*'),
+      ])
+      const rsvpRows = check<Row[] | null>(rsvps) ?? []
+      const keenRows = check<Row[] | null>(keen) ?? []
+      return {
+        people: (check<Row[] | null>(people) ?? []).map((r, i): Person => {
+          const known = MEMBERS.find((m) => m.name.toLowerCase() === String(r.name ?? '').toLowerCase())
+          const paint = known ?? PALETTE[(MEMBERS.length + i) % PALETTE.length]
+          return {
+          id: r.id, name: r.name, initial: String(r.name ?? '?')[0].toUpperCase(),
+          color: r.color ?? paint.color, ink: r.ink ?? paint.ink,
+          home: r.home ?? 'Kuala Lumpur', house: r.house ?? '', office: r.office ?? '', workType: r.work_type ?? '', workPlan: r.work_plan ?? null, emergencyContacts: contactsOf(r),
+          reminderTime: r.reminder_time ?? '08:00', reminderOpts: r.reminder_opts ?? { mine: true, friends: true, news: true },
+          }
+        }),
+        trips: (check<Row[] | null>(trips) ?? []).map((r): Trip => ({
+          id: r.id, ownerId: r.owner_id, place: r.place, start: r.start_date, end: r.end_date, open: r.open, createdAt: r.created_at,
+          rsvps: Object.fromEntries(rsvpRows.filter((x) => x.trip_id === r.id).map((x) => [x.user_id, x.answer as Rsvp])),
+        })),
+        events: (check<Row[] | null>(events) ?? []).map((r): EventItem => ({
+          id: r.id, ownerId: r.owner_id, title: r.title, place: r.place, date: r.event_date, link: r.link ?? '', createdAt: r.created_at,
+          keen: Object.fromEntries(keenRows.filter((x) => x.event_id === r.id).map((x) => [x.user_id, x.level as Keen])),
+        })),
+        cards: (check<Row[] | null>(cards) ?? []).map((r): SafetyCard => ({
+          tripId: r.trip_id, ownerId: r.owner_id, stay: r.stay ?? '', flightOut: r.flight_out ?? '', flightBack: r.flight_back ?? '',
+          localContact: r.local_contact ?? '', visibleTo: r.visible_to ?? [],
+        })),
+        checkins: (check<Row[] | null>(checkins) ?? []).map((r): Checkin => ({ id: r.id, tripId: r.trip_id, userId: r.user_id, at: r.created_at })),
+      }
+    },
+    async saveTrip(input) {
+      const row = { place: input.place, start_date: input.start, end_date: input.end, open: input.open }
+      if (input.id) {
+        check(await sb.from('trips').update(row).eq('id', input.id))
+        return input.id
+      }
+      const created = check<Row | null>(await sb.from('trips').insert({ ...row, owner_id: await myId() }).select('id').single())
+      return created?.id as ID
+    },
+    async deleteTrip(id) { check(await sb.from('trips').delete().eq('id', id)) },
+    async rsvp(tripId, value) {
+      check(await sb.from('trip_rsvps').upsert({ trip_id: tripId, user_id: await myId(), answer: value }))
+    },
+    async saveEvent(input) {
+      const me = await myId()
+      const created = check<Row | null>(await sb.from('events').insert({ owner_id: me, title: input.title, place: input.place, event_date: input.date, link: input.link }).select('id').single())
+      if (created) check(await sb.from('event_keen').upsert({ event_id: created.id, user_id: me, level: input.keen }))
+    },
+    async deleteEvent(id) { check(await sb.from('events').delete().eq('id', id)) },
+    async setKeen(eventId, value) {
+      check(await sb.from('event_keen').upsert({ event_id: eventId, user_id: await myId(), level: value }))
+    },
+    async saveCard(card) {
+      check(await sb.from('safety_cards').upsert({
+        trip_id: card.tripId, owner_id: card.ownerId, stay: card.stay, flight_out: card.flightOut, flight_back: card.flightBack,
+        local_contact: card.localContact, visible_to: card.visibleTo,
+      }))
+    },
+    async checkin(tripId) { check(await sb.from('checkins').insert({ trip_id: tripId, user_id: await myId() })) },
+    async saveProfile(patch) {
+      const row: Row = {}
+      if (patch.name !== undefined) row.name = patch.name
+      if (patch.home !== undefined) row.home = patch.home
+      if (patch.house !== undefined) row.house = patch.house
+      if (patch.office !== undefined) row.office = patch.office
+      if (patch.workType !== undefined) row.work_type = patch.workType
+      if (patch.workPlan !== undefined) row.work_plan = patch.workPlan
+      if (patch.emergencyContacts !== undefined) {
+        row.emergency_contacts = patch.emergencyContacts
+        // Older single-contact columns follow the first entry.
+        row.emergency_name = patch.emergencyContacts[0]?.name ?? ''
+        row.emergency_phone = patch.emergencyContacts[0]?.phone ?? ''
+      }
+      if (patch.reminderTime !== undefined) row.reminder_time = patch.reminderTime
+      if (patch.reminderOpts !== undefined) row.reminder_opts = patch.reminderOpts
+      check(await sb.from('profiles').update(row).eq('id', await myId()))
+    },
+    async savePush(sub) {
+      check(await sb.rpc('save_push_subscription', { p_endpoint: sub.endpoint, p_p256dh: sub.p256dh, p_auth: sub.auth }))
+    },
+    async removePush(endpoint) {
+      check(await sb.from('push_subscriptions').delete().eq('endpoint', endpoint))
+    },
+    subscribe(fn) {
+      const channel = sb.channel('enga-changes').on('postgres_changes', { event: '*', schema: 'public' }, () => fn()).subscribe()
+      return () => { void sb.removeChannel(channel) }
+    },
+  }
+}
+
+export async function createStore(): Promise<Store> {
+  const url = env.VITE_SUPABASE_URL as string | undefined
+  const key = env.VITE_SUPABASE_ANON_KEY as string | undefined
+  return url && key ? cloudStore(url, key) : demoStore()
+}
