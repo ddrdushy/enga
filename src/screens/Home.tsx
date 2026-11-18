@@ -6,7 +6,7 @@ import type { EventItem, Keen, Person, Spot, Trip } from '../lib/types'
 import { addDays, addMonths, dayNum, diffDays, daysInMonth, dow, firstOfMonth, fmt, fmtRange, fmtShort, inDays, mondayIndex, monthName, today } from '../lib/dates'
 import { allHomeRuns, currentTrip, digest, isFree, laneSegments, nextTrip, openPlansFor, tripPeople, upcomingEvents, whereDetail, whereIs } from '../lib/logic'
 import { clock, daysOf, duration, goesToOffice, rightNow } from '../lib/work'
-import { Avatar, FaceSlider, GroupScene, Icon, Sheet, hasGroup } from '../ui'
+import { Avatar, FaceSlider, GroupScene, Icon, Sheet, hasGroup, withTransition } from '../ui'
 import { greeting, headerMoment, slugOf } from '../lib/cast'
 import { festivalLine, festivalToday } from '../lib/festivals'
 import { FestiveStrip } from './Festive'
@@ -178,8 +178,8 @@ export function OrbitScreen(ctx: Ctx) {
             const pos = posOf(s)
             return (
               <button key={s.p.id} type="button" className="abs" style={{ left: pos.x - 29, top: pos.y - 29, borderRadius: '50%', animation: s.w.home ? undefined : 'float 5s ease-in-out infinite' }}
-                aria-label={`${s.p.name}, ${town.includes(s) ? nowOf.get(s.p.id)?.head ?? s.w.place : s.w.place}`} onClick={() => setPersonId(s.p.id)}>
-                <Avatar p={s.p} size={58} moving pick={date === t ? ctx.cast(s.p) : undefined} style={{ border: `4px solid ${town.includes(s) ? 'var(--butter)' : s.w.home ? 'var(--sage)' : 'var(--mist)'}` }} />
+                aria-label={`${s.p.name}, ${town.includes(s) ? nowOf.get(s.p.id)?.head ?? s.w.place : s.w.place}`} onClick={() => withTransition(() => setPersonId(s.p.id))}>
+                <Avatar p={s.p} size={58} moving pick={date === t ? ctx.cast(s.p) : undefined} style={{ viewTransitionName: personId === s.p.id ? undefined : `face-${s.p.id}`, border: `4px solid ${town.includes(s) ? 'var(--butter)' : s.w.home ? 'var(--sage)' : 'var(--mist)'}` }} />
               </button>
             )
           })}
@@ -279,7 +279,7 @@ export function OrbitScreen(ctx: Ctx) {
       </div>
 
       {shown && <EventSheet ctx={ctx} event={shown} onClose={() => setEventId(null)} />}
-      {personId && <PersonSheet ctx={ctx} id={personId} onClose={() => setPersonId(null)} />}
+      {personId && <PersonSheet ctx={ctx} id={personId} onClose={() => withTransition(() => setPersonId(null))} />}
     </div>
   )
 }
@@ -373,7 +373,7 @@ function PersonSheet({ ctx, id, onClose }: { ctx: Ctx; id: string; onClose: () =
   return (
     <Sheet title={isMe ? 'you' : p.name} onClose={onClose}>
       <div className="row" style={{ gap: 12 }}>
-        <Avatar p={p} size={88} moving pick={date === today() ? ctx.cast(p) : undefined} reactive={isMe} />
+        <Avatar p={p} size={88} moving pick={date === today() ? ctx.cast(p) : undefined} reactive={isMe} style={{ viewTransitionName: `face-${p.id}` }} />
         <div style={{ minWidth: 0 }}>
           <div className="display" style={{ fontSize: 22, overflowWrap: 'anywhere' }}>{where.headline}</div>
           <div className="small">{where.sub}</div>

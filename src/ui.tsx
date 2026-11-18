@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
-import { createPortal } from 'react-dom'
+import { createPortal, flushSync } from 'react-dom'
 import { addDays, dayNum, dow, monthShort, today } from './lib/dates'
 import type { CastPick, CastStep } from './lib/cast'
 import { CAST_BG, REACTION_MS, castCandidates, groupArt, nextReaction, reactionChain, slugOf } from './lib/cast'
@@ -207,12 +207,34 @@ export function DateStrip({ start, end, onChange, range, hint }: { start: string
   )
 }
 
+/* ---------- motion helpers ---------- */
+/** Run a state change inside a view transition where the browser has them (and motion is welcome); else just run it. */
+export function withTransition(change: () => void) {
+  const doc = document as Document & { startViewTransition?: (cb: () => void) => unknown }
+  if (calm() || typeof doc.startViewTransition !== 'function') return change()
+  try { doc.startViewTransition(() => flushSync(change)) } catch { change() }
+}
+
 /* ---------- bottom sheet ---------- */
+/** A sheet from the bottom. Close with the cross, a tap outside, Escape, or by dragging it down by its top. */
 export function Sheet({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
+  const [dy, setDy] = useState(0)
+  const [dragging, setDragging] = useState(false)
+  const from = useRef(0)
+  const end = () => {
+    setDragging(false)
+    if (dy > 90) { onClose(); return }
+    setDy(0)
+  }
   return createPortal(
     <>
-      <div className="scrim" onClick={onClose} />
-      <div className="sheet" role="dialog" aria-modal="true" aria-label={title} onKeyDown={(e) => { if (e.key === 'Escape') onClose() }}>
+      <div className="scrim" onClick={onClose} style={{ opacity: dy ? Math.max(0.2, 1 - dy / 300) : undefined }} />
+      <div className="sheet" role="dialog" aria-modal="true" aria-label={title} onKeyDown={(e) => { if (e.key === 'Escape') onClose() }}
+        style={{ transform: dy ? `translateY(${dy}px)` : undefined, transition: dragging ? 'none' : 'transform .25s cubic-bezier(.2,1.3,.4,1)' }}>
+        <div className="grab" aria-hidden="true"
+          onPointerDown={(e) => { from.current = e.clientY; setDragging(true); e.currentTarget.setPointerCapture(e.pointerId) }}
+          onPointerMove={(e) => { if (dragging) setDy(Math.max(0, e.clientY - from.current)) }}
+          onPointerUp={end} onPointerCancel={() => { setDragging(false); setDy(0) }}><i /></div>
         <div className="between"><div className="h2 grow" style={{ overflowWrap: 'anywhere' }}>{title}</div><button type="button" className="round" style={{ background: 'var(--mist)' }} aria-label="Close" onClick={onClose}><Icon.close /></button></div>
         {children}
       </div>
