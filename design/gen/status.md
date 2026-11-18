@@ -4,11 +4,11 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 
 | item | state | retries | note |
 |---|---|---|---|
-| dushy/out/idle | pending | 0 |  |
+| dushy/out/idle | done | 0 |  |
 | dushy/out/wave | done | 0 | from the earlier chat turn; 16 frames |
-| dushy/out/laugh | pending | 0 |  |
-| dushy/out/dance | pending | 0 |  |
-| dushy/out/cheer | pending | 0 |  |
+| dushy/out/laugh | done | 0 |  |
+| dushy/out/dance | done | 0 |  |
+| dushy/out/cheer | done | 0 |  |
 | dushy/out/walk | pending | 0 |  |
 | dushy/out/travel | pending | 0 |  |
 | dushy/home/tv | pending | 0 |  |
@@ -17,6 +17,18 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | dushy/home/sleep | pending | 0 |  |
 | dushy/work/type | pending | 0 |  |
 | dushy/work/coffee | pending | 0 |  |
+| dushy/work/wave | pending | 0 |  |
+| dushy/work/laugh | pending | 0 |  |
+| dushy/home/wave | pending | 0 |  |
+| dushy/home/laugh | pending | 0 |  |
+| dushy/out2/idle | pending | 0 |  |
+| dushy/out2/walk | pending | 0 |  |
+| dushy/out3/idle | pending | 0 |  |
+| dushy/work2/type | pending | 0 |  |
+| dushy/work2/coffee | pending | 0 |  |
+| dushy/home2/tv | pending | 0 |  |
+| dushy/home2/phone | pending | 0 |  |
+| dushy/home2/sleep | pending | 0 |  |
 | ali/out/idle | pending | 0 |  |
 | ali/out/wave | pending | 0 |  |
 | ali/out/laugh | pending | 0 |  |
@@ -30,6 +42,18 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | ali/home/sleep | pending | 0 |  |
 | ali/work/type | pending | 0 |  |
 | ali/work/coffee | pending | 0 |  |
+| ali/work/wave | pending | 0 |  |
+| ali/work/laugh | pending | 0 |  |
+| ali/home/wave | pending | 0 |  |
+| ali/home/laugh | pending | 0 |  |
+| ali/out2/idle | pending | 0 |  |
+| ali/out2/walk | pending | 0 |  |
+| ali/out3/idle | pending | 0 |  |
+| ali/work2/type | pending | 0 |  |
+| ali/work2/coffee | pending | 0 |  |
+| ali/home2/tv | pending | 0 |  |
+| ali/home2/phone | pending | 0 |  |
+| ali/home2/sleep | pending | 0 |  |
 | kiru/out/idle | pending | 0 |  |
 | kiru/out/wave | pending | 0 |  |
 | kiru/out/laugh | pending | 0 |  |
@@ -43,6 +67,18 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/home/sleep | pending | 0 |  |
 | kiru/work/type | pending | 0 |  |
 | kiru/work/coffee | pending | 0 |  |
+| kiru/work/wave | pending | 0 |  |
+| kiru/work/laugh | pending | 0 |  |
+| kiru/home/wave | pending | 0 |  |
+| kiru/home/laugh | pending | 0 |  |
+| kiru/out2/idle | pending | 0 |  |
+| kiru/out2/walk | pending | 0 |  |
+| kiru/out3/idle | pending | 0 |  |
+| kiru/work2/type | pending | 0 |  |
+| kiru/work2/coffee | pending | 0 |  |
+| kiru/home2/tv | pending | 0 |  |
+| kiru/home2/phone | pending | 0 |  |
+| kiru/home2/sleep | pending | 0 |  |
 | dushy/out/pack | pending | 0 |  |
 | dushy/out/rain | pending | 0 |  |
 | dushy/out/birthday | pending | 0 |  |

@@ -8,5 +8,25 @@
   "state": "done",
   "retries": 1,
   "note": "first try came out as an animated pan; asked again for a still"
+ },
+ "dushy/out/idle": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "dushy/out/laugh": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "dushy/out/dance": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "dushy/out/cheer": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
  }
 }
