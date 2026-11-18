@@ -95,9 +95,9 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | ali/out4/idle | done | 0 |  |
 | ali/out4/wave | done | 0 |  |
 | ali/out4/dance | done | 0 |  |
-| ali/home2/idle | pending | 0 |  |
-| ali/home2/wave | pending | 0 |  |
-| ali/home2/tv | pending | 0 |  |
+| ali/home2/idle | done | 0 |  |
+| ali/home2/wave | done | 0 |  |
+| ali/home2/tv | done | 0 |  |
 | ali/home2/phone | pending | 0 |  |
 | ali/home2/sleep | pending | 0 |  |
 | ali/gym/idle | pending | 0 |  |
