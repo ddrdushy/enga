@@ -398,5 +398,15 @@
   "state": "done",
   "retries": 0,
   "note": ""
+ },
+ "dushy/home2/phone": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "dushy/home2/sleep": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
  }
 }
