@@ -494,7 +494,7 @@ describe('times on trips and events, and weekly events', () => {
     expect(whereIs(data, ali, T)).toMatchObject({ home: false })
     expect(whereDetail(data, ali, 'd', T, T, 8 * 60).rows).toContainEqual(['today', 'leaves for Shah Alam at 9:00 am'])
     expect(whereDetail(data, ali, 'd', T, T, 12 * 60).rows[0]).toEqual(['trip', `${fmtRange(T, T)} \u00b7 leaves 9:00 am \u00b7 back 6:00 pm`])
-    expect(digest(data, 'd', T)).toContain('Ali goes to Shah Alam today at 9:00 am, back Wed 18 Nov.')
+    expect(digest(data, 'd', T)).toContain('Ali goes to Shah Alam today at 9:00 am, back about 6:00 pm.')
   })
 })
 
