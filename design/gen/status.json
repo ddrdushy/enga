@@ -831,18 +831,18 @@
  },
  "kiru/travel/idle": {
   "state": "done",
-  "retries": 0,
-  "note": "Kiru v2 look; hair a bit more auburn and the bun less defined under the sunglasses"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): cream cardigan, crossbody bag strap, sunglasses pushed up on the bun; aligned to frame 0 (sheet drifted up to 6 px sideways); blink frames 5-9"
  },
  "kiru/travel/wave": {
   "state": "done",
-  "retries": 0,
-  "note": "Kiru v2 look; hair a bit more auburn (matches travel/idle)"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): sunglasses on the bun, bag strap; same hand waves on the left (motion blur frames 5-6); white motion lines frames 4-6; two blinks"
  },
  "kiru/travel/travel": {
   "state": "done",
-  "retries": 0,
-  "note": "Kiru v2 look; ONE suitcase handle, same hand; walking bob up to 8 px re-aligned; loop seam (frame 15 to 0) a bit stronger than other steps, softened by the 2.5 s end pause"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): ONE suitcase handle in the same hand at the bottom right in every frame; gentle walking bob (up to 3 px); sunglasses on the bun"
  },
  "kiru/home/idle": {
   "state": "done",

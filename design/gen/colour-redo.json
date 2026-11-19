@@ -7,7 +7,7 @@
   "- drifted kiru/work/idle (old): skin RGB(251,188,135) Lab(80.9,16.3,35.6); hair RGB(158,80,38) Lab(43.0,29.6,38.5)",
   "- Pass rule: dE2000 vs kiru-v2.png skin <= 9.0 and hair <= 9.5 (calibrated: all 10 kiru/out/* pass, max skin 8.9 / hair 9.4 on out/pack; all 43 old drifted files fail, mildest home/cook hair 10.0, work/type skin 9.2). Margins are thin for the mildest drifted files, so the frame-by-frame review is still required.",
   "- Method change: ChatGPT now asked for a 4x4 sprite sheet (16 real redrawn frames) with kiru-v2.png pasted in every prompt plus an explicit colour line; sheets kept in design/gen/sheets-colour/, sliced with /tmp/tools/sheet2gif.py (gutter cut, phase-correlation alignment to frame 0, bg padding above the bun). Old GIFs kept as design/gen/kiru/<outfit>-<pose>-oldcolour.gif.",
-  "- STOPPED Nov 19 ~13:20 MYT: Mac bridge disconnected (stage failed, one retry failed). Resume at kiru/party/idle: its sheet is already on the Mac at design/gen/sheets-colour/kiru-party-idle.png (not yet sliced); kiru/party/wave was sent to ChatGPT just before the drop (check the chat / ~/Downloads for enga-sheet-kiru-party-wave.png). gym-workout.gif is converted and pushed, but its GIF (outputs/gen/kiru/gym-workout.gif in the container) was not yet copied to the Mac. On the Mac all 44 old Kiru GIFs were already renamed to *-oldcolour.gif, so the 9 pending Kiru items have no <outfit>-<pose>.gif there yet."
+  "- Nov 19: run paused ~13:20 MYT by a Mac bridge drop, resumed and finished at ~14:00 MYT. All 44 Kiru files redone. dushy/out/idle deliberately skipped (waiting for the user to choose which Dushy look is correct: out/idle, out/wave and out/laugh share a darker full-beard look; the rest of the Dushy set is lighter with a shorter beard)."
  ],
  "items": {
   "kiru/gym/idle": {
@@ -493,16 +493,52 @@
    ]
   },
   "kiru/travel/idle": {
-   "state": "pending",
-   "note": "old: skin dE 12.0 hair dE 18.8"
+   "state": "done",
+   "note": "cream cardigan, crossbody bag strap, sunglasses pushed up on the bun; aligned to frame 0 (sheet drifted up to 6 px sideways); blink frames 5-9",
+   "dS": 2.5,
+   "dH": 1.1,
+   "skin": [
+    66.3,
+    28.3,
+    47.1
+   ],
+   "hair": [
+    18.5,
+    13.2,
+    12.6
+   ]
   },
   "kiru/travel/travel": {
-   "state": "pending",
-   "note": "old: skin dE 14.2 hair dE 21.3"
+   "state": "done",
+   "note": "ONE suitcase handle in the same hand at the bottom right in every frame; gentle walking bob (up to 3 px); sunglasses on the bun",
+   "dS": 3.5,
+   "dH": 1.2,
+   "skin": [
+    68.4,
+    28.4,
+    45.6
+   ],
+   "hair": [
+    19.7,
+    14.0,
+    13.2
+   ]
   },
   "kiru/travel/wave": {
-   "state": "pending",
-   "note": "old: skin dE 12.3 hair dE 19.5"
+   "state": "done",
+   "note": "sunglasses on the bun, bag strap; same hand waves on the left (motion blur frames 5-6); white motion lines frames 4-6; two blinks",
+   "dS": 3.8,
+   "dH": 1.5,
+   "skin": [
+    68.2,
+    27.8,
+    47.1
+   ],
+   "hair": [
+    18.5,
+    14.0,
+    12.4
+   ]
   },
   "kiru/work/coffee": {
    "state": "done",
@@ -681,8 +717,8 @@
    ]
   },
   "dushy/out/idle": {
-   "state": "pending",
-   "note": "old render: different face / darker than the rest of the Dushy set"
+   "state": "skipped",
+   "note": "skipped on request: user to choose the correct Dushy look first"
   }
  },
  "group": [

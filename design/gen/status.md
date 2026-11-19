@@ -163,9 +163,9 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/rain/idle | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): pink hooded raincoat with the hood DOWN (old version had it up); aligned to frame 0 (sheet drifted up to 10 px); blink frames 5-8 |
 | kiru/rain/wave | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): pink raincoat, hood down (matches the new rain/idle); same hand waves on the left; white motion lines frames 4-6; two blinks |
 | kiru/rain/walk | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): ONE pink umbrella in the same hand in every frame, raindrops; hood down; the top ~20 px is padded flat pink (no raindrops there) |
-| kiru/travel/idle | done | 0 | Kiru v2 look; hair a bit more auburn and the bun less defined under the sunglasses |
-| kiru/travel/wave | done | 0 | Kiru v2 look; hair a bit more auburn (matches travel/idle) |
-| kiru/travel/travel | done | 0 | Kiru v2 look; ONE suitcase handle, same hand; walking bob up to 8 px re-aligned; loop seam (frame 15 to 0) a bit stronger than other steps, softened by the 2.5 s end pause |
+| kiru/travel/idle | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): cream cardigan, crossbody bag strap, sunglasses pushed up on the bun; aligned to frame 0 (sheet drifted up to 6 px sideways); blink frames 5-9 |
+| kiru/travel/wave | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): sunglasses on the bun, bag strap; same hand waves on the left (motion blur frames 5-6); white motion lines frames 4-6; two blinks |
+| kiru/travel/travel | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): ONE suitcase handle in the same hand at the bottom right in every frame; gentle walking bob (up to 3 px); sunglasses on the bun |
 | group/hello | done | 3 | redone with Kiru v2 look; 2 versions rejected (ghost second glass in one frame; glass switching hands + figures cut off); final: Kiru holds ONE glass in the same hand in all 16 frames (checked frame by frame) |
 | group/hug | done | 0 | home outfits |
 | group/welcome-dushy | done | 0 | Dushy steps in from the left edge (suitcase cut at the edge in first frames); Kiru's trousers came out olive instead of black |
@@ -186,7 +186,7 @@ Reference measurements (tools: /tmp/tools/colour.py; median Lab over sampled fra
 - drifted kiru/work/idle (old): skin RGB(251,188,135) Lab(80.9,16.3,35.6); hair RGB(158,80,38) Lab(43.0,29.6,38.5)
 - Pass rule: dE2000 vs kiru-v2.png skin <= 9.0 and hair <= 9.5 (calibrated: all 10 kiru/out/* pass, max skin 8.9 / hair 9.4 on out/pack; all 43 old drifted files fail, mildest home/cook hair 10.0, work/type skin 9.2). Margins are thin for the mildest drifted files, so the frame-by-frame review is still required.
 - Method change: ChatGPT now asked for a 4x4 sprite sheet (16 real redrawn frames) with kiru-v2.png pasted in every prompt plus an explicit colour line; sheets kept in design/gen/sheets-colour/, sliced with /tmp/tools/sheet2gif.py (gutter cut, phase-correlation alignment to frame 0, bg padding above the bun). Old GIFs kept as design/gen/kiru/<outfit>-<pose>-oldcolour.gif.
-- STOPPED Nov 19 ~13:20 MYT: Mac bridge disconnected (stage failed, one retry failed). Resume at kiru/party/idle: its sheet is already on the Mac at design/gen/sheets-colour/kiru-party-idle.png (not yet sliced); kiru/party/wave was sent to ChatGPT just before the drop (check the chat / ~/Downloads for enga-sheet-kiru-party-wave.png). gym-workout.gif is converted and pushed, but its GIF (outputs/gen/kiru/gym-workout.gif in the container) was not yet copied to the Mac. On the Mac all 44 old Kiru GIFs were already renamed to *-oldcolour.gif, so the 9 pending Kiru items have no <outfit>-<pose>.gif there yet.
+- Nov 19: run paused ~13:20 MYT by a Mac bridge drop, resumed and finished at ~14:00 MYT. All 44 Kiru files redone. dushy/out/idle deliberately skipped (waiting for the user to choose which Dushy look is correct: out/idle, out/wave and out/laugh share a darker full-beard look; the rest of the Dushy set is lighter with a shorter beard).
 
 | item | state | skin dE | hair dE | note |
 |---|---|---|---|---|
@@ -220,9 +220,9 @@ Reference measurements (tools: /tmp/tools/colour.py; median Lab over sampled fra
 | kiru/rain/idle | done | 3.8 | 1.3 | pink hooded raincoat with the hood DOWN (old version had it up); aligned to frame 0 (sheet drifted up to 10 px); blink frames 5-8 |
 | kiru/rain/walk | done | 2.4 | 3.8 | ONE pink umbrella in the same hand in every frame, raindrops; hood down; the top ~20 px is padded flat pink (no raindrops there) |
 | kiru/rain/wave | done | 4.0 | 4.4 | pink raincoat, hood down (matches the new rain/idle); same hand waves on the left; white motion lines frames 4-6; two blinks |
-| kiru/travel/idle | pending |  |  | old: skin dE 12.0 hair dE 18.8 |
-| kiru/travel/travel | pending |  |  | old: skin dE 14.2 hair dE 21.3 |
-| kiru/travel/wave | pending |  |  | old: skin dE 12.3 hair dE 19.5 |
+| kiru/travel/idle | done | 2.5 | 1.1 | cream cardigan, crossbody bag strap, sunglasses pushed up on the bun; aligned to frame 0 (sheet drifted up to 6 px sideways); blink frames 5-9 |
+| kiru/travel/travel | done | 3.5 | 1.2 | ONE suitcase handle in the same hand at the bottom right in every frame; gentle walking bob (up to 3 px); sunglasses on the bun |
+| kiru/travel/wave | done | 3.8 | 1.5 | sunglasses on the bun, bag strap; same hand waves on the left (motion blur frames 5-6); white motion lines frames 4-6; two blinks |
 | kiru/work/coffee | done | 2.5 | 2.4 | ONE cream mug in the same hand in every frame (frames 2-10); sip with eyes closed; head bob up to 9 px |
 | kiru/work/idle | done | 2.2 | 0.8 | sprite-sheet render; aligned to frame 0; blink frames 5-9 |
 | kiru/work/laugh | done | 2.9 | 1.0 | laugh: leans in toward the camera and tilts back (figure up to 12 px higher and ~10% larger in frames 6-9, sheet as drawn, not aligned) |
@@ -234,7 +234,7 @@ Reference measurements (tools: /tmp/tools/colour.py; median Lab over sampled fra
 | kiru/work3/coffee | done | 5.4 | 3.6 | ONE cream mug, same hand (frames 2-10); frames 8-15 sat 4-7 px lower on the sheet, aligned to frame 0 |
 | kiru/work3/idle | done | 3.5 | 2.0 | blink frames 4-9; stable framing |
 | kiru/work3/wave | done | 4.1 | 2.1 | same hand waves at the left edge (partly cut in frames 6-9); one blink |
-| dushy/out/idle | pending |  |  | old render: different face / darker than the rest of the Dushy set |
+| dushy/out/idle | skipped |  |  | skipped on request: user to choose the correct Dushy look first |
 
 ### Group scenes: Kiru colour check (listed, not redone)
 
