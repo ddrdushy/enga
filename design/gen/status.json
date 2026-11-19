@@ -771,18 +771,18 @@
  },
  "kiru/home2/tv": {
   "state": "done",
-  "retries": 0,
-  "note": "Kiru v2 look; ONE remote, lowered to the bottom edge in frames 7-10"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): sofa behind; ONE remote, same hand (frames 0-6, then lowered below the frame); small white click lines in frame 4; chuckle frames 8-12"
  },
  "kiru/home2/phone": {
   "state": "done",
-  "retries": 0,
-  "note": "Kiru v2 look; ONE phone, same hand; 4 px edge trim for a bottom strip"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): ONE phone, same hand in every frame; looks down then laughs up (head moves up to 10 px, sheet as drawn); small white sparkle lines in frames 5 and 7"
  },
  "kiru/home2/sleep": {
   "state": "done",
-  "retries": 0,
-  "note": "Kiru v2 look; sleeps with her glasses on"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): asleep on a pillow with glasses on, pink blanket; round bubbles frames 5-11"
  },
  "kiru/gym/idle": {
   "state": "done",

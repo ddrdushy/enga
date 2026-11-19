@@ -151,9 +151,9 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/out4/dance | done | 0 | Kiru v2 look; fists pop in at frame 1 and out at frame 15 |
 | kiru/home2/idle | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): pale yellow nighty; frames 9-11 sat 5-8 px higher on the sheet, aligned to frame 0; blink frames 3-6 |
 | kiru/home2/wave | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): same hand waves on the left; small white motion lines by the hand in frames 4-6; blink frames 9-10 |
-| kiru/home2/tv | done | 0 | Kiru v2 look; ONE remote, lowered to the bottom edge in frames 7-10 |
-| kiru/home2/phone | done | 0 | Kiru v2 look; ONE phone, same hand; 4 px edge trim for a bottom strip |
-| kiru/home2/sleep | done | 0 | Kiru v2 look; sleeps with her glasses on |
+| kiru/home2/tv | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): sofa behind; ONE remote, same hand (frames 0-6, then lowered below the frame); small white click lines in frame 4; chuckle frames 8-12 |
+| kiru/home2/phone | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): ONE phone, same hand in every frame; looks down then laughs up (head moves up to 10 px, sheet as drawn); small white sparkle lines in frames 5 and 7 |
+| kiru/home2/sleep | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): asleep on a pillow with glasses on, pink blanket; round bubbles frames 5-11 |
 | kiru/gym/idle | done | 0 | Kiru v2 look; frames 10-11 jumped 5-6 px; re-aligned and cropped |
 | kiru/gym/wave | done | 0 | Kiru v2 look |
 | kiru/gym/workout | done | 0 | Kiru v2 look; bounce moves the head up to 8 px (intended) |
@@ -200,9 +200,9 @@ Reference measurements (tools: /tmp/tools/colour.py; median Lab over sampled fra
 | kiru/home/tv | done | 3.2 | 3.6 | sofa behind; ONE remote in the same hand (frames 2-7), lowered out of frame after; chuckle with eyes closed frames 7-9 |
 | kiru/home/wave | done | 7.3 | 5.2 | same hand waves at the left edge (partly cut in frames 6-9); one blink |
 | kiru/home2/idle | done | 1.0 | 0.7 | pale yellow nighty; frames 9-11 sat 5-8 px higher on the sheet, aligned to frame 0; blink frames 3-6 |
-| kiru/home2/phone | pending |  |  | old: skin dE 15.5 hair dE 25.6 |
-| kiru/home2/sleep | pending |  |  | old: skin dE 12.8 hair dE 22.8 |
-| kiru/home2/tv | pending |  |  | old: skin dE 14.8 hair dE 23.1 |
+| kiru/home2/phone | done | 3.5 | 1.4 | ONE phone, same hand in every frame; looks down then laughs up (head moves up to 10 px, sheet as drawn); small white sparkle lines in frames 5 and 7 |
+| kiru/home2/sleep | done | 0.9 | 2.4 | asleep on a pillow with glasses on, pink blanket; round bubbles frames 5-11 |
+| kiru/home2/tv | done | 3.0 | 2.4 | sofa behind; ONE remote, same hand (frames 0-6, then lowered below the frame); small white click lines in frame 4; chuckle frames 8-12 |
 | kiru/home2/wave | done | 1.7 | 1.8 | same hand waves on the left; small white motion lines by the hand in frames 4-6; blink frames 9-10 |
 | kiru/out2/idle | pending |  |  | old: skin dE 14.9 hair dE 17.7 |
 | kiru/out2/walk | pending |  |  | old: skin dE 15.5 hair dE 17.0 |

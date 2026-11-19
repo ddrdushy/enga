@@ -150,16 +150,52 @@
    ]
   },
   "kiru/home2/phone": {
-   "state": "pending",
-   "note": "old: skin dE 15.5 hair dE 25.6"
+   "state": "done",
+   "note": "ONE phone, same hand in every frame; looks down then laughs up (head moves up to 10 px, sheet as drawn); small white sparkle lines in frames 5 and 7",
+   "dS": 3.5,
+   "dH": 1.4,
+   "skin": [
+    68.2,
+    27.3,
+    44.7
+   ],
+   "hair": [
+    20.5,
+    14.2,
+    13.8
+   ]
   },
   "kiru/home2/sleep": {
-   "state": "pending",
-   "note": "old: skin dE 12.8 hair dE 22.8"
+   "state": "done",
+   "note": "asleep on a pillow with glasses on, pink blanket; round bubbles frames 5-11",
+   "dS": 0.9,
+   "dH": 2.4,
+   "skin": [
+    65.4,
+    30.7,
+    46.2
+   ],
+   "hair": [
+    18.4,
+    15.4,
+    14.1
+   ]
   },
   "kiru/home2/tv": {
-   "state": "pending",
-   "note": "old: skin dE 14.8 hair dE 23.1"
+   "state": "done",
+   "note": "sofa behind; ONE remote, same hand (frames 0-6, then lowered below the frame); small white click lines in frame 4; chuckle frames 8-12",
+   "dS": 3.0,
+   "dH": 2.4,
+   "skin": [
+    67.9,
+    29.4,
+    46.1
+   ],
+   "hair": [
+    21.8,
+    14.8,
+    12.1
+   ]
   },
   "kiru/home2/wave": {
    "state": "done",
