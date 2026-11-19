@@ -138,11 +138,11 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/work2/wave | done | 0 | Kiru v2 look; wave occupies frames 5-12 |
 | kiru/work2/type | done | 0 | Kiru v2 look; frames 9-15 sat 4-6 px higher (loop pop); re-aligned to frame 0 and cropped |
 | kiru/work3/idle | done | 0 | Kiru v2 look |
-| kiru/work3/wave | pending | 0 |  |
-| kiru/work3/coffee | pending | 0 |  |
-| kiru/out2/idle | pending | 0 |  |
-| kiru/out2/wave | pending | 0 |  |
-| kiru/out2/walk | pending | 0 |  |
+| kiru/work3/wave | done | 0 | Kiru v2 look; motion blur on the hand in frames 5-6 |
+| kiru/work3/coffee | done | 0 | Kiru v2 look; ONE mug, same hand in every frame; frame 9 jumped 7 px (re-aligned, cropped); small white sigh puff in frame 9 |
+| kiru/out2/idle | done | 0 | Kiru v2 look |
+| kiru/out2/wave | done | 0 | Kiru v2 look; the blink reads as a wink (frame 5) |
+| kiru/out2/walk | done | 0 | Kiru v2 look; bag strap on the same shoulder throughout; frames 4-15 sat 4-7 px higher than frame 0 (loop pop) - re-aligned and cropped |
 | kiru/out3/idle | pending | 0 |  |
 | kiru/out3/wave | pending | 0 |  |
 | kiru/out3/laugh | pending | 0 |  |

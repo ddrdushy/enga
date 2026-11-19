@@ -703,5 +703,30 @@
   "state": "done",
   "retries": 0,
   "note": "Kiru v2 look"
+ },
+ "kiru/work3/wave": {
+  "state": "done",
+  "retries": 0,
+  "note": "Kiru v2 look; motion blur on the hand in frames 5-6"
+ },
+ "kiru/work3/coffee": {
+  "state": "done",
+  "retries": 0,
+  "note": "Kiru v2 look; ONE mug, same hand in every frame; frame 9 jumped 7 px (re-aligned, cropped); small white sigh puff in frame 9"
+ },
+ "kiru/out2/idle": {
+  "state": "done",
+  "retries": 0,
+  "note": "Kiru v2 look"
+ },
+ "kiru/out2/wave": {
+  "state": "done",
+  "retries": 0,
+  "note": "Kiru v2 look; the blink reads as a wink (frame 5)"
+ },
+ "kiru/out2/walk": {
+  "state": "done",
+  "retries": 0,
+  "note": "Kiru v2 look; bag strap on the same shoulder throughout; frames 4-15 sat 4-7 px higher than frame 0 (loop pop) - re-aligned and cropped"
  }
 }
