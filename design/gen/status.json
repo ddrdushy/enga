@@ -46,8 +46,8 @@
  },
  "group/hello": {
   "state": "done",
-  "retries": 3,
-  "note": "redone with Kiru v2 look; 2 versions rejected (ghost second glass in one frame; glass switching hands + figures cut off); final: Kiru holds ONE glass in the same hand in all 16 frames (checked frame by frame)"
+  "retries": 4,
+  "note": "Kiru colour redo Nov 19 (sprite sheet, 3 refs): 4x4 sheet; Kiru holds ONE tea glass in her left hand in all 16 frames and waves with the right; Dushy and Ali wave; one blink each"
  },
  "dushy/out/walk": {
   "state": "done",
@@ -226,8 +226,8 @@
  },
  "group/welcome-dushy": {
   "state": "done",
-  "retries": 0,
-  "note": "Dushy steps in from the left edge (suitcase cut at the edge in first frames); Kiru's trousers came out olive instead of black"
+  "retries": 1,
+  "note": "Kiru colour redo Nov 19 (sprite sheet, 3 refs): Kiru trousers now BLACK; Dushy visible from frame 0 at the left with ONE dark suitcase, steps in and waves; suitcase touches the left edge in frames 0-2"
  },
  "ali/out/pack": {
   "state": "done",
@@ -236,8 +236,8 @@
  },
  "group/welcome-ali": {
   "state": "done",
-  "retries": 0,
-  "note": "arrival plays once per loop: Ali enters from the right, so frame 0 (without Ali) differs from the last frame; restart reads as a replay after the 2.5 s pause"
+  "retries": 1,
+  "note": "Kiru colour redo Nov 19 (sprite sheet, 3 refs): Ali now visible in frame 0 at the right with ONE peach suitcase, steps in and waves, steps back (loop no longer starts empty); suitcase touches the right edge in some frames"
  },
  "kiru/out/pack": {
   "state": "done",
@@ -246,13 +246,13 @@
  },
  "group/welcome-kiru": {
   "state": "done",
-  "retries": 0,
-  "note": "frames 8-15 drifted down up to 12 px with a strip of another frame at the top; re-aligned the frames and cropped 13 px rows in conversion"
+  "retries": 1,
+  "note": "Kiru colour redo Nov 19 (sprite sheet, 3 refs): Kiru on the right with ONE black suitcase in the same hand in every frame; Dushy cheers, Ali claps; suitcase close to the right edge"
  },
  "group/hug": {
   "state": "done",
-  "retries": 0,
-  "note": "home outfits"
+  "retries": 1,
+  "note": "Kiru colour redo Nov 19 (sprite sheet, 3 refs): home outfits (Ali floral green nighty, Dushy charcoal tee + olive shorts, Kiru floral pink nighty); step in to a group hug and back; Dushy head comes within ~4 px of the top in frames 6-8"
  },
  "dushy/out/rain": {
   "state": "done",
@@ -286,8 +286,8 @@
  },
  "group/birthday": {
   "state": "done",
-  "retries": 0,
-  "note": "party hats tight at the top edge"
+  "retries": 1,
+  "note": "Kiru colour redo Nov 19 (sprite sheet, 3 refs): party hats (Dushy blue, Ali pink, Kiru purple), hat tips 7-8 px below the top; Ali holds ONE cake with ONE candle in every frame; Dushy and Kiru clap"
  },
  "dushy/work/wave": {
   "state": "done",

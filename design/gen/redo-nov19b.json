@@ -1,0 +1,233 @@
+{
+ "group_intro": [
+  "Method: ChatGPT 4x4 sprite sheet (1254x1254, square cells) with three references pasted every prompt (dushy/work/idle frame, ali/out/idle frame, kiru-v2.png) plus an explicit Kiru colour line. Sliced with /tmp/gp/gsheet.py (gutters = min channel >= 249, alignment on the grass base), ~300x300 frames at 180 ms, converted with conv.py width mode (480 px wide, 16 frames). Sheets in design/gen/sheets-colour/group-<scene>.png; old GIFs kept as design/gen/group/<scene>-oldcolour.gif (Mac).",
+  "Colour: colour.py on a crop around Kiru (her column, top 62% of the frame) of the animated WebP, all 16 frames sampled; old and new measured the same way. This crop method reads the old files milder than the earlier frame-0 measurement listed below (e.g. hello 6.5 here vs 11.6 there), skin is lower on five of six scenes (welcome-ali about the same at 7.7, visually close to kiru-v2) and all six pass skin <= 9.0 / hair <= 9.5."
+ ],
+ "group": {
+  "group/hello": {
+   "state": "done",
+   "dS": "6.5 -> 3.3",
+   "dH": "3.0 -> 4.3",
+   "note": "4x4 sheet; Kiru holds ONE tea glass in her left hand in all 16 frames and waves with the right; Dushy and Ali wave; one blink each"
+  },
+  "group/hug": {
+   "state": "done",
+   "dS": "9.1 -> 2.6",
+   "dH": "12.1 -> 3.9",
+   "note": "home outfits (Ali floral green nighty, Dushy charcoal tee + olive shorts, Kiru floral pink nighty); step in to a group hug and back; Dushy head comes within ~4 px of the top in frames 6-8"
+  },
+  "group/welcome-dushy": {
+   "state": "done",
+   "dS": "9.7 -> 6.0",
+   "dH": "10.3 -> 4.4",
+   "note": "Kiru trousers now BLACK; Dushy visible from frame 0 at the left with ONE dark suitcase, steps in and waves; suitcase touches the left edge in frames 0-2"
+  },
+  "group/welcome-ali": {
+   "state": "done",
+   "dS": "7.6 -> 7.7",
+   "dH": "8.0 -> 6.0",
+   "note": "Ali now visible in frame 0 at the right with ONE peach suitcase, steps in and waves, steps back (loop no longer starts empty); suitcase touches the right edge in some frames"
+  },
+  "group/welcome-kiru": {
+   "state": "done",
+   "dS": "11.1 -> 6.5",
+   "dH": "13.2 -> 6.8",
+   "note": "Kiru on the right with ONE black suitcase in the same hand in every frame; Dushy cheers, Ali claps; suitcase close to the right edge"
+  },
+  "group/birthday": {
+   "state": "done",
+   "dS": "8.4 -> 6.3",
+   "dH": "9.8 -> 3.7",
+   "note": "party hats (Dushy blue, Ali pink, Kiru purple), hat tips 7-8 px below the top; Ali holds ONE cake with ONE candle in every frame; Dushy and Kiru clap"
+  }
+ },
+ "fest_intro": [],
+ "fest": {
+  "dushy/christmas/idle": {
+   "state": "pending"
+  },
+  "dushy/christmas/wave": {
+   "state": "pending"
+  },
+  "ali/christmas/idle": {
+   "state": "pending"
+  },
+  "ali/christmas/wave": {
+   "state": "pending"
+  },
+  "kiru/christmas/idle": {
+   "state": "pending"
+  },
+  "kiru/christmas/wave": {
+   "state": "pending"
+  },
+  "dushy/new-year/idle": {
+   "state": "pending"
+  },
+  "dushy/new-year/wave": {
+   "state": "pending"
+  },
+  "ali/new-year/idle": {
+   "state": "pending"
+  },
+  "ali/new-year/wave": {
+   "state": "pending"
+  },
+  "kiru/new-year/idle": {
+   "state": "pending"
+  },
+  "kiru/new-year/wave": {
+   "state": "pending"
+  },
+  "dushy/pongal/idle": {
+   "state": "pending"
+  },
+  "dushy/pongal/wave": {
+   "state": "pending"
+  },
+  "ali/pongal/idle": {
+   "state": "pending"
+  },
+  "ali/pongal/wave": {
+   "state": "pending"
+  },
+  "kiru/pongal/idle": {
+   "state": "pending"
+  },
+  "kiru/pongal/wave": {
+   "state": "pending"
+  },
+  "dushy/thaipusam/idle": {
+   "state": "pending"
+  },
+  "dushy/thaipusam/wave": {
+   "state": "pending"
+  },
+  "ali/thaipusam/idle": {
+   "state": "pending"
+  },
+  "ali/thaipusam/wave": {
+   "state": "pending"
+  },
+  "kiru/thaipusam/idle": {
+   "state": "pending"
+  },
+  "kiru/thaipusam/wave": {
+   "state": "pending"
+  },
+  "dushy/chinese-new-year/idle": {
+   "state": "pending"
+  },
+  "dushy/chinese-new-year/wave": {
+   "state": "pending"
+  },
+  "kiru/chinese-new-year/idle": {
+   "state": "pending"
+  },
+  "kiru/chinese-new-year/wave": {
+   "state": "pending"
+  },
+  "dushy/hari-raya/idle": {
+   "state": "pending"
+  },
+  "dushy/hari-raya/wave": {
+   "state": "pending"
+  },
+  "ali/hari-raya/idle": {
+   "state": "pending"
+  },
+  "ali/hari-raya/wave": {
+   "state": "pending"
+  },
+  "kiru/hari-raya/idle": {
+   "state": "pending"
+  },
+  "kiru/hari-raya/wave": {
+   "state": "pending"
+  },
+  "dushy/puthandu/idle": {
+   "state": "pending"
+  },
+  "dushy/puthandu/wave": {
+   "state": "pending"
+  },
+  "kiru/puthandu/idle": {
+   "state": "pending"
+  },
+  "kiru/puthandu/wave": {
+   "state": "pending"
+  },
+  "dushy/hari-raya-haji/idle": {
+   "state": "pending"
+  },
+  "dushy/hari-raya-haji/wave": {
+   "state": "pending"
+  },
+  "ali/hari-raya-haji/idle": {
+   "state": "pending"
+  },
+  "ali/hari-raya-haji/wave": {
+   "state": "pending"
+  },
+  "kiru/hari-raya-haji/idle": {
+   "state": "pending"
+  },
+  "kiru/hari-raya-haji/wave": {
+   "state": "pending"
+  },
+  "dushy/merdeka/idle": {
+   "state": "pending"
+  },
+  "dushy/merdeka/wave": {
+   "state": "pending"
+  },
+  "ali/merdeka/idle": {
+   "state": "pending"
+  },
+  "ali/merdeka/wave": {
+   "state": "pending"
+  },
+  "kiru/merdeka/idle": {
+   "state": "pending"
+  },
+  "kiru/merdeka/wave": {
+   "state": "pending"
+  },
+  "dushy/malaysia-day/idle": {
+   "state": "pending"
+  },
+  "dushy/malaysia-day/wave": {
+   "state": "pending"
+  },
+  "ali/malaysia-day/idle": {
+   "state": "pending"
+  },
+  "ali/malaysia-day/wave": {
+   "state": "pending"
+  },
+  "kiru/malaysia-day/idle": {
+   "state": "pending"
+  },
+  "kiru/malaysia-day/wave": {
+   "state": "pending"
+  },
+  "dushy/deepavali/idle": {
+   "state": "pending"
+  },
+  "dushy/deepavali/wave": {
+   "state": "pending"
+  },
+  "ali/deepavali/idle": {
+   "state": "pending"
+  },
+  "ali/deepavali/wave": {
+   "state": "pending"
+  },
+  "kiru/deepavali/idle": {
+   "state": "pending"
+  },
+  "kiru/deepavali/wave": {
+   "state": "pending"
+  }
+ }
+}

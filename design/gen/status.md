@@ -166,12 +166,12 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/travel/idle | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): cream cardigan, crossbody bag strap, sunglasses pushed up on the bun; aligned to frame 0 (sheet drifted up to 6 px sideways); blink frames 5-9 |
 | kiru/travel/wave | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): sunglasses on the bun, bag strap; same hand waves on the left (motion blur frames 5-6); white motion lines frames 4-6; two blinks |
 | kiru/travel/travel | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): ONE suitcase handle in the same hand at the bottom right in every frame; gentle walking bob (up to 3 px); sunglasses on the bun |
-| group/hello | done | 3 | redone with Kiru v2 look; 2 versions rejected (ghost second glass in one frame; glass switching hands + figures cut off); final: Kiru holds ONE glass in the same hand in all 16 frames (checked frame by frame) |
-| group/hug | done | 0 | home outfits |
-| group/welcome-dushy | done | 0 | Dushy steps in from the left edge (suitcase cut at the edge in first frames); Kiru's trousers came out olive instead of black |
-| group/welcome-ali | done | 0 | arrival plays once per loop: Ali enters from the right, so frame 0 (without Ali) differs from the last frame; restart reads as a replay after the 2.5 s pause |
-| group/welcome-kiru | done | 0 | frames 8-15 drifted down up to 12 px with a strip of another frame at the top; re-aligned the frames and cropped 13 px rows in conversion |
-| group/birthday | done | 0 | party hats tight at the top edge |
+| group/hello | done | 4 | Kiru colour redo Nov 19 (sprite sheet, 3 refs): 4x4 sheet; Kiru holds ONE tea glass in her left hand in all 16 frames and waves with the right; Dushy and Ali wave; one blink each |
+| group/hug | done | 1 | Kiru colour redo Nov 19 (sprite sheet, 3 refs): home outfits (Ali floral green nighty, Dushy charcoal tee + olive shorts, Kiru floral pink nighty); step in to a group hug and back; Dushy head comes within ~4 px of the top in frames 6-8 |
+| group/welcome-dushy | done | 1 | Kiru colour redo Nov 19 (sprite sheet, 3 refs): Kiru trousers now BLACK; Dushy visible from frame 0 at the left with ONE dark suitcase, steps in and waves; suitcase touches the left edge in frames 0-2 |
+| group/welcome-ali | done | 1 | Kiru colour redo Nov 19 (sprite sheet, 3 refs): Ali now visible in frame 0 at the right with ONE peach suitcase, steps in and waves, steps back (loop no longer starts empty); suitcase touches the right edge in some frames |
+| group/welcome-kiru | done | 1 | Kiru colour redo Nov 19 (sprite sheet, 3 refs): Kiru on the right with ONE black suitcase in the same hand in every frame; Dushy cheers, Ali claps; suitcase close to the right edge |
+| group/birthday | done | 1 | Kiru colour redo Nov 19 (sprite sheet, 3 refs): party hats (Dushy blue, Ali pink, Kiru purple), hat tips 7-8 px below the top; Ali holds ONE cake with ONE candle in every frame; Dushy and Kiru clap |
 | sheets/wardrobe-v1 | done | 1 | first try came out as an animated pan; asked again for a still |
 | sheets/expressions-v1 | done | 0 | 8 expressions x 3 people |
 | sheets/outfits-daily-v1 | done | 0 | columns: work2, work3, out2, out3, out4, home2 |
@@ -236,7 +236,7 @@ Reference measurements (tools: /tmp/tools/colour.py; median Lab over sampled fra
 | kiru/work3/wave | done | 4.1 | 2.1 | same hand waves at the left edge (partly cut in frames 6-9); one blink |
 | dushy/out/idle | skipped |  |  | skipped on request: user to choose the correct Dushy look first |
 
-### Group scenes: Kiru colour check (listed, not redone)
+### Group scenes: Kiru colour check before the redo
 
 Measured on frame 0 of each group still with colour.py on a crop around Kiru (crop can include a bit of a neighbour's hair; group scenes also use a lighter grey backdrop/lighting). Reference: skin L 64.4, hair L 19.9.
 
@@ -247,4 +247,86 @@ Measured on frame 0 of each group still with colour.py on a crop around Kiru (cr
 - group/welcome-kiru: OFF - skin dE 15.0 (L 80.1); hair dE 10.5 (L 32.9)
 - group/birthday: OFF - skin dE 11.5 (L 77.0); hair dE 13.3 (L 35.4)
 
-All six group scenes show Kiru with lighter skin than kiru-v2 (visually peach-tan, closer to the drifted set); not redone (list only).
+All six group scenes show Kiru with lighter skin than kiru-v2 (visually peach-tan, closer to the drifted set); redone Nov 19, see "Group scenes redo" below.
+
+## Group scenes redo (Kiru colours, Nov 19)
+
+Method: ChatGPT 4x4 sprite sheet (1254x1254, square cells) with three references pasted every prompt (dushy/work/idle frame, ali/out/idle frame, kiru-v2.png) plus an explicit Kiru colour line. Sliced with /tmp/gp/gsheet.py (gutters = min channel >= 249, alignment on the grass base), ~300x300 frames at 180 ms, converted with conv.py width mode (480 px wide, 16 frames). Sheets in design/gen/sheets-colour/group-<scene>.png; old GIFs kept as design/gen/group/<scene>-oldcolour.gif (Mac).
+Colour: colour.py on a crop around Kiru (her column, top 62% of the frame) of the animated WebP, all 16 frames sampled; old and new measured the same way. This crop method reads the old files milder than the earlier frame-0 measurement listed below (e.g. hello 6.5 here vs 11.6 there), skin is lower on five of six scenes (welcome-ali about the same at 7.7, visually close to kiru-v2) and all six pass skin <= 9.0 / hair <= 9.5.
+
+| scene | state | Kiru skin dE old -> new | Kiru hair dE old -> new | note |
+|---|---|---|---|---|
+| group/hello | done | 6.5 -> 3.3 | 3.0 -> 4.3 | 4x4 sheet; Kiru holds ONE tea glass in her left hand in all 16 frames and waves with the right; Dushy and Ali wave; one blink each |
+| group/hug | done | 9.1 -> 2.6 | 12.1 -> 3.9 | home outfits (Ali floral green nighty, Dushy charcoal tee + olive shorts, Kiru floral pink nighty); step in to a group hug and back; Dushy head comes within ~4 px of the top in frames 6-8 |
+| group/welcome-dushy | done | 9.7 -> 6.0 | 10.3 -> 4.4 | Kiru trousers now BLACK; Dushy visible from frame 0 at the left with ONE dark suitcase, steps in and waves; suitcase touches the left edge in frames 0-2 |
+| group/welcome-ali | done | 7.6 -> 7.7 | 8.0 -> 6.0 | Ali now visible in frame 0 at the right with ONE peach suitcase, steps in and waves, steps back (loop no longer starts empty); suitcase touches the right edge in some frames |
+| group/welcome-kiru | done | 11.1 -> 6.5 | 13.2 -> 6.8 | Kiru on the right with ONE black suitcase in the same hand in every frame; Dushy cheers, Ali claps; suitcase close to the right edge |
+| group/birthday | done | 8.4 -> 6.3 | 9.8 -> 3.7 | party hats (Dushy blue, Ali pink, Kiru purple), hat tips 7-8 px below the top; Ali holds ONE cake with ONE candle in every frame; Dushy and Kiru clap |
+
+## Festival outfits (idle + wave)
+
+
+| item | state | skin dE | hair dE | note |
+|---|---|---|---|---|
+| dushy/christmas/idle | pending |  |  |  |
+| dushy/christmas/wave | pending |  |  |  |
+| ali/christmas/idle | pending |  |  |  |
+| ali/christmas/wave | pending |  |  |  |
+| kiru/christmas/idle | pending |  |  |  |
+| kiru/christmas/wave | pending |  |  |  |
+| dushy/new-year/idle | pending |  |  |  |
+| dushy/new-year/wave | pending |  |  |  |
+| ali/new-year/idle | pending |  |  |  |
+| ali/new-year/wave | pending |  |  |  |
+| kiru/new-year/idle | pending |  |  |  |
+| kiru/new-year/wave | pending |  |  |  |
+| dushy/pongal/idle | pending |  |  |  |
+| dushy/pongal/wave | pending |  |  |  |
+| ali/pongal/idle | pending |  |  |  |
+| ali/pongal/wave | pending |  |  |  |
+| kiru/pongal/idle | pending |  |  |  |
+| kiru/pongal/wave | pending |  |  |  |
+| dushy/thaipusam/idle | pending |  |  |  |
+| dushy/thaipusam/wave | pending |  |  |  |
+| ali/thaipusam/idle | pending |  |  |  |
+| ali/thaipusam/wave | pending |  |  |  |
+| kiru/thaipusam/idle | pending |  |  |  |
+| kiru/thaipusam/wave | pending |  |  |  |
+| dushy/chinese-new-year/idle | pending |  |  |  |
+| dushy/chinese-new-year/wave | pending |  |  |  |
+| kiru/chinese-new-year/idle | pending |  |  |  |
+| kiru/chinese-new-year/wave | pending |  |  |  |
+| dushy/hari-raya/idle | pending |  |  |  |
+| dushy/hari-raya/wave | pending |  |  |  |
+| ali/hari-raya/idle | pending |  |  |  |
+| ali/hari-raya/wave | pending |  |  |  |
+| kiru/hari-raya/idle | pending |  |  |  |
+| kiru/hari-raya/wave | pending |  |  |  |
+| dushy/puthandu/idle | pending |  |  |  |
+| dushy/puthandu/wave | pending |  |  |  |
+| kiru/puthandu/idle | pending |  |  |  |
+| kiru/puthandu/wave | pending |  |  |  |
+| dushy/hari-raya-haji/idle | pending |  |  |  |
+| dushy/hari-raya-haji/wave | pending |  |  |  |
+| ali/hari-raya-haji/idle | pending |  |  |  |
+| ali/hari-raya-haji/wave | pending |  |  |  |
+| kiru/hari-raya-haji/idle | pending |  |  |  |
+| kiru/hari-raya-haji/wave | pending |  |  |  |
+| dushy/merdeka/idle | pending |  |  |  |
+| dushy/merdeka/wave | pending |  |  |  |
+| ali/merdeka/idle | pending |  |  |  |
+| ali/merdeka/wave | pending |  |  |  |
+| kiru/merdeka/idle | pending |  |  |  |
+| kiru/merdeka/wave | pending |  |  |  |
+| dushy/malaysia-day/idle | pending |  |  |  |
+| dushy/malaysia-day/wave | pending |  |  |  |
+| ali/malaysia-day/idle | pending |  |  |  |
+| ali/malaysia-day/wave | pending |  |  |  |
+| kiru/malaysia-day/idle | pending |  |  |  |
+| kiru/malaysia-day/wave | pending |  |  |  |
+| dushy/deepavali/idle | pending |  |  |  |
+| dushy/deepavali/wave | pending |  |  |  |
+| ali/deepavali/idle | pending |  |  |  |
+| ali/deepavali/wave | pending |  |  |  |
+| kiru/deepavali/idle | pending |  |  |  |
+| kiru/deepavali/wave | pending |  |  |  |
