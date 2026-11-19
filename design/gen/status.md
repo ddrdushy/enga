@@ -159,7 +159,7 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/gym/workout | done | 0 | Kiru v2 look; bounce moves the head up to 8 px (intended) |
 | kiru/party/idle | done | 0 | Kiru v2 look |
 | kiru/party/wave | done | 0 | Kiru v2 look; small white motion lines by the hand; 4 px edge trim for a bottom strip |
-| kiru/party/dance | pending | 0 |  |
+| kiru/party/dance | done | 0 | Kiru v2 look; sway moves the head up to 11 px; the bun touches the top edge in frames 3-4; small snap lines |
 | kiru/rain/idle | pending | 0 |  |
 | kiru/rain/wave | pending | 0 |  |
 | kiru/rain/walk | pending | 0 |  |
