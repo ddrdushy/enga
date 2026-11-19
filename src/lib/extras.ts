@@ -38,6 +38,7 @@ function planOf(raw: unknown): DayPlan | null {
     if (typeof s.time === 'string' && /^\d\d:\d\d$/.test(s.time)) stop.time = s.time
     if (Array.isArray(s.with)) { const ids = (s.with as unknown[]).filter((x): x is string => typeof x === 'string').slice(0, 8); if (ids.length) stop.with = ids }
     if (typeof s.ref === 'string' && s.ref.includes('/')) stop.ref = s.ref
+    if (typeof s.event === 'string' && s.event.length <= 80) stop.event = s.event
     stops.push(stop)
     if (stops.length >= MAX_STOPS) break
   }

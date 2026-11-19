@@ -12,6 +12,7 @@ import { festivalLine, festivalToday } from '../lib/festivals'
 import { FestiveStrip } from './Festive'
 import type { CastPick } from '../lib/cast'
 import { MyDay, StopList } from './Day'
+import { checkInEvent, dayToday, eventStop } from '../lib/day'
 import { birthdayWhen, daysToBirthday, inDaysWord, isBirthday, turning, upcomingBirthdays } from '../lib/birthday'
 import { eventWhen, occursOn, timeOf, timeRange, weekday } from '../lib/when'
 
@@ -430,14 +431,26 @@ function privacyWord(ctx: Ctx, e: EventItem): string {
   return others.length ? `only you and ${others.join(' and ')} see this` : 'only you see this'
 }
 
+/** '7:32 pm' from an ISO time. */
+const timeOfIso = (iso?: string) => { if (!iso) return ''; const d = new Date(iso); return clock(d.getHours() * 60 + d.getMinutes()) }
+
 function EventSheet({ ctx, event, onClose }: { ctx: Ctx; event: EventItem; onClose: () => void }) {
   const { data, me } = ctx
   const owner = person(data, event.ownerId)
+  // On the day, for someone going: check in at the event (it becomes a place on their day).
+  const day = today()
+  const on = occursOn(event, day) && event.keen[me.id] === 'going'
+  const stops = dayToday(me.days, day)?.stops ?? []
+  const here = eventStop(stops, event.id)
+  const checkIn = () => void ctx.run(() => ctx.store.setDay(day, checkInEvent(stops, event, new Date().toISOString())))
   return (
     <Sheet title={event.title} onClose={onClose}>
       <div className="small">{eventWhen(event)} · {event.place} · added by {owner?.id === me.id ? 'you' : owner?.name}</div>
       {event.privacy && <div className="row small" style={{ gap: 6, fontWeight: 600 }}><Icon.lock /> {privacyWord(ctx, event)}</div>}
       {event.repeat === 'weekly' && <div className="small">next: {fmt(upcomingEvents(data, today()).find((e) => e.id === event.id)?.date ?? event.date)}</div>}
+      {on && (here?.state === 'done'
+        ? <div className="row small" style={{ gap: 6, fontWeight: 600 }}><Icon.check /> you checked in here at {timeOfIso(here.at)}</div>
+        : <button type="button" className="pill dark" style={{ alignSelf: 'flex-start' }} onClick={checkIn}>I'm here · check in</button>)}
       {event.link && <a href={event.link.startsWith('http') ? event.link : `https://${event.link}`} target="_blank" rel="noreferrer" className="row" style={{ minHeight: 44, alignSelf: 'flex-start' }}><Icon.link /> open the link</a>}
       <div className="chips">
         {Object.entries(event.keen).map(([id, level]) => { const p = person(data, id); return p ? <span key={id} className="pill mist" style={{ paddingLeft: 4 }}><Avatar p={p} size={32} />{level}</span> : null })}

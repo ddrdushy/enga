@@ -46,6 +46,8 @@ export interface Stop {
   with?: ID[]
   /** On a copy of someone else's invite: '<their id>/<their stop id>'. */
   ref?: string
+  /** When the place is an event they checked in at: the event's id. */
+  event?: ID
 }
 
 /** The places a person means to go on one day, in order. */

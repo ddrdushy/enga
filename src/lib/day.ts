@@ -1,5 +1,6 @@
 // Today's places: a short list a person makes for the day, and checks in at one by one.
-import type { DayPlan, ID, Stop } from './types.ts'
+import type { DayPlan, EventItem, ID, Stop } from './types.ts'
+import { occursOn } from './when.ts'
 
 export const MAX_STOPS = 12
 export const MAX_NAME = 60
@@ -145,4 +146,30 @@ export function upcomingInvites(people: HasDay[], meId: ID, today: string): { da
     for (const invite of invitesFor(people, meId, date)) if (!mine.some((s) => s.ref === invite.ref)) out.push({ date, invite })
   }
   return out
+}
+
+/** How an event reads as a place on someone's day: "FTN · Chow kit". */
+export const eventStopName = (e: EventItem): string => [e.title.trim(), e.place.trim()].filter(Boolean).join(' · ').slice(0, MAX_NAME)
+
+/** The events on this day that this person is going to (their own or others'), earliest first. Busy blocks aren't theirs. */
+export function eventsOnDay(events: EventItem[], meId: ID, date: string): EventItem[] {
+  return events
+    .filter((e) => !e.busy && e.keen[meId] === 'going' && occursOn(e, date))
+    .sort((a, b) => (a.startTime ?? '99:99').localeCompare(b.startTime ?? '99:99'))
+}
+
+/** The place on the day that stands for this event, if they already added or checked in at it. */
+export const eventStop = (stops: Stop[], eventId: ID): Stop | undefined => stops.find((s) => s.event === eventId)
+
+/**
+ * "I am here" at an event: checks in at its place on the day, adding it (with the event's start time)
+ * if it isn't there yet. A full day is left alone.
+ */
+export function checkInEvent(stops: Stop[], e: EventItem, at: string): Stop[] {
+  const there = eventStop(stops, e.id)
+  if (there) return checkInAt(stops, there.id, at)
+  if (stops.length >= MAX_STOPS) return stops
+  const stop: Stop = { id: newId(), name: eventStopName(e), state: 'done', at, event: e.id }
+  if (e.startTime) stop.time = e.startTime
+  return [...stops, stop]
 }

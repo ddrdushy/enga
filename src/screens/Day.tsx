@@ -2,7 +2,8 @@ import { useState } from 'react'
 import type { Ctx } from '../ctx'
 import type { ID, Person, Stop } from '../lib/types'
 import { addDays, fmt, today } from '../lib/dates'
-import { MAX_NAME, MAX_STOPS, addStop, answerInvite, checkInAt, companions, dayToday, moveStop, myDayRows, removeStop, reopenStop, skipStop, upcomingInvites } from '../lib/day'
+import { MAX_NAME, MAX_STOPS, addStop, answerInvite, checkInAt, checkInEvent, companions, dayToday, eventStop, eventStopName, eventsOnDay, moveStop, myDayRows, removeStop, reopenStop, skipStop, upcomingInvites } from '../lib/day'
+import { timeRange } from '../lib/when'
 import type { DayRow } from '../lib/day'
 import { clock } from '../lib/work'
 import { Avatar, Icon } from '../ui'
@@ -72,6 +73,8 @@ export function MyDay({ ctx }: { ctx: Ctx }) {
   const [sorting, setSorting] = useState(false)
   const [busy, setBusy] = useState(false)
   const done = rows.filter((r) => r.stop.state === 'done').length
+  // Events they're going to today that aren't a place on the day yet: one tap checks in there.
+  const evs = ahead ? [] : eventsOnDay(data.events, me.id, t).filter((e) => !eventStop(stops, e.id))
   const save = (next: Stop[]) => {
     if (next === stops || busy) return
     setBusy(true)
@@ -151,6 +154,16 @@ export function MyDay({ ctx }: { ctx: Ctx }) {
           </div>
         )
       })}
+      {stops.length < MAX_STOPS && evs.map((e) => (
+        <div key={e.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 8px 8px 12px', borderRadius: 22, background: 'var(--butter)' }}>
+          <span aria-hidden style={{ display: 'flex', flex: 'none', width: 34, justifyContent: 'center', color: 'var(--butter-ink)' }}><Icon.next /></span>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontWeight: 700, overflowWrap: 'anywhere' }}>{eventStopName(e)}</div>
+            <div className="small">{['event', timeRange(e.startTime, e.endTime)].filter(Boolean).join(' · ')}</div>
+          </div>
+          <button type="button" className="pill dark" style={small} aria-label={`Check in at ${e.title}`} onClick={() => save(checkInEvent(stops, e, now()))}>here</button>
+        </div>
+      ))}
       {stops.length < MAX_STOPS && (
         <form style={{ display: 'flex', flexDirection: 'column', gap: 8 }} onSubmit={(e) => { e.preventDefault(); add() }}>
           <div className="row" style={{ gap: 6 }}>
