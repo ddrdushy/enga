@@ -310,16 +310,52 @@
    ]
   },
   "kiru/out4/dance": {
-   "state": "pending",
-   "note": "old: skin dE 15.0 hair dE 19.3"
+   "state": "done",
+   "note": "shoulder bob with fists swinging side to side (bob up to 10 px, sheet as drawn); fists pop in at the bottom edges",
+   "dS": 3.6,
+   "dH": 3.3,
+   "skin": [
+    68.7,
+    30.7,
+    47.4
+   ],
+   "hair": [
+    22.9,
+    16.0,
+    14.2
+   ]
   },
   "kiru/out4/idle": {
-   "state": "pending",
-   "note": "old: skin dE 15.4 hair dE 18.5"
+   "state": "done",
+   "note": "cream cardigan over a black top; aligned to frame 0 (sheet drifted up to 5 px); blink frames 5-9",
+   "dS": 2.1,
+   "dH": 3.6,
+   "skin": [
+    66.9,
+    30.8,
+    46.2
+   ],
+   "hair": [
+    21.9,
+    17.2,
+    14.9
+   ]
   },
   "kiru/out4/wave": {
-   "state": "pending",
-   "note": "old: skin dE 14.9 hair dE 18.8"
+   "state": "done",
+   "note": "same hand waves on the left; aligned to frame 0 (sheet drifted up to 7 px sideways / 6 px down); white motion lines frames 4-6; two blinks",
+   "dS": 2.6,
+   "dH": 4.2,
+   "skin": [
+    67.5,
+    30.8,
+    46.0
+   ],
+   "hair": [
+    23.7,
+    16.9,
+    14.5
+   ]
   },
   "kiru/party/dance": {
    "state": "pending",

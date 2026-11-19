@@ -746,18 +746,18 @@
  },
  "kiru/out4/idle": {
   "state": "done",
-  "retries": 0,
-  "note": "Kiru v2 look; frames 5-8 rose up to 8 px during the blink; re-aligned and cropped"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): cream cardigan over a black top; aligned to frame 0 (sheet drifted up to 5 px); blink frames 5-9"
  },
  "kiru/out4/wave": {
   "state": "done",
-  "retries": 0,
-  "note": "Kiru v2 look"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): same hand waves on the left; aligned to frame 0 (sheet drifted up to 7 px sideways / 6 px down); white motion lines frames 4-6; two blinks"
  },
  "kiru/out4/dance": {
   "state": "done",
-  "retries": 0,
-  "note": "Kiru v2 look; fists pop in at frame 1 and out at frame 15"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): shoulder bob with fists swinging side to side (bob up to 10 px, sheet as drawn); fists pop in at the bottom edges"
  },
  "kiru/home2/idle": {
   "state": "done",
