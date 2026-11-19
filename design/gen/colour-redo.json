@@ -262,16 +262,52 @@
    ]
   },
   "kiru/out3/idle": {
-   "state": "pending",
-   "note": "old: skin dE 14.9 hair dE 17.4"
+   "state": "done",
+   "note": "cream kurti with pink embroidery; aligned to frame 0 (sheet drifted up to 6 px); slow blink frames 3-9",
+   "dS": 4.1,
+   "dH": 2.1,
+   "skin": [
+    69.4,
+    29.8,
+    46.6
+   ],
+   "hair": [
+    21.4,
+    14.7,
+    12.4
+   ]
   },
   "kiru/out3/laugh": {
-   "state": "pending",
-   "note": "old: skin dE 15.1 hair dE 18.6"
+   "state": "done",
+   "note": "laugh with head tilt; frames aligned to frame 0 (sheet drifted up to 6 px); small white laugh lines in frames 4-6",
+   "dS": 3.4,
+   "dH": 2.8,
+   "skin": [
+    68.5,
+    30.8,
+    46.7
+   ],
+   "hair": [
+    22.3,
+    15.4,
+    12.8
+   ]
   },
   "kiru/out3/wave": {
-   "state": "pending",
-   "note": "old: skin dE 15.7 hair dE 18.1"
+   "state": "done",
+   "note": "same hand waves on the left; small white motion lines frames 4-6; blink frames 9-10",
+   "dS": 1.8,
+   "dH": 3.0,
+   "skin": [
+    66.7,
+    30.3,
+    44.8
+   ],
+   "hair": [
+    22.5,
+    15.6,
+    14.5
+   ]
   },
   "kiru/out4/dance": {
    "state": "pending",

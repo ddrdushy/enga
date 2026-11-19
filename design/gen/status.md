@@ -143,9 +143,9 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/out2/idle | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): white top (olive trousers below the frame); blink frames 3-7; stable framing |
 | kiru/out2/wave | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): same hand waves on the left; small white motion lines in frames 4-7; blink frames 9-10 |
 | kiru/out2/walk | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): walking bob and sway (up to 11 px, sheet as drawn); ONE bag strap on the same shoulder in every frame; two blinks |
-| kiru/out3/idle | done | 0 | Kiru v2 look |
-| kiru/out3/wave | done | 0 | Kiru v2 look |
-| kiru/out3/laugh | done | 0 | Kiru v2 look; head tilts back with the laugh (up to 12 px) |
+| kiru/out3/idle | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): cream kurti with pink embroidery; aligned to frame 0 (sheet drifted up to 6 px); slow blink frames 3-9 |
+| kiru/out3/wave | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): same hand waves on the left; small white motion lines frames 4-6; blink frames 9-10 |
+| kiru/out3/laugh | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): laugh with head tilt; frames aligned to frame 0 (sheet drifted up to 6 px); small white laugh lines in frames 4-6 |
 | kiru/out4/idle | done | 0 | Kiru v2 look; frames 5-8 rose up to 8 px during the blink; re-aligned and cropped |
 | kiru/out4/wave | done | 0 | Kiru v2 look |
 | kiru/out4/dance | done | 0 | Kiru v2 look; fists pop in at frame 1 and out at frame 15 |
@@ -207,9 +207,9 @@ Reference measurements (tools: /tmp/tools/colour.py; median Lab over sampled fra
 | kiru/out2/idle | done | 1.4 | 1.1 | white top (olive trousers below the frame); blink frames 3-7; stable framing |
 | kiru/out2/walk | done | 2.6 | 3.0 | walking bob and sway (up to 11 px, sheet as drawn); ONE bag strap on the same shoulder in every frame; two blinks |
 | kiru/out2/wave | done | 2.5 | 3.6 | same hand waves on the left; small white motion lines in frames 4-7; blink frames 9-10 |
-| kiru/out3/idle | pending |  |  | old: skin dE 14.9 hair dE 17.4 |
-| kiru/out3/laugh | pending |  |  | old: skin dE 15.1 hair dE 18.6 |
-| kiru/out3/wave | pending |  |  | old: skin dE 15.7 hair dE 18.1 |
+| kiru/out3/idle | done | 4.1 | 2.1 | cream kurti with pink embroidery; aligned to frame 0 (sheet drifted up to 6 px); slow blink frames 3-9 |
+| kiru/out3/laugh | done | 3.4 | 2.8 | laugh with head tilt; frames aligned to frame 0 (sheet drifted up to 6 px); small white laugh lines in frames 4-6 |
+| kiru/out3/wave | done | 1.8 | 3.0 | same hand waves on the left; small white motion lines frames 4-6; blink frames 9-10 |
 | kiru/out4/dance | pending |  |  | old: skin dE 15.0 hair dE 19.3 |
 | kiru/out4/idle | pending |  |  | old: skin dE 15.4 hair dE 18.5 |
 | kiru/out4/wave | pending |  |  | old: skin dE 14.9 hair dE 18.8 |

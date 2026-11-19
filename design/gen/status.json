@@ -731,18 +731,18 @@
  },
  "kiru/out3/idle": {
   "state": "done",
-  "retries": 0,
-  "note": "Kiru v2 look"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): cream kurti with pink embroidery; aligned to frame 0 (sheet drifted up to 6 px); slow blink frames 3-9"
  },
  "kiru/out3/wave": {
   "state": "done",
-  "retries": 0,
-  "note": "Kiru v2 look"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): same hand waves on the left; small white motion lines frames 4-6; blink frames 9-10"
  },
  "kiru/out3/laugh": {
   "state": "done",
-  "retries": 0,
-  "note": "Kiru v2 look; head tilts back with the laugh (up to 12 px)"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): laugh with head tilt; frames aligned to frame 0 (sheet drifted up to 6 px); small white laugh lines in frames 4-6"
  },
  "kiru/out4/idle": {
   "state": "done",
