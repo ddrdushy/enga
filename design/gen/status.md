@@ -100,11 +100,11 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | ali/home2/tv | done | 0 |  |
 | ali/home2/phone | done | 0 |  |
 | ali/home2/sleep | done | 0 |  |
-| ali/gym/idle | pending | 0 | NEXT: ChatGPT image limit hit ('out of image creations, try again tomorrow at 1:08 AM'); prompt was sent but not generated. Resume here. |
-| ali/gym/wave | pending | 0 |  |
-| ali/gym/workout | pending | 0 |  |
-| ali/party/idle | pending | 0 |  |
-| ali/party/wave | pending | 0 |  |
+| ali/gym/idle | done | 0 | pink tee per prompt (special sheet shows mauve); nose stud tiny |
+| ali/gym/wave | done | 0 |  |
+| ali/gym/workout | done | 0 | bounce moves the head up to 4 px (intended) |
+| ali/party/idle | done | 0 |  |
+| ali/party/wave | done | 0 |  |
 | ali/party/dance | pending | 0 |  |
 | ali/rain/idle | pending | 0 |  |
 | ali/rain/wave | pending | 0 |  |
