@@ -122,8 +122,8 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/out/pack | done | 0 |  |
 | kiru/out/rain | done | 0 | end pose (eyes down) differs slightly from the start (eyes forward) |
 | kiru/out/birthday | done | 0 |  |
-| kiru/home/idle | done | 0 | Kiru v2 look; body rose up to 9 px and did not settle back; re-aligned and cropped |
-| kiru/home/wave | done | 0 | Kiru v2 look; frames 4-7 drifted up 7 px with a bottom strip; re-aligned and cropped |
+| kiru/home/idle | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): pink floral nighty; blink frames 4-9; stable framing |
+| kiru/home/wave | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): same hand waves at the left edge (partly cut in frames 6-9); one blink |
 | kiru/home/tv | done | 0 |  |
 | kiru/home/phone | done | 0 |  |
 | kiru/home/cook | done | 0 |  |
@@ -137,9 +137,9 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/work2/idle | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): frames drifted up to 12 px on the sheet; aligned to frame 0; blink frames 6-9 |
 | kiru/work2/wave | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): same hand waves at the left edge (partly cut in frames 6-9); one blink; stable framing |
 | kiru/work2/type | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): ONE laptop lid at the bottom right, hands below the frame; looks down then up with a smile; head bob up to 5 px |
-| kiru/work3/idle | done | 0 | Kiru v2 look |
-| kiru/work3/wave | done | 0 | Kiru v2 look; motion blur on the hand in frames 5-6 |
-| kiru/work3/coffee | done | 0 | Kiru v2 look; ONE mug, same hand in every frame; frame 9 jumped 7 px (re-aligned, cropped); small white sigh puff in frame 9 |
+| kiru/work3/idle | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): blink frames 4-9; stable framing |
+| kiru/work3/wave | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): same hand waves at the left edge (partly cut in frames 6-9); one blink |
+| kiru/work3/coffee | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): ONE cream mug, same hand (frames 2-10); frames 8-15 sat 4-7 px lower on the sheet, aligned to frame 0 |
 | kiru/out2/idle | done | 0 | Kiru v2 look |
 | kiru/out2/wave | done | 0 | Kiru v2 look; the blink reads as a wink (frame 5) |
 | kiru/out2/walk | done | 0 | Kiru v2 look; bag strap on the same shoulder throughout; frames 4-15 sat 4-7 px higher than frame 0 (loop pop) - re-aligned and cropped |
@@ -193,12 +193,12 @@ Reference measurements (tools: /tmp/tools/colour.py; median Lab over sampled fra
 | kiru/gym/wave | pending |  |  | old: skin dE 14.1 hair dE 22.3 |
 | kiru/gym/workout | pending |  |  | old: skin dE 13.8 hair dE 24.1 |
 | kiru/home/cook | pending |  |  | old: skin dE 8.9 hair dE 10.0 |
-| kiru/home/idle | pending |  |  | old: skin dE 14.8 hair dE 23.2 |
+| kiru/home/idle | done | 6.2 | 3.6 | pink floral nighty; blink frames 4-9; stable framing |
 | kiru/home/laugh | pending |  |  | old: skin dE 10.2 hair dE 9.2 |
 | kiru/home/phone | pending |  |  | old: skin dE 11.5 hair dE 9.5 |
 | kiru/home/sleep | pending |  |  | old: skin dE 5.0 hair dE 12.3 |
 | kiru/home/tv | pending |  |  | old: skin dE 10.4 hair dE 8.9 |
-| kiru/home/wave | pending |  |  | old: skin dE 10.7 hair dE 6.6 |
+| kiru/home/wave | done | 7.3 | 5.2 | same hand waves at the left edge (partly cut in frames 6-9); one blink |
 | kiru/home2/idle | pending |  |  | old: skin dE 15.8 hair dE 22.1 |
 | kiru/home2/phone | pending |  |  | old: skin dE 15.5 hair dE 25.6 |
 | kiru/home2/sleep | pending |  |  | old: skin dE 12.8 hair dE 22.8 |
@@ -230,7 +230,7 @@ Reference measurements (tools: /tmp/tools/colour.py; median Lab over sampled fra
 | kiru/work2/idle | done | 3.1 | 2.3 | frames drifted up to 12 px on the sheet; aligned to frame 0; blink frames 6-9 |
 | kiru/work2/type | done | 3.3 | 3.1 | ONE laptop lid at the bottom right, hands below the frame; looks down then up with a smile; head bob up to 5 px |
 | kiru/work2/wave | done | 4.9 | 3.8 | same hand waves at the left edge (partly cut in frames 6-9); one blink; stable framing |
-| kiru/work3/coffee | pending |  |  | old: skin dE 14.0 hair dE 16.9 |
-| kiru/work3/idle | pending |  |  | old: skin dE 13.9 hair dE 14.3 |
-| kiru/work3/wave | pending |  |  | old: skin dE 14.1 hair dE 14.5 |
+| kiru/work3/coffee | done | 5.4 | 3.6 | ONE cream mug, same hand (frames 2-10); frames 8-15 sat 4-7 px lower on the sheet, aligned to frame 0 |
+| kiru/work3/idle | done | 3.5 | 2.0 | blink frames 4-9; stable framing |
+| kiru/work3/wave | done | 4.1 | 2.1 | same hand waves at the left edge (partly cut in frames 6-9); one blink |
 | dushy/out/idle | pending |  |  | old render: different face / darker than the rest of the Dushy set |

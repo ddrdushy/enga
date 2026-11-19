@@ -26,8 +26,20 @@
    "note": "old: skin dE 8.9 hair dE 10.0"
   },
   "kiru/home/idle": {
-   "state": "pending",
-   "note": "old: skin dE 14.8 hair dE 23.2"
+   "state": "done",
+   "note": "pink floral nighty; blink frames 4-9; stable framing",
+   "dS": 6.2,
+   "dH": 3.6,
+   "skin": [
+    71.7,
+    27.2,
+    39.3
+   ],
+   "hair": [
+    24.5,
+    14.1,
+    12.1
+   ]
   },
   "kiru/home/laugh": {
    "state": "pending",
@@ -46,8 +58,20 @@
    "note": "old: skin dE 10.4 hair dE 8.9"
   },
   "kiru/home/wave": {
-   "state": "pending",
-   "note": "old: skin dE 10.7 hair dE 6.6"
+   "state": "done",
+   "note": "same hand waves at the left edge (partly cut in frames 6-9); one blink",
+   "dS": 7.3,
+   "dH": 5.2,
+   "skin": [
+    72.7,
+    24.0,
+    42.7
+   ],
+   "hair": [
+    25.0,
+    17.8,
+    15.2
+   ]
   },
   "kiru/home2/idle": {
    "state": "pending",
@@ -270,16 +294,52 @@
    ]
   },
   "kiru/work3/coffee": {
-   "state": "pending",
-   "note": "old: skin dE 14.0 hair dE 16.9"
+   "state": "done",
+   "note": "ONE cream mug, same hand (frames 2-10); frames 8-15 sat 4-7 px lower on the sheet, aligned to frame 0",
+   "dS": 5.4,
+   "dH": 3.6,
+   "skin": [
+    71.1,
+    28.4,
+    42.5
+   ],
+   "hair": [
+    24.4,
+    14.4,
+    12.3
+   ]
   },
   "kiru/work3/idle": {
-   "state": "pending",
-   "note": "old: skin dE 13.9 hair dE 14.3"
+   "state": "done",
+   "note": "blink frames 4-9; stable framing",
+   "dS": 3.5,
+   "dH": 2.0,
+   "skin": [
+    68.8,
+    30.4,
+    44.8
+   ],
+   "hair": [
+    22.4,
+    13.3,
+    11.7
+   ]
   },
   "kiru/work3/wave": {
-   "state": "pending",
-   "note": "old: skin dE 14.1 hair dE 14.5"
+   "state": "done",
+   "note": "same hand waves at the left edge (partly cut in frames 6-9); one blink",
+   "dS": 4.1,
+   "dH": 2.1,
+   "skin": [
+    68.8,
+    25.9,
+    41.1
+   ],
+   "hair": [
+    22.8,
+    12.0,
+    11.4
+   ]
   },
   "dushy/out/idle": {
    "state": "pending",

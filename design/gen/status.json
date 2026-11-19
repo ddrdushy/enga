@@ -676,8 +676,8 @@
  },
  "kiru/home/wave": {
   "state": "done",
-  "retries": 0,
-  "note": "Kiru v2 look; frames 4-7 drifted up 7 px with a bottom strip; re-aligned and cropped"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): same hand waves at the left edge (partly cut in frames 6-9); one blink"
  },
  "kiru/home/laugh": {
   "state": "done",
@@ -701,18 +701,18 @@
  },
  "kiru/work3/idle": {
   "state": "done",
-  "retries": 0,
-  "note": "Kiru v2 look"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): blink frames 4-9; stable framing"
  },
  "kiru/work3/wave": {
   "state": "done",
-  "retries": 0,
-  "note": "Kiru v2 look; motion blur on the hand in frames 5-6"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): same hand waves at the left edge (partly cut in frames 6-9); one blink"
  },
  "kiru/work3/coffee": {
   "state": "done",
-  "retries": 0,
-  "note": "Kiru v2 look; ONE mug, same hand in every frame; frame 9 jumped 7 px (re-aligned, cropped); small white sigh puff in frame 9"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): ONE cream mug, same hand (frames 2-10); frames 8-15 sat 4-7 px lower on the sheet, aligned to frame 0"
  },
  "kiru/out2/idle": {
   "state": "done",
@@ -846,8 +846,8 @@
  },
  "kiru/home/idle": {
   "state": "done",
-  "retries": 0,
-  "note": "Kiru v2 look; body rose up to 9 px and did not settle back; re-aligned and cropped"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): pink floral nighty; blink frames 4-9; stable framing"
  },
  "kiru/work/idle": {
   "state": "done",
