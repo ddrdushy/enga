@@ -1,6 +1,6 @@
 {
  "group_intro": [
-  "Method: ChatGPT 4x4 sprite sheet (1254x1254, square cells) with three references pasted every prompt (dushy/work/idle frame, ali/out/idle frame, kiru-v2.png) plus an explicit Kiru colour line. Sliced with /tmp/gp/gsheet.py (gutters = min channel >= 249, alignment on the grass base), ~300x300 frames at 180 ms, converted with conv.py width mode (480 px wide, 16 frames). Sheets in design/gen/sheets-colour/group-<scene>.png; old GIFs kept as design/gen/group/<scene>-oldcolour.gif (Mac).",
+  "Method: ChatGPT 4x4 sprite sheet (1254x1254, square cells) with three references pasted every prompt (dushy/work/idle frame, ali/out/idle frame, kiru-v2.png) plus an explicit Kiru colour line. Sliced with /tmp/tools/gsheet.py (gutters = min channel >= 249, alignment on the grass base), ~300x300 frames at 180 ms, converted with conv.py width mode (480 px wide, 16 frames). Sheets in design/gen/sheets-colour/group-<scene>.png; old GIFs kept as design/gen/group/<scene>-oldcolour.gif (Mac).",
   "Colour: colour.py on a crop around Kiru (her column, top 62% of the frame) of the animated WebP, all 16 frames sampled; old and new measured the same way. This crop method reads the old files milder than the earlier frame-0 measurement listed below (e.g. hello 6.5 here vs 11.6 there), skin is lower on five of six scenes (welcome-ali about the same at 7.7, visually close to kiru-v2) and all six pass skin <= 9.0 / hair <= 9.5."
  ],
  "group": {
@@ -41,7 +41,12 @@
    "note": "party hats (Dushy blue, Ali pink, Kiru purple), hat tips 7-8 px below the top; Ali holds ONE cake with ONE candle in every frame; Dushy and Kiru clap"
   }
  },
- "fest_intro": [],
+ "fest_intro": [
+  "NOT STARTED: the first festival prompt (dushy/christmas/idle) hit the ChatGPT image limit on Nov 19: \"You're out of image creations for now. Try again tomorrow at 10:04 AM.\" / \"You've hit the Go plan limit for image generations requests. You can create more images when the limit resets in 20 hours.\" Resume at dushy/christmas/idle, then down this table (date order: christmas, new-year, pongal, thaipusam, chinese-new-year, hari-raya, puthandu, hari-raya-haji, merdeka, malaysia-day, deepavali; per festival dushy idle/wave, ali idle/wave, kiru idle/wave).",
+  "Method ready: one 4x4 sprite sheet per item with only that person's reference pasted (design/ref/dushy-ref.jpg = dushy/work/idle frame 0, ali-ref.jpg = ali/out/idle frame 0, kiru-ref.jpg = kiru-v2) and an explicit identity/colour line; prompt builder and helpers in /tmp/tools/fest.js (+ fest.md); slice with /tmp/tools/f.sh <who>/<festival>/<pose>, keep with /tmp/tools/keepf.sh (256x256 webp + this table). Merdeka/Malaysia Day wave holds ONE small Jalur Gemilang; idle has no flag. No Santa hat (kept idle and wave in the same outfit).",
+  "Pass rules (colour.py, dE2000 vs the person's reference): Kiru skin <= 9.0, hair <= 9.5 vs kiru-v2.png. Ali vs ali/out/idle.webp: skin <= 9.0, hair <= 13.5 (calibrated on her 54 approved files: skin max 8.6, median 2.7; hair median 6.8, 95th pct ~13.5, outliers to 16.3 where a maroon/orange outfit leaks into the hair sample, so orange/maroon outfits need the visual check). Dushy vs dushy/work/idle.webp: skin <= 9.0 only (majority-look standing files max 8.6; the darker full-beard out/idle, out/wave, out/laugh read 12.2-14.5); the beard sample is unreliable (median 14), so beard length and grey chin are checked visually.",
+  "App code: no change needed. castPick puts step(festival, pose, loose) first when festivalOn() gives a key, and castCandidates looks up <person>/<festival-key>/<pose>(.anim).webp and, being loose, any pose in that folder (idle/wave), then falls back to the everyday chain. src/lib/castFiles.ts globs every webp under src/assets/cast, so new folders are picked up at build time."
+ ],
  "fest": {
   "dushy/christmas/idle": {
    "state": "pending"
