@@ -673,5 +673,35 @@
   "state": "done",
   "retries": 0,
   "note": "Kiru v2 look; head tilts back with the laugh (moves up to 12 px); 4 px edge trim for a bottom strip"
+ },
+ "kiru/home/wave": {
+  "state": "done",
+  "retries": 0,
+  "note": "Kiru v2 look; frames 4-7 drifted up 7 px with a bottom strip; re-aligned and cropped"
+ },
+ "kiru/home/laugh": {
+  "state": "done",
+  "retries": 0,
+  "note": "Kiru v2 look; head tilts back with the laugh (up to 12 px); 4 px edge trim for a bottom strip"
+ },
+ "kiru/work2/idle": {
+  "state": "done",
+  "retries": 0,
+  "note": "Kiru v2 look"
+ },
+ "kiru/work2/wave": {
+  "state": "done",
+  "retries": 0,
+  "note": "Kiru v2 look; wave occupies frames 5-12"
+ },
+ "kiru/work2/type": {
+  "state": "done",
+  "retries": 0,
+  "note": "Kiru v2 look; frames 9-15 sat 4-6 px higher (loop pop); re-aligned to frame 0 and cropped"
+ },
+ "kiru/work3/idle": {
+  "state": "done",
+  "retries": 0,
+  "note": "Kiru v2 look"
  }
 }

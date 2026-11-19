@@ -123,21 +123,21 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/out/rain | done | 0 | end pose (eyes down) differs slightly from the start (eyes forward) |
 | kiru/out/birthday | done | 0 |  |
 | kiru/home/idle | pending | 0 |  |
-| kiru/home/wave | pending | 0 |  |
+| kiru/home/wave | done | 0 | Kiru v2 look; frames 4-7 drifted up 7 px with a bottom strip; re-aligned and cropped |
 | kiru/home/tv | done | 0 |  |
 | kiru/home/phone | done | 0 |  |
 | kiru/home/cook | done | 0 |  |
 | kiru/home/sleep | done | 0 |  |
-| kiru/home/laugh | pending | 0 |  |
+| kiru/home/laugh | done | 0 | Kiru v2 look; head tilts back with the laugh (up to 12 px); 4 px edge trim for a bottom strip |
 | kiru/work/idle | pending | 0 |  |
 | kiru/work/wave | pending | 0 |  |
 | kiru/work/type | done | 0 | hair renders a little more reddish-brown |
 | kiru/work/coffee | done | 0 | tea break with ONE glass of milky tea (checked every frame) |
 | kiru/work/laugh | done | 0 | Kiru v2 look; head tilts back with the laugh (moves up to 12 px); 4 px edge trim for a bottom strip |
-| kiru/work2/idle | pending | 0 |  |
-| kiru/work2/wave | pending | 0 |  |
-| kiru/work2/type | pending | 0 |  |
-| kiru/work3/idle | pending | 0 |  |
+| kiru/work2/idle | done | 0 | Kiru v2 look |
+| kiru/work2/wave | done | 0 | Kiru v2 look; wave occupies frames 5-12 |
+| kiru/work2/type | done | 0 | Kiru v2 look; frames 9-15 sat 4-6 px higher (loop pop); re-aligned to frame 0 and cropped |
+| kiru/work3/idle | done | 0 | Kiru v2 look |
 | kiru/work3/wave | pending | 0 |  |
 | kiru/work3/coffee | pending | 0 |  |
 | kiru/out2/idle | pending | 0 |  |
