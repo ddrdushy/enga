@@ -828,5 +828,35 @@
   "state": "done",
   "retries": 0,
   "note": "Kiru v2 look; ONE umbrella in the same hand; face a bit smaller to fit the umbrella"
+ },
+ "kiru/travel/idle": {
+  "state": "done",
+  "retries": 0,
+  "note": "Kiru v2 look; hair a bit more auburn and the bun less defined under the sunglasses"
+ },
+ "kiru/travel/wave": {
+  "state": "done",
+  "retries": 0,
+  "note": "Kiru v2 look; hair a bit more auburn (matches travel/idle)"
+ },
+ "kiru/travel/travel": {
+  "state": "done",
+  "retries": 0,
+  "note": "Kiru v2 look; ONE suitcase handle, same hand; walking bob up to 8 px re-aligned; loop seam (frame 15 to 0) a bit stronger than other steps, softened by the 2.5 s end pause"
+ },
+ "kiru/home/idle": {
+  "state": "done",
+  "retries": 0,
+  "note": "Kiru v2 look; body rose up to 9 px and did not settle back; re-aligned and cropped"
+ },
+ "kiru/work/idle": {
+  "state": "done",
+  "retries": 0,
+  "note": "Kiru v2 look; body rose up to 6 px and ended 3 px off; re-aligned and cropped"
+ },
+ "kiru/work/wave": {
+  "state": "done",
+  "retries": 0,
+  "note": "Kiru v2 look"
  }
 }

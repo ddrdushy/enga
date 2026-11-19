@@ -122,15 +122,15 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/out/pack | done | 0 |  |
 | kiru/out/rain | done | 0 | end pose (eyes down) differs slightly from the start (eyes forward) |
 | kiru/out/birthday | done | 0 |  |
-| kiru/home/idle | pending | 0 |  |
+| kiru/home/idle | done | 0 | Kiru v2 look; body rose up to 9 px and did not settle back; re-aligned and cropped |
 | kiru/home/wave | done | 0 | Kiru v2 look; frames 4-7 drifted up 7 px with a bottom strip; re-aligned and cropped |
 | kiru/home/tv | done | 0 |  |
 | kiru/home/phone | done | 0 |  |
 | kiru/home/cook | done | 0 |  |
 | kiru/home/sleep | done | 0 |  |
 | kiru/home/laugh | done | 0 | Kiru v2 look; head tilts back with the laugh (up to 12 px); 4 px edge trim for a bottom strip |
-| kiru/work/idle | pending | 0 |  |
-| kiru/work/wave | pending | 0 |  |
+| kiru/work/idle | done | 0 | Kiru v2 look; body rose up to 6 px and ended 3 px off; re-aligned and cropped |
+| kiru/work/wave | done | 0 | Kiru v2 look |
 | kiru/work/type | done | 0 | hair renders a little more reddish-brown |
 | kiru/work/coffee | done | 0 | tea break with ONE glass of milky tea (checked every frame) |
 | kiru/work/laugh | done | 0 | Kiru v2 look; head tilts back with the laugh (moves up to 12 px); 4 px edge trim for a bottom strip |
@@ -163,9 +163,9 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/rain/idle | done | 0 | Kiru v2 look; bun pokes out above the hood |
 | kiru/rain/wave | done | 0 | Kiru v2 look |
 | kiru/rain/walk | done | 0 | Kiru v2 look; ONE umbrella in the same hand; face a bit smaller to fit the umbrella |
-| kiru/travel/idle | pending | 0 |  |
-| kiru/travel/wave | pending | 0 |  |
-| kiru/travel/travel | pending | 0 |  |
+| kiru/travel/idle | done | 0 | Kiru v2 look; hair a bit more auburn and the bun less defined under the sunglasses |
+| kiru/travel/wave | done | 0 | Kiru v2 look; hair a bit more auburn (matches travel/idle) |
+| kiru/travel/travel | done | 0 | Kiru v2 look; ONE suitcase handle, same hand; walking bob up to 8 px re-aligned; loop seam (frame 15 to 0) a bit stronger than other steps, softened by the 2.5 s end pause |
 | group/hello | done | 3 | redone with Kiru v2 look; 2 versions rejected (ghost second glass in one frame; glass switching hands + figures cut off); final: Kiru holds ONE glass in the same hand in all 16 frames (checked frame by frame) |
 | group/hug | done | 0 | home outfits |
 | group/welcome-dushy | done | 0 | Dushy steps in from the left edge (suitcase cut at the edge in first frames); Kiru's trousers came out olive instead of black |
