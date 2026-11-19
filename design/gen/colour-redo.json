@@ -445,16 +445,52 @@
    ]
   },
   "kiru/rain/idle": {
-   "state": "pending",
-   "note": "old: skin dE 9.3 hair dE 13.6"
+   "state": "done",
+   "note": "pink hooded raincoat with the hood DOWN (old version had it up); aligned to frame 0 (sheet drifted up to 10 px); blink frames 5-8",
+   "dS": 3.8,
+   "dH": 1.3,
+   "skin": [
+    66.2,
+    24.1,
+    44.1
+   ],
+   "hair": [
+    19.4,
+    12.1,
+    10.3
+   ]
   },
   "kiru/rain/walk": {
-   "state": "pending",
-   "note": "old: skin dE 11.0 hair dE 13.1"
+   "state": "done",
+   "note": "ONE pink umbrella in the same hand in every frame, raindrops; hood down; the top ~20 px is padded flat pink (no raindrops there)",
+   "dS": 2.4,
+   "dH": 3.8,
+   "skin": [
+    67.2,
+    31.2,
+    47.3
+   ],
+   "hair": [
+    20.7,
+    17.7,
+    13.6
+   ]
   },
   "kiru/rain/wave": {
-   "state": "pending",
-   "note": "old: skin dE 9.7 hair dE 14.5"
+   "state": "done",
+   "note": "pink raincoat, hood down (matches the new rain/idle); same hand waves on the left; white motion lines frames 4-6; two blinks",
+   "dS": 4.0,
+   "dH": 4.4,
+   "skin": [
+    68.5,
+    30.8,
+    50.9
+   ],
+   "hair": [
+    24.1,
+    16.9,
+    15.3
+   ]
   },
   "kiru/travel/idle": {
    "state": "pending",

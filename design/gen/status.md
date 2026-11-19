@@ -160,9 +160,9 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/party/idle | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): elegant black dress with sheer sleeves; aligned to frame 0 (sheet drifted up to 9 px); blink frames 5-9 |
 | kiru/party/wave | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): black dress with sheer sleeves; same hand waves on the left; white motion lines frames 4-6; two blinks |
 | kiru/party/dance | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): sway and finger snaps with both hands (hands at the bottom edges), small white snap lines frames 4-7; sway up to 6 px as drawn |
-| kiru/rain/idle | done | 0 | Kiru v2 look; bun pokes out above the hood |
-| kiru/rain/wave | done | 0 | Kiru v2 look |
-| kiru/rain/walk | done | 0 | Kiru v2 look; ONE umbrella in the same hand; face a bit smaller to fit the umbrella |
+| kiru/rain/idle | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): pink hooded raincoat with the hood DOWN (old version had it up); aligned to frame 0 (sheet drifted up to 10 px); blink frames 5-8 |
+| kiru/rain/wave | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): pink raincoat, hood down (matches the new rain/idle); same hand waves on the left; white motion lines frames 4-6; two blinks |
+| kiru/rain/walk | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): ONE pink umbrella in the same hand in every frame, raindrops; hood down; the top ~20 px is padded flat pink (no raindrops there) |
 | kiru/travel/idle | done | 0 | Kiru v2 look; hair a bit more auburn and the bun less defined under the sunglasses |
 | kiru/travel/wave | done | 0 | Kiru v2 look; hair a bit more auburn (matches travel/idle) |
 | kiru/travel/travel | done | 0 | Kiru v2 look; ONE suitcase handle, same hand; walking bob up to 8 px re-aligned; loop seam (frame 15 to 0) a bit stronger than other steps, softened by the 2.5 s end pause |
@@ -217,9 +217,9 @@ Reference measurements (tools: /tmp/tools/colour.py; median Lab over sampled fra
 | kiru/party/dance | done | 3.6 | 3.9 | sway and finger snaps with both hands (hands at the bottom edges), small white snap lines frames 4-7; sway up to 6 px as drawn |
 | kiru/party/idle | done | 4.0 | 3.1 | elegant black dress with sheer sleeves; aligned to frame 0 (sheet drifted up to 9 px); blink frames 5-9 |
 | kiru/party/wave | done | 3.0 | 4.0 | black dress with sheer sleeves; same hand waves on the left; white motion lines frames 4-6; two blinks |
-| kiru/rain/idle | pending |  |  | old: skin dE 9.3 hair dE 13.6 |
-| kiru/rain/walk | pending |  |  | old: skin dE 11.0 hair dE 13.1 |
-| kiru/rain/wave | pending |  |  | old: skin dE 9.7 hair dE 14.5 |
+| kiru/rain/idle | done | 3.8 | 1.3 | pink hooded raincoat with the hood DOWN (old version had it up); aligned to frame 0 (sheet drifted up to 10 px); blink frames 5-8 |
+| kiru/rain/walk | done | 2.4 | 3.8 | ONE pink umbrella in the same hand in every frame, raindrops; hood down; the top ~20 px is padded flat pink (no raindrops there) |
+| kiru/rain/wave | done | 4.0 | 4.4 | pink raincoat, hood down (matches the new rain/idle); same hand waves on the left; white motion lines frames 4-6; two blinks |
 | kiru/travel/idle | pending |  |  | old: skin dE 12.0 hair dE 18.8 |
 | kiru/travel/travel | pending |  |  | old: skin dE 14.2 hair dE 21.3 |
 | kiru/travel/wave | pending |  |  | old: skin dE 12.3 hair dE 19.5 |

@@ -816,18 +816,18 @@
  },
  "kiru/rain/idle": {
   "state": "done",
-  "retries": 0,
-  "note": "Kiru v2 look; bun pokes out above the hood"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): pink hooded raincoat with the hood DOWN (old version had it up); aligned to frame 0 (sheet drifted up to 10 px); blink frames 5-8"
  },
  "kiru/rain/wave": {
   "state": "done",
-  "retries": 0,
-  "note": "Kiru v2 look"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): pink raincoat, hood down (matches the new rain/idle); same hand waves on the left; white motion lines frames 4-6; two blinks"
  },
  "kiru/rain/walk": {
   "state": "done",
-  "retries": 0,
-  "note": "Kiru v2 look; ONE umbrella in the same hand; face a bit smaller to fit the umbrella"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): ONE pink umbrella in the same hand in every frame, raindrops; hood down; the top ~20 px is padded flat pink (no raindrops there)"
  },
  "kiru/travel/idle": {
   "state": "done",
