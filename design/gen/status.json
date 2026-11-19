@@ -813,5 +813,20 @@
   "state": "done",
   "retries": 0,
   "note": "Kiru v2 look; sway moves the head up to 11 px; the bun touches the top edge in frames 3-4; small snap lines"
+ },
+ "kiru/rain/idle": {
+  "state": "done",
+  "retries": 0,
+  "note": "Kiru v2 look; bun pokes out above the hood"
+ },
+ "kiru/rain/wave": {
+  "state": "done",
+  "retries": 0,
+  "note": "Kiru v2 look"
+ },
+ "kiru/rain/walk": {
+  "state": "done",
+  "retries": 0,
+  "note": "Kiru v2 look; ONE umbrella in the same hand; face a bit smaller to fit the umbrella"
  }
 }
