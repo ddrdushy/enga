@@ -143,12 +143,12 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/out2/idle | done | 0 | Kiru v2 look |
 | kiru/out2/wave | done | 0 | Kiru v2 look; the blink reads as a wink (frame 5) |
 | kiru/out2/walk | done | 0 | Kiru v2 look; bag strap on the same shoulder throughout; frames 4-15 sat 4-7 px higher than frame 0 (loop pop) - re-aligned and cropped |
-| kiru/out3/idle | pending | 0 |  |
-| kiru/out3/wave | pending | 0 |  |
-| kiru/out3/laugh | pending | 0 |  |
-| kiru/out4/idle | pending | 0 |  |
-| kiru/out4/wave | pending | 0 |  |
-| kiru/out4/dance | pending | 0 |  |
+| kiru/out3/idle | done | 0 | Kiru v2 look |
+| kiru/out3/wave | done | 0 | Kiru v2 look |
+| kiru/out3/laugh | done | 0 | Kiru v2 look; head tilts back with the laugh (up to 12 px) |
+| kiru/out4/idle | done | 0 | Kiru v2 look; frames 5-8 rose up to 8 px during the blink; re-aligned and cropped |
+| kiru/out4/wave | done | 0 | Kiru v2 look |
+| kiru/out4/dance | done | 0 | Kiru v2 look; fists pop in at frame 1 and out at frame 15 |
 | kiru/home2/idle | pending | 0 |  |
 | kiru/home2/wave | pending | 0 |  |
 | kiru/home2/tv | pending | 0 |  |
