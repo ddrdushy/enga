@@ -786,13 +786,13 @@
  },
  "kiru/gym/idle": {
   "state": "done",
-  "retries": 0,
-  "note": "Kiru v2 look; frames 10-11 jumped 5-6 px; re-aligned and cropped"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): retry 2 (first came out as a tank top): black sports t-shirt with pink trims; aligned to frame 0 (sheet drifted up to 7 px); two blinks"
  },
  "kiru/gym/wave": {
   "state": "done",
-  "retries": 0,
-  "note": "Kiru v2 look"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): retry 2 (first came out as a tank top): black sports t-shirt with pink trims; same hand waves on the left; white motion lines frames 4-6; two blinks"
  },
  "kiru/gym/workout": {
   "state": "done",

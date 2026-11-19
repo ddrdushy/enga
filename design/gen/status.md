@@ -154,8 +154,8 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/home2/tv | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): sofa behind; ONE remote, same hand (frames 0-6, then lowered below the frame); small white click lines in frame 4; chuckle frames 8-12 |
 | kiru/home2/phone | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): ONE phone, same hand in every frame; looks down then laughs up (head moves up to 10 px, sheet as drawn); small white sparkle lines in frames 5 and 7 |
 | kiru/home2/sleep | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): asleep on a pillow with glasses on, pink blanket; round bubbles frames 5-11 |
-| kiru/gym/idle | done | 0 | Kiru v2 look; frames 10-11 jumped 5-6 px; re-aligned and cropped |
-| kiru/gym/wave | done | 0 | Kiru v2 look |
+| kiru/gym/idle | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): retry 2 (first came out as a tank top): black sports t-shirt with pink trims; aligned to frame 0 (sheet drifted up to 7 px); two blinks |
+| kiru/gym/wave | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): retry 2 (first came out as a tank top): black sports t-shirt with pink trims; same hand waves on the left; white motion lines frames 4-6; two blinks |
 | kiru/gym/workout | done | 0 | Kiru v2 look; bounce moves the head up to 8 px (intended) |
 | kiru/party/idle | done | 0 | Kiru v2 look |
 | kiru/party/wave | done | 0 | Kiru v2 look; small white motion lines by the hand; 4 px edge trim for a bottom strip |
@@ -189,8 +189,8 @@ Reference measurements (tools: /tmp/tools/colour.py; median Lab over sampled fra
 
 | item | state | skin dE | hair dE | note |
 |---|---|---|---|---|
-| kiru/gym/idle | pending |  |  | old: skin dE 14.6 hair dE 23.4 |
-| kiru/gym/wave | pending |  |  | old: skin dE 14.1 hair dE 22.3 |
+| kiru/gym/idle | done | 2.5 | 4.1 | retry 2 (first came out as a tank top): black sports t-shirt with pink trims; aligned to frame 0 (sheet drifted up to 7 px); two blinks |
+| kiru/gym/wave | done | 3.8 | 3.1 | retry 2 (first came out as a tank top): black sports t-shirt with pink trims; same hand waves on the left; white motion lines frames 4-6; two blinks |
 | kiru/gym/workout | pending |  |  | old: skin dE 13.8 hair dE 24.1 |
 | kiru/home/cook | done | 1.3 | 1.6 | ONE wooden spoon in the same hand at the bottom edge, pot below the frame, faint steam on the right |
 | kiru/home/idle | done | 6.2 | 3.6 | pink floral nighty; blink frames 4-9; stable framing |

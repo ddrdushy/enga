@@ -10,12 +10,38 @@
  ],
  "items": {
   "kiru/gym/idle": {
-   "state": "pending",
-   "note": "old: skin dE 14.6 hair dE 23.4"
+   "state": "done",
+   "note": "retry 2 (first came out as a tank top): black sports t-shirt with pink trims; aligned to frame 0 (sheet drifted up to 7 px); two blinks",
+   "retries": 1,
+   "dS": 2.5,
+   "dH": 4.1,
+   "skin": [
+    67.4,
+    31.4,
+    46.2
+   ],
+   "hair": [
+    24.5,
+    16.0,
+    13.5
+   ]
   },
   "kiru/gym/wave": {
-   "state": "pending",
-   "note": "old: skin dE 14.1 hair dE 22.3"
+   "state": "done",
+   "note": "retry 2 (first came out as a tank top): black sports t-shirt with pink trims; same hand waves on the left; white motion lines frames 4-6; two blinks",
+   "retries": 1,
+   "dS": 3.8,
+   "dH": 3.1,
+   "skin": [
+    68.1,
+    30.2,
+    50.4
+   ],
+   "hair": [
+    22.3,
+    15.8,
+    12.6
+   ]
   },
   "kiru/gym/workout": {
    "state": "pending",
