@@ -129,11 +129,11 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/home/cook | done | 0 |  |
 | kiru/home/sleep | done | 0 |  |
 | kiru/home/laugh | done | 0 | Kiru v2 look; head tilts back with the laugh (up to 12 px); 4 px edge trim for a bottom strip |
-| kiru/work/idle | done | 0 | Kiru v2 look; body rose up to 6 px and ended 3 px off; re-aligned and cropped |
-| kiru/work/wave | done | 0 | Kiru v2 look |
-| kiru/work/type | done | 0 | hair renders a little more reddish-brown |
+| kiru/work/idle | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): sprite-sheet render; aligned to frame 0; blink frames 5-9 |
+| kiru/work/wave | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): hand waves at the left edge and is partly cut there in frames 5-9; one blink |
+| kiru/work/type | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): ONE laptop lid at the bottom right, hands below the frame; looks down at the screen then up with a smile; head bob up to 5 px |
 | kiru/work/coffee | done | 0 | tea break with ONE glass of milky tea (checked every frame) |
-| kiru/work/laugh | done | 0 | Kiru v2 look; head tilts back with the laugh (moves up to 12 px); 4 px edge trim for a bottom strip |
+| kiru/work/laugh | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): laugh: leans in toward the camera and tilts back (figure up to 12 px higher and ~10% larger in frames 6-9, sheet as drawn, not aligned) |
 | kiru/work2/idle | done | 0 | Kiru v2 look |
 | kiru/work2/wave | done | 0 | Kiru v2 look; wave occupies frames 5-12 |
 | kiru/work2/type | done | 0 | Kiru v2 look; frames 9-15 sat 4-6 px higher (loop pop); re-aligned to frame 0 and cropped |
@@ -176,3 +176,61 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | sheets/expressions-v1 | done | 0 | 8 expressions x 3 people |
 | sheets/outfits-daily-v1 | done | 0 | columns: work2, work3, out2, out3, out4, home2 |
 | sheets/outfits-special-v1 | done | 0 | columns: gym, party, rain, travel |
+
+## Colour redo (Kiru skin/hair drift, Nov 19)
+
+Reference measurements (tools: /tmp/tools/colour.py; median Lab over sampled frames, skin = brown pixels brighter than the hair, hair = darker non-skin brown pixels in the head band):
+
+- design/ref/kiru-v2.png: skin RGB(225,133,76) HSV(23,66%,88%) Lab(64.4,30.3,45.0); hair RGB(70,41,31) HSV(15,56%,27%) Lab(19.9,12.5,12.2)
+- kiru/out/idle (user GIF): skin RGB(222,135,80) HSV(23,64%,87%) Lab(64.6,28.1,43.0); hair RGB(70,40,31) HSV(14,56%,27%) Lab(19.6,13.3,12.0)
+- drifted kiru/work/idle (old): skin RGB(251,188,135) Lab(80.9,16.3,35.6); hair RGB(158,80,38) Lab(43.0,29.6,38.5)
+- Pass rule: dE2000 vs kiru-v2.png skin <= 9.0 and hair <= 9.5 (calibrated: all 10 kiru/out/* pass, max skin 8.9 / hair 9.4 on out/pack; all 43 old drifted files fail, mildest home/cook hair 10.0, work/type skin 9.2). Margins are thin for the mildest drifted files, so the frame-by-frame review is still required.
+- Method change: ChatGPT now asked for a 4x4 sprite sheet (16 real redrawn frames) with kiru-v2.png pasted in every prompt plus an explicit colour line; sheets kept in design/gen/sheets-colour/, sliced with /tmp/tools/sheet2gif.py (gutter cut, phase-correlation alignment to frame 0, bg padding above the bun). Old GIFs kept as design/gen/kiru/<outfit>-<pose>-oldcolour.gif.
+
+| item | state | skin dE | hair dE | note |
+|---|---|---|---|---|
+| kiru/gym/idle | pending |  |  | old: skin dE 14.6 hair dE 23.4 |
+| kiru/gym/wave | pending |  |  | old: skin dE 14.1 hair dE 22.3 |
+| kiru/gym/workout | pending |  |  | old: skin dE 13.8 hair dE 24.1 |
+| kiru/home/cook | pending |  |  | old: skin dE 8.9 hair dE 10.0 |
+| kiru/home/idle | pending |  |  | old: skin dE 14.8 hair dE 23.2 |
+| kiru/home/laugh | pending |  |  | old: skin dE 10.2 hair dE 9.2 |
+| kiru/home/phone | pending |  |  | old: skin dE 11.5 hair dE 9.5 |
+| kiru/home/sleep | pending |  |  | old: skin dE 5.0 hair dE 12.3 |
+| kiru/home/tv | pending |  |  | old: skin dE 10.4 hair dE 8.9 |
+| kiru/home/wave | pending |  |  | old: skin dE 10.7 hair dE 6.6 |
+| kiru/home2/idle | pending |  |  | old: skin dE 15.8 hair dE 22.1 |
+| kiru/home2/phone | pending |  |  | old: skin dE 15.5 hair dE 25.6 |
+| kiru/home2/sleep | pending |  |  | old: skin dE 12.8 hair dE 22.8 |
+| kiru/home2/tv | pending |  |  | old: skin dE 14.8 hair dE 23.1 |
+| kiru/home2/wave | pending |  |  | old: skin dE 15.9 hair dE 22.4 |
+| kiru/out2/idle | pending |  |  | old: skin dE 14.9 hair dE 17.7 |
+| kiru/out2/walk | pending |  |  | old: skin dE 15.5 hair dE 17.0 |
+| kiru/out2/wave | pending |  |  | old: skin dE 15.4 hair dE 22.0 |
+| kiru/out3/idle | pending |  |  | old: skin dE 14.9 hair dE 17.4 |
+| kiru/out3/laugh | pending |  |  | old: skin dE 15.1 hair dE 18.6 |
+| kiru/out3/wave | pending |  |  | old: skin dE 15.7 hair dE 18.1 |
+| kiru/out4/dance | pending |  |  | old: skin dE 15.0 hair dE 19.3 |
+| kiru/out4/idle | pending |  |  | old: skin dE 15.4 hair dE 18.5 |
+| kiru/out4/wave | pending |  |  | old: skin dE 14.9 hair dE 18.8 |
+| kiru/party/dance | pending |  |  | old: skin dE 13.7 hair dE 24.4 |
+| kiru/party/idle | pending |  |  | old: skin dE 14.9 hair dE 23.2 |
+| kiru/party/wave | pending |  |  | old: skin dE 15.1 hair dE 23.1 |
+| kiru/rain/idle | pending |  |  | old: skin dE 9.3 hair dE 13.6 |
+| kiru/rain/walk | pending |  |  | old: skin dE 11.0 hair dE 13.1 |
+| kiru/rain/wave | pending |  |  | old: skin dE 9.7 hair dE 14.5 |
+| kiru/travel/idle | pending |  |  | old: skin dE 12.0 hair dE 18.8 |
+| kiru/travel/travel | pending |  |  | old: skin dE 14.2 hair dE 21.3 |
+| kiru/travel/wave | pending |  |  | old: skin dE 12.3 hair dE 19.5 |
+| kiru/work/coffee | pending |  |  | old: skin dE 9.8 hair dE 13.0 |
+| kiru/work/idle | done | 2.2 | 0.8 | sprite-sheet render; aligned to frame 0; blink frames 5-9 |
+| kiru/work/laugh | done | 2.9 | 1.0 | laugh: leans in toward the camera and tilts back (figure up to 12 px higher and ~10% larger in frames 6-9, sheet as drawn, not aligned) |
+| kiru/work/type | done | 2.4 | 1.4 | ONE laptop lid at the bottom right, hands below the frame; looks down at the screen then up with a smile; head bob up to 5 px |
+| kiru/work/wave | done | 3.0 | 1.0 | hand waves at the left edge and is partly cut there in frames 5-9; one blink |
+| kiru/work2/idle | pending |  |  | old: skin dE 9.6 hair dE 8.2 |
+| kiru/work2/type | pending |  |  | old: skin dE 12.6 hair dE 12.2 |
+| kiru/work2/wave | pending |  |  | old: skin dE 11.9 hair dE 8.8 |
+| kiru/work3/coffee | pending |  |  | old: skin dE 14.0 hair dE 16.9 |
+| kiru/work3/idle | pending |  |  | old: skin dE 13.9 hair dE 14.3 |
+| kiru/work3/wave | pending |  |  | old: skin dE 14.1 hair dE 14.5 |
+| dushy/out/idle | pending |  |  | old render: different face / darker than the rest of the Dushy set |

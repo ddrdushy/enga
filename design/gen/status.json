@@ -211,8 +211,8 @@
  },
  "kiru/work/type": {
   "state": "done",
-  "retries": 0,
-  "note": "hair renders a little more reddish-brown"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): ONE laptop lid at the bottom right, hands below the frame; looks down at the screen then up with a smile; head bob up to 5 px"
  },
  "kiru/work/coffee": {
   "state": "done",
@@ -671,8 +671,8 @@
  },
  "kiru/work/laugh": {
   "state": "done",
-  "retries": 0,
-  "note": "Kiru v2 look; head tilts back with the laugh (moves up to 12 px); 4 px edge trim for a bottom strip"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): laugh: leans in toward the camera and tilts back (figure up to 12 px higher and ~10% larger in frames 6-9, sheet as drawn, not aligned)"
  },
  "kiru/home/wave": {
   "state": "done",
@@ -851,12 +851,12 @@
  },
  "kiru/work/idle": {
   "state": "done",
-  "retries": 0,
-  "note": "Kiru v2 look; body rose up to 6 px and ended 3 px off; re-aligned and cropped"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): sprite-sheet render; aligned to frame 0; blink frames 5-9"
  },
  "kiru/work/wave": {
   "state": "done",
-  "retries": 0,
-  "note": "Kiru v2 look"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): hand waves at the left edge and is partly cut there in frames 5-9; one blink"
  }
 }
