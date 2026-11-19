@@ -783,5 +783,30 @@
   "state": "done",
   "retries": 0,
   "note": "Kiru v2 look; sleeps with her glasses on"
+ },
+ "kiru/gym/idle": {
+  "state": "done",
+  "retries": 0,
+  "note": "Kiru v2 look; frames 10-11 jumped 5-6 px; re-aligned and cropped"
+ },
+ "kiru/gym/wave": {
+  "state": "done",
+  "retries": 0,
+  "note": "Kiru v2 look"
+ },
+ "kiru/gym/workout": {
+  "state": "done",
+  "retries": 0,
+  "note": "Kiru v2 look; bounce moves the head up to 8 px (intended)"
+ },
+ "kiru/party/idle": {
+  "state": "done",
+  "retries": 0,
+  "note": "Kiru v2 look"
+ },
+ "kiru/party/wave": {
+  "state": "done",
+  "retries": 0,
+  "note": "Kiru v2 look; small white motion lines by the hand; 4 px edge trim for a bottom strip"
  }
 }

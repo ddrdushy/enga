@@ -154,11 +154,11 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/home2/tv | done | 0 | Kiru v2 look; ONE remote, lowered to the bottom edge in frames 7-10 |
 | kiru/home2/phone | done | 0 | Kiru v2 look; ONE phone, same hand; 4 px edge trim for a bottom strip |
 | kiru/home2/sleep | done | 0 | Kiru v2 look; sleeps with her glasses on |
-| kiru/gym/idle | pending | 0 |  |
-| kiru/gym/wave | pending | 0 |  |
-| kiru/gym/workout | pending | 0 |  |
-| kiru/party/idle | pending | 0 |  |
-| kiru/party/wave | pending | 0 |  |
+| kiru/gym/idle | done | 0 | Kiru v2 look; frames 10-11 jumped 5-6 px; re-aligned and cropped |
+| kiru/gym/wave | done | 0 | Kiru v2 look |
+| kiru/gym/workout | done | 0 | Kiru v2 look; bounce moves the head up to 8 px (intended) |
+| kiru/party/idle | done | 0 | Kiru v2 look |
+| kiru/party/wave | done | 0 | Kiru v2 look; small white motion lines by the hand; 4 px edge trim for a bottom strip |
 | kiru/party/dance | pending | 0 |  |
 | kiru/rain/idle | pending | 0 |  |
 | kiru/rain/wave | pending | 0 |  |
