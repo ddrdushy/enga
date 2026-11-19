@@ -149,11 +149,11 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/out4/idle | done | 0 | Kiru v2 look; frames 5-8 rose up to 8 px during the blink; re-aligned and cropped |
 | kiru/out4/wave | done | 0 | Kiru v2 look |
 | kiru/out4/dance | done | 0 | Kiru v2 look; fists pop in at frame 1 and out at frame 15 |
-| kiru/home2/idle | pending | 0 |  |
-| kiru/home2/wave | pending | 0 |  |
-| kiru/home2/tv | pending | 0 |  |
-| kiru/home2/phone | pending | 0 |  |
-| kiru/home2/sleep | pending | 0 |  |
+| kiru/home2/idle | done | 0 | Kiru v2 look; breath rise up to 7 px |
+| kiru/home2/wave | done | 0 | Kiru v2 look |
+| kiru/home2/tv | done | 0 | Kiru v2 look; ONE remote, lowered to the bottom edge in frames 7-10 |
+| kiru/home2/phone | done | 0 | Kiru v2 look; ONE phone, same hand; 4 px edge trim for a bottom strip |
+| kiru/home2/sleep | done | 0 | Kiru v2 look; sleeps with her glasses on |
 | kiru/gym/idle | pending | 0 |  |
 | kiru/gym/wave | pending | 0 |  |
 | kiru/gym/workout | pending | 0 |  |
