@@ -191,23 +191,23 @@
  },
  "kiru/home/tv": {
   "state": "done",
-  "retries": 0,
-  "note": ""
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): sofa behind; ONE remote in the same hand (frames 2-7), lowered out of frame after; chuckle with eyes closed frames 7-9"
  },
  "kiru/home/phone": {
   "state": "done",
-  "retries": 0,
-  "note": ""
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): ONE phone in the same hand in every frame; thumb scroll and chuckle"
  },
  "kiru/home/cook": {
   "state": "done",
-  "retries": 0,
-  "note": ""
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): ONE wooden spoon in the same hand at the bottom edge, pot below the frame, faint steam on the right"
  },
  "kiru/home/sleep": {
   "state": "done",
-  "retries": 0,
-  "note": ""
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): asleep on a pillow with glasses on; closer framing than the standing poses (head partly at the left edge); round bubbles frames 4-11"
  },
  "kiru/work/type": {
   "state": "done",

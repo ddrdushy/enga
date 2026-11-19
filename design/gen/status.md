@@ -124,10 +124,10 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/out/birthday | done | 0 |  |
 | kiru/home/idle | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): pink floral nighty; blink frames 4-9; stable framing |
 | kiru/home/wave | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): same hand waves at the left edge (partly cut in frames 6-9); one blink |
-| kiru/home/tv | done | 0 |  |
-| kiru/home/phone | done | 0 |  |
-| kiru/home/cook | done | 0 |  |
-| kiru/home/sleep | done | 0 |  |
+| kiru/home/tv | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): sofa behind; ONE remote in the same hand (frames 2-7), lowered out of frame after; chuckle with eyes closed frames 7-9 |
+| kiru/home/phone | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): ONE phone in the same hand in every frame; thumb scroll and chuckle |
+| kiru/home/cook | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): ONE wooden spoon in the same hand at the bottom edge, pot below the frame, faint steam on the right |
+| kiru/home/sleep | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): asleep on a pillow with glasses on; closer framing than the standing poses (head partly at the left edge); round bubbles frames 4-11 |
 | kiru/home/laugh | done | 0 | Kiru v2 look; head tilts back with the laugh (up to 12 px); 4 px edge trim for a bottom strip |
 | kiru/work/idle | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): sprite-sheet render; aligned to frame 0; blink frames 5-9 |
 | kiru/work/wave | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): hand waves at the left edge and is partly cut there in frames 5-9; one blink |
@@ -192,12 +192,12 @@ Reference measurements (tools: /tmp/tools/colour.py; median Lab over sampled fra
 | kiru/gym/idle | pending |  |  | old: skin dE 14.6 hair dE 23.4 |
 | kiru/gym/wave | pending |  |  | old: skin dE 14.1 hair dE 22.3 |
 | kiru/gym/workout | pending |  |  | old: skin dE 13.8 hair dE 24.1 |
-| kiru/home/cook | pending |  |  | old: skin dE 8.9 hair dE 10.0 |
+| kiru/home/cook | done | 1.3 | 1.6 | ONE wooden spoon in the same hand at the bottom edge, pot below the frame, faint steam on the right |
 | kiru/home/idle | done | 6.2 | 3.6 | pink floral nighty; blink frames 4-9; stable framing |
 | kiru/home/laugh | pending |  |  | old: skin dE 10.2 hair dE 9.2 |
-| kiru/home/phone | pending |  |  | old: skin dE 11.5 hair dE 9.5 |
-| kiru/home/sleep | pending |  |  | old: skin dE 5.0 hair dE 12.3 |
-| kiru/home/tv | pending |  |  | old: skin dE 10.4 hair dE 8.9 |
+| kiru/home/phone | done | 2.9 | 0.9 | ONE phone in the same hand in every frame; thumb scroll and chuckle |
+| kiru/home/sleep | done | 1.8 | 3.2 | asleep on a pillow with glasses on; closer framing than the standing poses (head partly at the left edge); round bubbles frames 4-11 |
+| kiru/home/tv | done | 3.2 | 3.6 | sofa behind; ONE remote in the same hand (frames 2-7), lowered out of frame after; chuckle with eyes closed frames 7-9 |
 | kiru/home/wave | done | 7.3 | 5.2 | same hand waves at the left edge (partly cut in frames 6-9); one blink |
 | kiru/home2/idle | pending |  |  | old: skin dE 15.8 hair dE 22.1 |
 | kiru/home2/phone | pending |  |  | old: skin dE 15.5 hair dE 25.6 |

@@ -22,8 +22,20 @@
    "note": "old: skin dE 13.8 hair dE 24.1"
   },
   "kiru/home/cook": {
-   "state": "pending",
-   "note": "old: skin dE 8.9 hair dE 10.0"
+   "state": "done",
+   "note": "ONE wooden spoon in the same hand at the bottom edge, pot below the frame, faint steam on the right",
+   "dS": 1.3,
+   "dH": 1.6,
+   "skin": [
+    65.8,
+    31.9,
+    46.7
+   ],
+   "hair": [
+    20.2,
+    13.9,
+    11.2
+   ]
   },
   "kiru/home/idle": {
    "state": "done",
@@ -46,16 +58,52 @@
    "note": "old: skin dE 10.2 hair dE 9.2"
   },
   "kiru/home/phone": {
-   "state": "pending",
-   "note": "old: skin dE 11.5 hair dE 9.5"
+   "state": "done",
+   "note": "ONE phone in the same hand in every frame; thumb scroll and chuckle",
+   "dS": 2.9,
+   "dH": 0.9,
+   "skin": [
+    67.4,
+    28.2,
+    46.0
+   ],
+   "hair": [
+    18.5,
+    12.3,
+    11.9
+   ]
   },
   "kiru/home/sleep": {
-   "state": "pending",
-   "note": "old: skin dE 5.0 hair dE 12.3"
+   "state": "done",
+   "note": "asleep on a pillow with glasses on; closer framing than the standing poses (head partly at the left edge); round bubbles frames 4-11",
+   "dS": 1.8,
+   "dH": 3.2,
+   "skin": [
+    63.1,
+    29.2,
+    41.1
+   ],
+   "hair": [
+    16.8,
+    9.8,
+    9.6
+   ]
   },
   "kiru/home/tv": {
-   "state": "pending",
-   "note": "old: skin dE 10.4 hair dE 8.9"
+   "state": "done",
+   "note": "sofa behind; ONE remote in the same hand (frames 2-7), lowered out of frame after; chuckle with eyes closed frames 7-9",
+   "dS": 3.2,
+   "dH": 3.6,
+   "skin": [
+    68.4,
+    29.5,
+    44.9
+   ],
+   "hair": [
+    23.4,
+    16.0,
+    13.3
+   ]
   },
   "kiru/home/wave": {
    "state": "done",
