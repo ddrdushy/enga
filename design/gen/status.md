@@ -68,15 +68,15 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | ali/out/pack | done | 0 |  |
 | ali/out/rain | done | 0 |  |
 | ali/out/birthday | done | 0 | nose stud barely visible at this size |
-| ali/home/idle | pending | 0 |  |
+| ali/home/idle | done | 0 | frames 2-7 jumped up 8 px with a 2-row strip at the bottom; re-aligned to frame 0 and cropped to 283 px |
 | ali/home/wave | done | 0 |  |
 | ali/home/tv | done | 0 |  |
 | ali/home/phone | done | 0 |  |
 | ali/home/cook | done | 0 |  |
 | ali/home/sleep | done | 0 |  |
 | ali/home/laugh | done | 0 |  |
-| ali/work/idle | pending | 0 |  |
-| ali/work/wave | pending | 0 |  |
+| ali/work/idle | done | 0 | frames 2-7 jumped up 7 px with a strip at the bottom; re-aligned to frame 0 and cropped |
+| ali/work/wave | done | 0 | 2-3 px strip at the bottom edge trimmed (4 px cut on all sides) |
 | ali/work/type | done | 0 |  |
 | ali/work/coffee | done | 0 |  |
 | ali/work/laugh | done | 0 | nose stud too small to see at this size |
@@ -111,7 +111,7 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | ali/rain/walk | done | 0 | walking bob up to 6 px; free hand swings in and out at the bottom |
 | ali/travel/idle | done | 0 | sunglasses on the head touch the top edge |
 | ali/travel/wave | done | 0 |  |
-| ali/travel/travel | pending | 0 |  |
+| ali/travel/travel | done | 1 | first attempt: ChatGPT 'image generation failed'; dropped GIF frame 0 (zoomed/offset outlier), 15 frames |
 | kiru/out/idle | done | 0 | provided by the user (chai-time blink, Kiru v2 look); not regenerated |
 | kiru/out/wave | done | 2 | redone in Kiru v2 look (earlier master-sheet-look versions replaced) |
 | kiru/out/laugh | done | 1 | redone in Kiru v2 look |
@@ -133,7 +133,7 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/work/wave | pending | 0 |  |
 | kiru/work/type | done | 0 | hair renders a little more reddish-brown |
 | kiru/work/coffee | done | 0 | tea break with ONE glass of milky tea (checked every frame) |
-| kiru/work/laugh | pending | 0 |  |
+| kiru/work/laugh | done | 0 | Kiru v2 look; head tilts back with the laugh (moves up to 12 px); 4 px edge trim for a bottom strip |
 | kiru/work2/idle | pending | 0 |  |
 | kiru/work2/wave | pending | 0 |  |
 | kiru/work2/type | pending | 0 |  |

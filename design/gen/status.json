@@ -648,5 +648,30 @@
   "state": "done",
   "retries": 0,
   "note": ""
+ },
+ "ali/travel/travel": {
+  "state": "done",
+  "retries": 1,
+  "note": "first attempt: ChatGPT 'image generation failed'; dropped GIF frame 0 (zoomed/offset outlier), 15 frames"
+ },
+ "ali/home/idle": {
+  "state": "done",
+  "retries": 0,
+  "note": "frames 2-7 jumped up 8 px with a 2-row strip at the bottom; re-aligned to frame 0 and cropped to 283 px"
+ },
+ "ali/work/idle": {
+  "state": "done",
+  "retries": 0,
+  "note": "frames 2-7 jumped up 7 px with a strip at the bottom; re-aligned to frame 0 and cropped"
+ },
+ "ali/work/wave": {
+  "state": "done",
+  "retries": 0,
+  "note": "2-3 px strip at the bottom edge trimmed (4 px cut on all sides)"
+ },
+ "kiru/work/laugh": {
+  "state": "done",
+  "retries": 0,
+  "note": "Kiru v2 look; head tilts back with the laugh (moves up to 12 px); 4 px edge trim for a bottom strip"
  }
 }
