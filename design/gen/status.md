@@ -128,7 +128,7 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/home/phone | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): ONE phone in the same hand in every frame; thumb scroll and chuckle |
 | kiru/home/cook | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): ONE wooden spoon in the same hand at the bottom edge, pot below the frame, faint steam on the right |
 | kiru/home/sleep | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): asleep on a pillow with glasses on; closer framing than the standing poses (head partly at the left edge); round bubbles frames 4-11 |
-| kiru/home/laugh | done | 0 | Kiru v2 look; head tilts back with the laugh (up to 12 px); 4 px edge trim for a bottom strip |
+| kiru/home/laugh | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): laugh: leans in and tilts back (figure up to 12 px higher and slightly larger in frames 6-8, sheet as drawn) |
 | kiru/work/idle | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): sprite-sheet render; aligned to frame 0; blink frames 5-9 |
 | kiru/work/wave | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): hand waves at the left edge and is partly cut there in frames 5-9; one blink |
 | kiru/work/type | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): ONE laptop lid at the bottom right, hands below the frame; looks down at the screen then up with a smile; head bob up to 5 px |
@@ -149,8 +149,8 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/out4/idle | done | 0 | Kiru v2 look; frames 5-8 rose up to 8 px during the blink; re-aligned and cropped |
 | kiru/out4/wave | done | 0 | Kiru v2 look |
 | kiru/out4/dance | done | 0 | Kiru v2 look; fists pop in at frame 1 and out at frame 15 |
-| kiru/home2/idle | done | 0 | Kiru v2 look; breath rise up to 7 px |
-| kiru/home2/wave | done | 0 | Kiru v2 look |
+| kiru/home2/idle | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): pale yellow nighty; frames 9-11 sat 5-8 px higher on the sheet, aligned to frame 0; blink frames 3-6 |
+| kiru/home2/wave | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): same hand waves on the left; small white motion lines by the hand in frames 4-6; blink frames 9-10 |
 | kiru/home2/tv | done | 0 | Kiru v2 look; ONE remote, lowered to the bottom edge in frames 7-10 |
 | kiru/home2/phone | done | 0 | Kiru v2 look; ONE phone, same hand; 4 px edge trim for a bottom strip |
 | kiru/home2/sleep | done | 0 | Kiru v2 look; sleeps with her glasses on |
@@ -194,16 +194,16 @@ Reference measurements (tools: /tmp/tools/colour.py; median Lab over sampled fra
 | kiru/gym/workout | pending |  |  | old: skin dE 13.8 hair dE 24.1 |
 | kiru/home/cook | done | 1.3 | 1.6 | ONE wooden spoon in the same hand at the bottom edge, pot below the frame, faint steam on the right |
 | kiru/home/idle | done | 6.2 | 3.6 | pink floral nighty; blink frames 4-9; stable framing |
-| kiru/home/laugh | pending |  |  | old: skin dE 10.2 hair dE 9.2 |
+| kiru/home/laugh | done | 3.1 | 2.0 | laugh: leans in and tilts back (figure up to 12 px higher and slightly larger in frames 6-8, sheet as drawn) |
 | kiru/home/phone | done | 2.9 | 0.9 | ONE phone in the same hand in every frame; thumb scroll and chuckle |
 | kiru/home/sleep | done | 1.8 | 3.2 | asleep on a pillow with glasses on; closer framing than the standing poses (head partly at the left edge); round bubbles frames 4-11 |
 | kiru/home/tv | done | 3.2 | 3.6 | sofa behind; ONE remote in the same hand (frames 2-7), lowered out of frame after; chuckle with eyes closed frames 7-9 |
 | kiru/home/wave | done | 7.3 | 5.2 | same hand waves at the left edge (partly cut in frames 6-9); one blink |
-| kiru/home2/idle | pending |  |  | old: skin dE 15.8 hair dE 22.1 |
+| kiru/home2/idle | done | 1.0 | 0.7 | pale yellow nighty; frames 9-11 sat 5-8 px higher on the sheet, aligned to frame 0; blink frames 3-6 |
 | kiru/home2/phone | pending |  |  | old: skin dE 15.5 hair dE 25.6 |
 | kiru/home2/sleep | pending |  |  | old: skin dE 12.8 hair dE 22.8 |
 | kiru/home2/tv | pending |  |  | old: skin dE 14.8 hair dE 23.1 |
-| kiru/home2/wave | pending |  |  | old: skin dE 15.9 hair dE 22.4 |
+| kiru/home2/wave | done | 1.7 | 1.8 | same hand waves on the left; small white motion lines by the hand in frames 4-6; blink frames 9-10 |
 | kiru/out2/idle | pending |  |  | old: skin dE 14.9 hair dE 17.7 |
 | kiru/out2/walk | pending |  |  | old: skin dE 15.5 hair dE 17.0 |
 | kiru/out2/wave | pending |  |  | old: skin dE 15.4 hair dE 22.0 |

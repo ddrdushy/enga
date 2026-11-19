@@ -54,8 +54,20 @@
    ]
   },
   "kiru/home/laugh": {
-   "state": "pending",
-   "note": "old: skin dE 10.2 hair dE 9.2"
+   "state": "done",
+   "note": "laugh: leans in and tilts back (figure up to 12 px higher and slightly larger in frames 6-8, sheet as drawn)",
+   "dS": 3.1,
+   "dH": 2.0,
+   "skin": [
+    68.1,
+    28.7,
+    44.2
+   ],
+   "hair": [
+    20.4,
+    15.1,
+    13.5
+   ]
   },
   "kiru/home/phone": {
    "state": "done",
@@ -122,8 +134,20 @@
    ]
   },
   "kiru/home2/idle": {
-   "state": "pending",
-   "note": "old: skin dE 15.8 hair dE 22.1"
+   "state": "done",
+   "note": "pale yellow nighty; frames 9-11 sat 5-8 px higher on the sheet, aligned to frame 0; blink frames 3-6",
+   "dS": 1.0,
+   "dH": 0.7,
+   "skin": [
+    65.3,
+    30.1,
+    46.2
+   ],
+   "hair": [
+    19.7,
+    13.0,
+    11.7
+   ]
   },
   "kiru/home2/phone": {
    "state": "pending",
@@ -138,8 +162,20 @@
    "note": "old: skin dE 14.8 hair dE 23.1"
   },
   "kiru/home2/wave": {
-   "state": "pending",
-   "note": "old: skin dE 15.9 hair dE 22.4"
+   "state": "done",
+   "note": "same hand waves on the left; small white motion lines by the hand in frames 4-6; blink frames 9-10",
+   "dS": 1.7,
+   "dH": 1.8,
+   "skin": [
+    66.3,
+    29.5,
+    45.6
+   ],
+   "hair": [
+    20.2,
+    14.8,
+    14.1
+   ]
   },
   "kiru/out2/idle": {
    "state": "pending",

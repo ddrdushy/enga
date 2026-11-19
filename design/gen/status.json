@@ -681,8 +681,8 @@
  },
  "kiru/home/laugh": {
   "state": "done",
-  "retries": 0,
-  "note": "Kiru v2 look; head tilts back with the laugh (up to 12 px); 4 px edge trim for a bottom strip"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): laugh: leans in and tilts back (figure up to 12 px higher and slightly larger in frames 6-8, sheet as drawn)"
  },
  "kiru/work2/idle": {
   "state": "done",
@@ -761,13 +761,13 @@
  },
  "kiru/home2/idle": {
   "state": "done",
-  "retries": 0,
-  "note": "Kiru v2 look; breath rise up to 7 px"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): pale yellow nighty; frames 9-11 sat 5-8 px higher on the sheet, aligned to frame 0; blink frames 3-6"
  },
  "kiru/home2/wave": {
   "state": "done",
-  "retries": 0,
-  "note": "Kiru v2 look"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): same hand waves on the left; small white motion lines by the hand in frames 4-6; blink frames 9-10"
  },
  "kiru/home2/tv": {
   "state": "done",
