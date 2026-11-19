@@ -796,8 +796,8 @@
  },
  "kiru/gym/workout": {
   "state": "done",
-  "retries": 0,
-  "note": "Kiru v2 look; bounce moves the head up to 8 px (intended)"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): black sports t-shirt with pink trims; arm pumps with a bounce (head moves up to 8 px, intended, sheet as drawn)"
  },
  "kiru/party/idle": {
   "state": "done",

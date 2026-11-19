@@ -44,8 +44,20 @@
    ]
   },
   "kiru/gym/workout": {
-   "state": "pending",
-   "note": "old: skin dE 13.8 hair dE 24.1"
+   "state": "done",
+   "note": "black sports t-shirt with pink trims; arm pumps with a bounce (head moves up to 8 px, intended, sheet as drawn)",
+   "dS": 2.5,
+   "dH": 4.5,
+   "skin": [
+    67.2,
+    31.6,
+    48.1
+   ],
+   "hair": [
+    24.0,
+    17.2,
+    14.2
+   ]
   },
   "kiru/home/cook": {
    "state": "done",
