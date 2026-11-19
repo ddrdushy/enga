@@ -214,16 +214,52 @@
    ]
   },
   "kiru/out2/idle": {
-   "state": "pending",
-   "note": "old: skin dE 14.9 hair dE 17.7"
+   "state": "done",
+   "note": "white top (olive trousers below the frame); blink frames 3-7; stable framing",
+   "dS": 1.4,
+   "dH": 1.1,
+   "skin": [
+    65.8,
+    29.3,
+    45.4
+   ],
+   "hair": [
+    20.0,
+    13.9,
+    13.0
+   ]
   },
   "kiru/out2/walk": {
-   "state": "pending",
-   "note": "old: skin dE 15.5 hair dE 17.0"
+   "state": "done",
+   "note": "walking bob and sway (up to 11 px, sheet as drawn); ONE bag strap on the same shoulder in every frame; two blinks",
+   "dS": 2.6,
+   "dH": 3.0,
+   "skin": [
+    67.3,
+    29.0,
+    46.1
+   ],
+   "hair": [
+    21.8,
+    16.1,
+    14.5
+   ]
   },
   "kiru/out2/wave": {
-   "state": "pending",
-   "note": "old: skin dE 15.4 hair dE 22.0"
+   "state": "done",
+   "note": "same hand waves on the left; small white motion lines in frames 4-7; blink frames 9-10",
+   "dS": 2.5,
+   "dH": 3.6,
+   "skin": [
+    67.4,
+    29.6,
+    45.3
+   ],
+   "hair": [
+    22.5,
+    16.6,
+    15.4
+   ]
   },
   "kiru/out3/idle": {
    "state": "pending",

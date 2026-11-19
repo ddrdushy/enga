@@ -140,9 +140,9 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/work3/idle | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): blink frames 4-9; stable framing |
 | kiru/work3/wave | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): same hand waves at the left edge (partly cut in frames 6-9); one blink |
 | kiru/work3/coffee | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): ONE cream mug, same hand (frames 2-10); frames 8-15 sat 4-7 px lower on the sheet, aligned to frame 0 |
-| kiru/out2/idle | done | 0 | Kiru v2 look |
-| kiru/out2/wave | done | 0 | Kiru v2 look; the blink reads as a wink (frame 5) |
-| kiru/out2/walk | done | 0 | Kiru v2 look; bag strap on the same shoulder throughout; frames 4-15 sat 4-7 px higher than frame 0 (loop pop) - re-aligned and cropped |
+| kiru/out2/idle | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): white top (olive trousers below the frame); blink frames 3-7; stable framing |
+| kiru/out2/wave | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): same hand waves on the left; small white motion lines in frames 4-7; blink frames 9-10 |
+| kiru/out2/walk | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): walking bob and sway (up to 11 px, sheet as drawn); ONE bag strap on the same shoulder in every frame; two blinks |
 | kiru/out3/idle | done | 0 | Kiru v2 look |
 | kiru/out3/wave | done | 0 | Kiru v2 look |
 | kiru/out3/laugh | done | 0 | Kiru v2 look; head tilts back with the laugh (up to 12 px) |
@@ -204,9 +204,9 @@ Reference measurements (tools: /tmp/tools/colour.py; median Lab over sampled fra
 | kiru/home2/sleep | done | 0.9 | 2.4 | asleep on a pillow with glasses on, pink blanket; round bubbles frames 5-11 |
 | kiru/home2/tv | done | 3.0 | 2.4 | sofa behind; ONE remote, same hand (frames 0-6, then lowered below the frame); small white click lines in frame 4; chuckle frames 8-12 |
 | kiru/home2/wave | done | 1.7 | 1.8 | same hand waves on the left; small white motion lines by the hand in frames 4-6; blink frames 9-10 |
-| kiru/out2/idle | pending |  |  | old: skin dE 14.9 hair dE 17.7 |
-| kiru/out2/walk | pending |  |  | old: skin dE 15.5 hair dE 17.0 |
-| kiru/out2/wave | pending |  |  | old: skin dE 15.4 hair dE 22.0 |
+| kiru/out2/idle | done | 1.4 | 1.1 | white top (olive trousers below the frame); blink frames 3-7; stable framing |
+| kiru/out2/walk | done | 2.6 | 3.0 | walking bob and sway (up to 11 px, sheet as drawn); ONE bag strap on the same shoulder in every frame; two blinks |
+| kiru/out2/wave | done | 2.5 | 3.6 | same hand waves on the left; small white motion lines in frames 4-7; blink frames 9-10 |
 | kiru/out3/idle | pending |  |  | old: skin dE 14.9 hair dE 17.4 |
 | kiru/out3/laugh | pending |  |  | old: skin dE 15.1 hair dE 18.6 |
 | kiru/out3/wave | pending |  |  | old: skin dE 15.7 hair dE 18.1 |
