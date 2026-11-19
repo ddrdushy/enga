@@ -1,4 +1,4 @@
-import { canSeeEvent, privacyOf } from './types'
+import { canSeeEvent, eventsFor, privacyOf } from './types'
 import { isNewer, latestFrom } from './update.ts'
 import { withSamples } from './sample.ts'
 import { rightNow, spotToday } from './work.ts'
@@ -604,5 +604,31 @@ describe('private events', () => {
     expect(privacyOf('')).toBeUndefined()
     expect(privacyOf(null)).toBeUndefined()
     expect(privacyOf('anyone')).toBeUndefined()
+  })
+})
+
+describe('busy blocks for private events', () => {
+  const ev = (over: Partial<EventItem>): EventItem => ({ id: 'e1', ownerId: 'd', title: 'Doctor', place: 'Bangsar', date: '2026-11-20', link: 'x', createdAt: '2026-11-19T00:00:00Z', startTime: '19:30', endTime: '21:00', keen: { d: 'going' }, ...over })
+  it('others see a private event only as the owner being busy', () => {
+    const out = eventsFor([ev({ privacy: 'me' })], 'a')
+    expect(out).toHaveLength(1)
+    expect(out[0]).toMatchObject({ busy: true, title: 'busy', place: '', link: '', ownerId: 'd', startTime: '19:30', endTime: '21:00', keen: { d: 'going' } })
+    expect(JSON.stringify(out)).not.toContain('Doctor')
+    expect(JSON.stringify(out)).not.toContain('Bangsar')
+  })
+  it('the owner sees the real event', () => {
+    expect(eventsFor([ev({ privacy: 'me' })], 'd')[0].title).toBe('Doctor')
+  })
+  it("me + who's coming: people on it see it, everyone else sees each of them busy", () => {
+    const e = ev({ privacy: 'with', keen: { d: 'going', a: 'going' } })
+    expect(eventsFor([e], 'a')[0].title).toBe('Doctor')
+    const k = eventsFor([e], 'k')
+    expect(k.map((x) => x.ownerId).sort()).toEqual(['a', 'd'])
+    expect(k.every((x) => x.busy && Object.keys(x.keen).length === 1)).toBe(true)
+  })
+  it('busy blocks stay out of the event tiles and the news, but count in the day', () => {
+    const data = { people: [], trips: [], events: eventsFor([ev({ privacy: 'me' })], 'a'), cards: [], checkins: [] } as unknown as Data
+    expect(upcomingEvents(data, '2026-11-19')).toHaveLength(0)
+    expect(data.events[0].createdAt).toBe('')
   })
 })

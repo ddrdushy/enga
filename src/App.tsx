@@ -10,7 +10,7 @@ import { isBirthday } from './lib/birthday'
 import { castMoment, castPick } from './lib/cast'
 import { festivalFor } from './lib/festivals'
 import type { CastPick } from './lib/cast'
-import { WEATHER_TTL, rainingNow } from './lib/weather'
+import { rainByPerson } from './lib/weather'
 import { readSkyMode, saveSkyMode } from './lib/sky'
 import type { SkyMode } from './lib/sky'
 import { SkyLayer, useSky } from './screens/Sky'
@@ -40,7 +40,8 @@ export default function App() {
   const storeRef = useRef<Store | null>(null)
   // The clock, ticked every minute: the characters, the sky and "right now" follow it.
   const [clockNow, setClockNow] = useState(() => Date.now())
-  const [rain, setRain] = useState(false)
+  // Raining where each person is right now (src/lib/weather.ts), by id.
+  const [rainBy, setRainBy] = useState<Record<string, boolean>>({})
   const [skyMode, setSkyMode] = useState<SkyMode>(readSkyMode)
   const sky = useSky(clockNow, skyMode)
   const skyLayer = <SkyLayer sky={sky} />
@@ -71,15 +72,17 @@ export default function App() {
     return () => { window.clearInterval(id); document.removeEventListener('visibilitychange', wake) }
   }, [])
 
-  // Rain at home base, for the rain outfit and the rain on the home screen. Fails quietly.
+  // Rain where each person is (their check-in, office, house area, home town or trip), for their rain
+  // outfit, and for the rain on your home screen when it is raining where you are. Weather is cached for
+  // 20 minutes, so re-checking every minute and after each check-in costs nothing. Fails quietly.
   useEffect(() => {
-    if (!meId) return
+    if (!meId || !data) return
     let live = true
-    const check = () => void rainingNow().then((r) => { if (live) setRain(r) })
-    check()
-    const id = window.setInterval(check, WEATHER_TTL)
-    return () => { live = false; window.clearInterval(id) }
-  }, [meId])
+    const d = new Date(clockNow)
+    void rainByPerson(data, toIso(d), d.getHours() * 60 + d.getMinutes()).then((r) => { if (live) setRainBy(r) })
+    return () => { live = false }
+  }, [meId, data, clockNow])
+  const rain = !!(meId && rainBy[meId])
 
 
   const reload = useCallback(async () => {
@@ -102,8 +105,8 @@ export default function App() {
   const cast = useCallback((p: Person): CastPick => {
     const d = new Date(clockNow)
     const date = toIso(d)
-    return castPick(castMoment(shown ?? data ?? { people: [], trips: [], events: [], cards: [], checkins: [] }, p, { date, minutes: d.getHours() * 60 + d.getMinutes(), nowMs: clockNow, rain, festival: festivalFor(p, date) }))
-  }, [shown, data, clockNow, rain])
+    return castPick(castMoment(shown ?? data ?? { people: [], trips: [], events: [], cards: [], checkins: [] }, p, { date, minutes: d.getHours() * 60 + d.getMinutes(), nowMs: clockNow, rain: !!rainBy[p.id], festival: festivalFor(p, date) }))
+  }, [shown, data, clockNow, rainBy])
 
   // Signed in: the splash shows where everyone is right now, for a few seconds or until a tap.
   const live = useMemo<LiveRow[] | undefined>(() => {

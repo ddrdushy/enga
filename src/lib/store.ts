@@ -4,7 +4,7 @@ import { plansOf, optsOf, packExtras, personalOf, spotOf } from './extras'
 import type { Personal } from './extras'
 import { today as todayIso } from './dates'
 import { timeOf } from './when'
-import { canSeeEvent, privacyOf } from './types'
+import { busyEvent, eventsFor, privacyOf } from './types'
 
 export { plansOf, optsOf, spotOf }
 import { addDays, today } from './dates'
@@ -167,7 +167,7 @@ function demoStore(): Store {
     claimed: async () => Object.keys(state.pins),
     async claim(slug, pin) { return this.signIn(slug, pin) },
     async signOut() { state.me = null; commit() },
-    load: async () => ({ people: state.people, trips: state.trips, events: state.events.filter((e) => canSeeEvent(e, me())), cards: state.cards, checkins: state.checkins }),
+    load: async () => ({ people: state.people, trips: state.trips, events: eventsFor(state.events, me()), cards: state.cards, checkins: state.checkins }),
     async saveTrip(input) {
       const fields = { place: input.place, start: input.start, end: input.end, open: input.open, leaveAt: timeOf(input.leaveAt), backAt: timeOf(input.backAt) }
       let trip = input.id ? state.trips.find((t) => t.id === input.id) : undefined
@@ -302,7 +302,7 @@ async function cloudStore(url: string, anonKey: string): Promise<Store> {
     },
     async signOut() { await sb.auth.signOut() },
     async load() {
-      const [people, trips, rsvps, events, keen, cards, checkins] = await Promise.all([
+      const [people, trips, rsvps, events, keen, cards, checkins, busy] = await Promise.all([
         sb.from('profiles').select('*').order('created_at'),
         sb.from('trips').select('*'),
         sb.from('trip_rsvps').select('*'),
@@ -310,7 +310,10 @@ async function cloudStore(url: string, anonKey: string): Promise<Store> {
         sb.from('event_keen').select('*'),
         sb.from('safety_cards').select('*'),
         sb.from('checkins').select('*'),
+        sb.rpc('busy_blocks'),
       ])
+      // Others' private events, as busy blocks only. Optional: an older database without the function just has none.
+      const busyRows = ((busy as { data: Row[] | null }).data ?? [])
       const rsvpRows = check<Row[] | null>(rsvps) ?? []
       const keenRows = check<Row[] | null>(keen) ?? []
       return {
@@ -334,7 +337,7 @@ async function cloudStore(url: string, anonKey: string): Promise<Store> {
           id: r.id, ownerId: r.owner_id, title: r.title, place: r.place, date: r.event_date, link: r.link ?? '', createdAt: r.created_at,
           startTime: timeOf(r.start_time), endTime: timeOf(r.end_time), repeat: r.repeat === 'weekly' ? 'weekly' : undefined, privacy: privacyOf(r.privacy),
           keen: Object.fromEntries(keenRows.filter((x) => x.event_id === r.id).map((x) => [x.user_id, x.level as Keen])),
-        })),
+        })).concat(busyRows.map((r) => busyEvent({ eventId: r.event_id, userId: r.user_id, date: r.event_date, startTime: timeOf(r.start_time), endTime: timeOf(r.end_time), repeat: r.repeat === 'weekly' ? 'weekly' : undefined }))),
         cards: (check<Row[] | null>(cards) ?? []).map((r): SafetyCard => ({
           tripId: r.trip_id, ownerId: r.owner_id, stay: r.stay ?? '', flightOut: r.flight_out ?? '', flightBack: r.flight_back ?? '',
           localContact: r.local_contact ?? '', visibleTo: r.visible_to ?? [],

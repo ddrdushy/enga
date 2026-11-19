@@ -3,7 +3,7 @@ import type { Data, Person, Trip } from './types'
 import { CAST_POSES, castCandidates, castMoment, castPick, greeting, groupArt, hasOutfit, hash, headerMoment, isNight, kindOf, nextReaction, reactionChain, seeded, variantsOf } from './cast'
 import type { CastMoment } from './cast'
 import { defaultPlan } from './work'
-import { fromCache, isRaining } from './weather'
+import { fromCache, isRaining, pickPlace, placeNames } from './weather'
 
 const T = '2026-11-18' // a Wednesday
 const local = (h: number, m = 0, date = T) => { const [y, mo, d] = date.split('-').map(Number); return new Date(y, mo - 1, d, h, m) }
@@ -318,5 +318,39 @@ describe('weather', () => {
     expect(fromCache(JSON.stringify({ at: now - 21 * 60_000, rain: true }), now)).toBeNull()
     expect(fromCache('nope', now)).toBeNull()
     expect(fromCache(null, now)).toBeNull()
+  })
+})
+
+describe('rain where each person is', () => {
+  const office = defaultPlan('office')
+  const base = { home: 'Kuala Lumpur', house: 'Wangsa Maju', office: 'Putrajaya' }
+  it('checked in at the office: the office, then home town', () => {
+    const a = person('a', 'Ali', { ...base, spot: { kind: 'office', at: iso(9) } })
+    expect(placeNames({ ...empty, people: [a] }, a, T, 11 * 60)).toEqual({ names: ['Putrajaya', 'Kuala Lumpur'], abroad: false })
+  })
+  it('at home or with no plan: the house area first', () => {
+    const a = person('a', 'Ali', { ...base, spot: { kind: 'home', at: iso(9) } })
+    expect(placeNames({ ...empty, people: [a] }, a, T, 11 * 60).names).toEqual(['Wangsa Maju', 'Kuala Lumpur'])
+    const b = person('b', 'Kiru', { home: 'Negeri Sembilan', house: 'Seremban', office: 'Putrajaya' })
+    expect(placeNames({ ...empty, people: [b] }, b, T, 11 * 60).names).toEqual(['Seremban', 'Negeri Sembilan'])
+  })
+  it('an office day without a check-in still uses the office', () => {
+    const d = person('d', 'Dushy', { ...base, office: 'Bangsar South', workPlan: office })
+    expect(placeNames({ ...empty, people: [d] }, d, T, 11 * 60).names[0]).toBe('Bangsar South')
+  })
+  it('a place checked in at today wins', () => {
+    const k = person('k', 'Kiru', { ...base, days: [{ date: T, stops: [{ id: 's1', name: 'Shah Alam', state: 'done', at: iso(10) }] }] } as Partial<Person>)
+    expect(placeNames({ ...empty, people: [k] }, k, T, 11 * 60).names[0]).toBe('Shah Alam')
+  })
+  it('on a trip: the trip place, and not limited to Malaysia', () => {
+    const d = person('d', 'Dushy', base)
+    const data = { ...empty, people: [d], trips: [trip('t', 'd', '2026-11-17', '2026-11-20', { place: 'Bangkok' })] }
+    expect(placeNames(data, d, T, 11 * 60)).toEqual({ names: ['Bangkok', 'Kuala Lumpur'], abroad: true })
+  })
+  it('geocoding: prefers Malaysia in town, top hit abroad', () => {
+    const json = { results: [{ latitude: 17.9, longitude: 120.6, country_code: 'PH' }, { latitude: 3.13, longitude: 101.67, country_code: 'MY' }] }
+    expect(pickPlace(json, false)).toEqual({ lat: 3.13, lon: 101.67 })
+    expect(pickPlace(json, true)).toEqual({ lat: 17.9, lon: 120.6 })
+    expect(pickPlace({}, false)).toBeNull()
   })
 })

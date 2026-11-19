@@ -171,7 +171,7 @@ export function castMoment(data: Data, p: Person, env: { date: string; minutes: 
   const next = w.later ?? nextTrip(data, p.id, date)
   const tripInDays = next ? Math.max(0, diffDays(date, next.start)) : null
   const travelDay = !!w.trip && (w.trip.start === date || w.trip.end === date)
-  const on = data.events.find((e) => e.keen[p.id] === 'going' && happeningNow(e, date, minutes))
+  const on = data.events.find((e) => !e.busy && e.keen[p.id] === 'going' && happeningNow(e, date, minutes))
   const event = on ? { title: on.title, evening: !!timeOf(on.startTime) && toMin(timeOf(on.startTime)) >= EVENING } : null
   const place = now?.sure && now.kind === 'stop' ? last?.name ?? null : null
   return {

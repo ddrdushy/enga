@@ -121,10 +121,32 @@ export interface EventItem {
   repeat?: 'weekly'
   /** Who sees it: unset = everyone, 'me' = only the owner, 'with' = the owner and the people on it. */
   privacy?: EventPrivacy
+  /** A private event someone else can't see, shown to them only as this person being busy. */
+  busy?: true
 }
 export type EventPrivacy = 'me' | 'with'
 /** The privacy column as the app type; '' and anything unknown mean shared. */
 export const privacyOf = (v: unknown): EventPrivacy | undefined => (v === 'me' || v === 'with' ? v : undefined)
+
+/** One busy block: a private event's day and times, for one person on it. Nothing else is shared. */
+export interface BusyBlock { eventId: ID; userId: ID; date: string; startTime?: string; endTime?: string; repeat?: 'weekly' }
+
+/** A busy block as an event the app can show and count: titled "busy", no place, no link, just that person going. */
+export const busyEvent = (b: BusyBlock): EventItem => ({
+  id: `busy:${b.eventId}:${b.userId}`, ownerId: b.userId, title: 'busy', place: '', date: b.date, link: '', createdAt: '',
+  startTime: b.startTime, endTime: b.endTime, repeat: b.repeat, keen: { [b.userId]: 'going' }, busy: true,
+})
+
+/** The events `viewer` gets: the ones they may see, and a busy block per person going for each one they may not. */
+export function eventsFor(events: EventItem[], viewer: ID): EventItem[] {
+  const out: EventItem[] = []
+  for (const e of events) {
+    if (canSeeEvent(e, viewer)) { out.push(e); continue }
+    const who = [e.ownerId, ...Object.keys(e.keen).filter((id) => e.keen[id] === 'going' && id !== e.ownerId)]
+    for (const userId of who) out.push(busyEvent({ eventId: e.id, userId, date: e.date, startTime: e.startTime, endTime: e.endTime, repeat: e.repeat }))
+  }
+  return out
+}
 
 /** Whether `viewer` may see the event (the server applies the same rule). */
 export const canSeeEvent = (e: Pick<EventItem, 'ownerId' | 'privacy' | 'keen'>, viewer: ID): boolean =>

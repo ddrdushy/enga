@@ -310,7 +310,7 @@ function castLine(pick: CastPick, days: number | null): string {
     case 'work': return 'have a good work day'
     case 'home': return 'cosy at home'
     case 'walk': return 'on the move'
-    case 'rain': return 'it is raining in town, take an umbrella'
+    case 'rain': return 'it is raining where you are, take an umbrella'
     case 'trip': return 'enjoy the trip'
     case 'travel': return 'safe travels today'
     case 'pack': return days === 0 ? 'trip today, all packed?' : days === 1 ? 'trip tomorrow, time to pack' : `trip in ${days} days, time to pack`
@@ -603,7 +603,7 @@ function Month({ ctx, toggle }: { ctx: Ctx; toggle: ReactNode }) {
           {there.map(({ p, w }) => <span key={p.id} className="pill" style={{ height: 36, paddingLeft: 4, background: w.home ? 'var(--sage)' : 'var(--lav)', fontWeight: 700, fontSize: 13 }}><Avatar p={p} size={28} />{p.id === me.id ? `you · ${w.place}` : w.place}</span>)}
         </div>
         {data.people.filter((p) => isBirthday(p.birthday, date)).map((p) => <div key={`b-${p.id}`} className="small" style={{ color: 'var(--ink)', fontWeight: 600 }}>{p.id === me.id ? 'your' : `${p.name}'s`} birthday{turning(p.birthday, date) ? ` · turns ${turning(p.birthday, date)}` : ''}</div>)}
-        {dayEvents.map((e) => <div key={e.id} className="small" style={{ color: 'var(--ink)', fontWeight: 600 }}>{[e.title, timeRange(e.startTime, e.endTime), e.place].filter(Boolean).join(' · ')}</div>)}
+        {dayEvents.map((e) => <div key={e.id} className="small" style={{ color: 'var(--ink)', fontWeight: e.busy ? 400 : 600 }}>{[e.busy ? `${person(data, e.ownerId)?.name ?? 'Someone'} is busy` : e.title, timeRange(e.startTime, e.endTime), e.place].filter(Boolean).join(' · ')}</div>)}
         <div className="row">
           <button type="button" className="pill mist" onClick={() => ctx.open({ k: 'trip', start: date })}>trip from this day</button>
           <button type="button" className="pill mist" onClick={() => ctx.open({ k: 'event', date })}>event</button>

@@ -12,7 +12,7 @@ import { digest } from '../src/lib/logic.ts'
 import { personalOf, plansOf, optsOf, spotOf } from '../src/lib/extras.ts'
 import { timeOf } from '../src/lib/when.ts'
 import type { Checkin, Data, EventItem, Keen, Person, Rsvp, SafetyCard, Trip } from '../src/lib/types.ts'
-import { canSeeEvent, privacyOf } from '../src/lib/types.ts'
+import { eventsFor, privacyOf } from '../src/lib/types.ts'
 
 export const DEFAULT_TZ = 'Asia/Kuala_Lumpur'
 export const DEFAULT_TIME = '08:00'
@@ -154,8 +154,8 @@ export async function run(io: Io, now: Date, mode: Mode = 'live'): Promise<Summa
 
     // The date is this person's local date, never the server's: the server runs on UTC,
     // where 8am in Kuala Lumpur is still "yesterday" until 8am.
-    // The server key sees every event; each person's message only uses the ones they may see.
-    const lines = digest({ ...data, events: data.events.filter((e) => canSeeEvent(e, id)) }, id, date)
+    // The server key sees every event; each person's message only uses the ones they may see (others' private ones as busy).
+    const lines = digest({ ...data, events: eventsFor(data.events, id) }, id, date)
     if (mode === 'dry') { result.status = 'dry'; result.lines = lines; continue }
 
     if (lines.length === 0) {

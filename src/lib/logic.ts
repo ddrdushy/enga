@@ -91,7 +91,7 @@ export function openPlansFor(data: Data, meId: ID, date: string): Trip[] {
 
 /** Events at their next date from `date` on (a weekly event appears once, at its next time). */
 export function upcomingEvents(data: Data, date: string): EventItem[] {
-  return upcoming(data.events, date)
+  return upcoming(data.events.filter((e) => !e.busy), date)
 }
 
 export function placesUsed(data: Data): string[] {
@@ -186,7 +186,7 @@ export function digest(data: Data, meId: ID, date: string): string[] {
       else if (t.open) lines.push(`New: ${nameOf(data, t.ownerId, meId)}'s ${t.place} plan (${fmtRange(t.start, t.end)}) is open to join.`)
     }
     for (const e of data.events) {
-      if (e.ownerId === meId || !since(e.createdAt)) continue
+      if (e.busy || e.ownerId === meId || !since(e.createdAt)) continue
       const when = `${e.repeat === 'weekly' ? `every ${weekday(e.date)}` : `on ${fmt(e.date)}`}${timeOf(e.startTime) ? `, ${clock(timeOf(e.startTime))}` : ''}`
       if (e.keen[meId] === 'going') lines.push(`New: ${nameOf(data, e.ownerId, meId)} is taking you to ${e.title} ${when}.`)
       else lines.push(`New: ${nameOf(data, e.ownerId, meId)} added ${e.title} ${when}.`)
