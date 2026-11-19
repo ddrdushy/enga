@@ -801,18 +801,18 @@
  },
  "kiru/party/idle": {
   "state": "done",
-  "retries": 0,
-  "note": "Kiru v2 look"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): elegant black dress with sheer sleeves; aligned to frame 0 (sheet drifted up to 9 px); blink frames 5-9"
  },
  "kiru/party/wave": {
   "state": "done",
-  "retries": 0,
-  "note": "Kiru v2 look; small white motion lines by the hand; 4 px edge trim for a bottom strip"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): black dress with sheer sleeves; same hand waves on the left; white motion lines frames 4-6; two blinks"
  },
  "kiru/party/dance": {
   "state": "done",
-  "retries": 0,
-  "note": "Kiru v2 look; sway moves the head up to 11 px; the bun touches the top edge in frames 3-4; small snap lines"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): sway and finger snaps with both hands (hands at the bottom edges), small white snap lines frames 4-7; sway up to 6 px as drawn"
  },
  "kiru/rain/idle": {
   "state": "done",

@@ -157,9 +157,9 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/gym/idle | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): retry 2 (first came out as a tank top): black sports t-shirt with pink trims; aligned to frame 0 (sheet drifted up to 7 px); two blinks |
 | kiru/gym/wave | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): retry 2 (first came out as a tank top): black sports t-shirt with pink trims; same hand waves on the left; white motion lines frames 4-6; two blinks |
 | kiru/gym/workout | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): black sports t-shirt with pink trims; arm pumps with a bounce (head moves up to 8 px, intended, sheet as drawn) |
-| kiru/party/idle | done | 0 | Kiru v2 look |
-| kiru/party/wave | done | 0 | Kiru v2 look; small white motion lines by the hand; 4 px edge trim for a bottom strip |
-| kiru/party/dance | done | 0 | Kiru v2 look; sway moves the head up to 11 px; the bun touches the top edge in frames 3-4; small snap lines |
+| kiru/party/idle | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): elegant black dress with sheer sleeves; aligned to frame 0 (sheet drifted up to 9 px); blink frames 5-9 |
+| kiru/party/wave | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): black dress with sheer sleeves; same hand waves on the left; white motion lines frames 4-6; two blinks |
+| kiru/party/dance | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): sway and finger snaps with both hands (hands at the bottom edges), small white snap lines frames 4-7; sway up to 6 px as drawn |
 | kiru/rain/idle | done | 0 | Kiru v2 look; bun pokes out above the hood |
 | kiru/rain/wave | done | 0 | Kiru v2 look |
 | kiru/rain/walk | done | 0 | Kiru v2 look; ONE umbrella in the same hand; face a bit smaller to fit the umbrella |
@@ -214,9 +214,9 @@ Reference measurements (tools: /tmp/tools/colour.py; median Lab over sampled fra
 | kiru/out4/dance | done | 3.6 | 3.3 | shoulder bob with fists swinging side to side (bob up to 10 px, sheet as drawn); fists pop in at the bottom edges |
 | kiru/out4/idle | done | 2.1 | 3.6 | cream cardigan over a black top; aligned to frame 0 (sheet drifted up to 5 px); blink frames 5-9 |
 | kiru/out4/wave | done | 2.6 | 4.2 | same hand waves on the left; aligned to frame 0 (sheet drifted up to 7 px sideways / 6 px down); white motion lines frames 4-6; two blinks |
-| kiru/party/dance | pending |  |  | old: skin dE 13.7 hair dE 24.4 |
-| kiru/party/idle | pending |  |  | old: skin dE 14.9 hair dE 23.2 |
-| kiru/party/wave | pending |  |  | old: skin dE 15.1 hair dE 23.1 |
+| kiru/party/dance | done | 3.6 | 3.9 | sway and finger snaps with both hands (hands at the bottom edges), small white snap lines frames 4-7; sway up to 6 px as drawn |
+| kiru/party/idle | done | 4.0 | 3.1 | elegant black dress with sheer sleeves; aligned to frame 0 (sheet drifted up to 9 px); blink frames 5-9 |
+| kiru/party/wave | done | 3.0 | 4.0 | black dress with sheer sleeves; same hand waves on the left; white motion lines frames 4-6; two blinks |
 | kiru/rain/idle | pending |  |  | old: skin dE 9.3 hair dE 13.6 |
 | kiru/rain/walk | pending |  |  | old: skin dE 11.0 hair dE 13.1 |
 | kiru/rain/wave | pending |  |  | old: skin dE 9.7 hair dE 14.5 |

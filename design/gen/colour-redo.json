@@ -397,16 +397,52 @@
    ]
   },
   "kiru/party/dance": {
-   "state": "pending",
-   "note": "old: skin dE 13.7 hair dE 24.4"
+   "state": "done",
+   "note": "sway and finger snaps with both hands (hands at the bottom edges), small white snap lines frames 4-7; sway up to 6 px as drawn",
+   "dS": 3.6,
+   "dH": 3.9,
+   "skin": [
+    67.8,
+    30.4,
+    50.4
+   ],
+   "hair": [
+    23.5,
+    16.6,
+    14.6
+   ]
   },
   "kiru/party/idle": {
-   "state": "pending",
-   "note": "old: skin dE 14.9 hair dE 23.2"
+   "state": "done",
+   "note": "elegant black dress with sheer sleeves; aligned to frame 0 (sheet drifted up to 9 px); blink frames 5-9",
+   "dS": 4.0,
+   "dH": 3.1,
+   "skin": [
+    68.0,
+    30.4,
+    51.7
+   ],
+   "hair": [
+    20.7,
+    16.7,
+    14.7
+   ]
   },
   "kiru/party/wave": {
-   "state": "pending",
-   "note": "old: skin dE 15.1 hair dE 23.1"
+   "state": "done",
+   "note": "black dress with sheer sleeves; same hand waves on the left; white motion lines frames 4-6; two blinks",
+   "dS": 3.0,
+   "dH": 4.0,
+   "skin": [
+    67.4,
+    31.8,
+    50.2
+   ],
+   "hair": [
+    23.6,
+    16.7,
+    14.0
+   ]
   },
   "kiru/rain/idle": {
    "state": "pending",
