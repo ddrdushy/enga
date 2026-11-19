@@ -132,11 +132,11 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | kiru/work/idle | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): sprite-sheet render; aligned to frame 0; blink frames 5-9 |
 | kiru/work/wave | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): hand waves at the left edge and is partly cut there in frames 5-9; one blink |
 | kiru/work/type | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): ONE laptop lid at the bottom right, hands below the frame; looks down at the screen then up with a smile; head bob up to 5 px |
-| kiru/work/coffee | done | 0 | tea break with ONE glass of milky tea (checked every frame) |
+| kiru/work/coffee | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): ONE cream mug in the same hand in every frame (frames 2-10); sip with eyes closed; head bob up to 9 px |
 | kiru/work/laugh | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): laugh: leans in toward the camera and tilts back (figure up to 12 px higher and ~10% larger in frames 6-9, sheet as drawn, not aligned) |
-| kiru/work2/idle | done | 0 | Kiru v2 look |
-| kiru/work2/wave | done | 0 | Kiru v2 look; wave occupies frames 5-12 |
-| kiru/work2/type | done | 0 | Kiru v2 look; frames 9-15 sat 4-6 px higher (loop pop); re-aligned to frame 0 and cropped |
+| kiru/work2/idle | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): frames drifted up to 12 px on the sheet; aligned to frame 0; blink frames 6-9 |
+| kiru/work2/wave | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): same hand waves at the left edge (partly cut in frames 6-9); one blink; stable framing |
+| kiru/work2/type | done | 1 | colour redo Nov 19 (sprite sheet, kiru-v2 colours): ONE laptop lid at the bottom right, hands below the frame; looks down then up with a smile; head bob up to 5 px |
 | kiru/work3/idle | done | 0 | Kiru v2 look |
 | kiru/work3/wave | done | 0 | Kiru v2 look; motion blur on the hand in frames 5-6 |
 | kiru/work3/coffee | done | 0 | Kiru v2 look; ONE mug, same hand in every frame; frame 9 jumped 7 px (re-aligned, cropped); small white sigh puff in frame 9 |
@@ -222,14 +222,14 @@ Reference measurements (tools: /tmp/tools/colour.py; median Lab over sampled fra
 | kiru/travel/idle | pending |  |  | old: skin dE 12.0 hair dE 18.8 |
 | kiru/travel/travel | pending |  |  | old: skin dE 14.2 hair dE 21.3 |
 | kiru/travel/wave | pending |  |  | old: skin dE 12.3 hair dE 19.5 |
-| kiru/work/coffee | pending |  |  | old: skin dE 9.8 hair dE 13.0 |
+| kiru/work/coffee | done | 2.5 | 2.4 | ONE cream mug in the same hand in every frame (frames 2-10); sip with eyes closed; head bob up to 9 px |
 | kiru/work/idle | done | 2.2 | 0.8 | sprite-sheet render; aligned to frame 0; blink frames 5-9 |
 | kiru/work/laugh | done | 2.9 | 1.0 | laugh: leans in toward the camera and tilts back (figure up to 12 px higher and ~10% larger in frames 6-9, sheet as drawn, not aligned) |
 | kiru/work/type | done | 2.4 | 1.4 | ONE laptop lid at the bottom right, hands below the frame; looks down at the screen then up with a smile; head bob up to 5 px |
 | kiru/work/wave | done | 3.0 | 1.0 | hand waves at the left edge and is partly cut there in frames 5-9; one blink |
-| kiru/work2/idle | pending |  |  | old: skin dE 9.6 hair dE 8.2 |
-| kiru/work2/type | pending |  |  | old: skin dE 12.6 hair dE 12.2 |
-| kiru/work2/wave | pending |  |  | old: skin dE 11.9 hair dE 8.8 |
+| kiru/work2/idle | done | 3.1 | 2.3 | frames drifted up to 12 px on the sheet; aligned to frame 0; blink frames 6-9 |
+| kiru/work2/type | done | 3.3 | 3.1 | ONE laptop lid at the bottom right, hands below the frame; looks down then up with a smile; head bob up to 5 px |
+| kiru/work2/wave | done | 4.9 | 3.8 | same hand waves at the left edge (partly cut in frames 6-9); one blink; stable framing |
 | kiru/work3/coffee | pending |  |  | old: skin dE 14.0 hair dE 16.9 |
 | kiru/work3/idle | pending |  |  | old: skin dE 13.9 hair dE 14.3 |
 | kiru/work3/wave | pending |  |  | old: skin dE 14.1 hair dE 14.5 |

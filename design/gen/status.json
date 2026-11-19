@@ -216,8 +216,8 @@
  },
  "kiru/work/coffee": {
   "state": "done",
-  "retries": 0,
-  "note": "tea break with ONE glass of milky tea (checked every frame)"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): ONE cream mug in the same hand in every frame (frames 2-10); sip with eyes closed; head bob up to 9 px"
  },
  "dushy/out/pack": {
   "state": "done",
@@ -686,18 +686,18 @@
  },
  "kiru/work2/idle": {
   "state": "done",
-  "retries": 0,
-  "note": "Kiru v2 look"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): frames drifted up to 12 px on the sheet; aligned to frame 0; blink frames 6-9"
  },
  "kiru/work2/wave": {
   "state": "done",
-  "retries": 0,
-  "note": "Kiru v2 look; wave occupies frames 5-12"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): same hand waves at the left edge (partly cut in frames 6-9); one blink; stable framing"
  },
  "kiru/work2/type": {
   "state": "done",
-  "retries": 0,
-  "note": "Kiru v2 look; frames 9-15 sat 4-6 px higher (loop pop); re-aligned to frame 0 and cropped"
+  "retries": 1,
+  "note": "colour redo Nov 19 (sprite sheet, kiru-v2 colours): ONE laptop lid at the bottom right, hands below the frame; looks down then up with a smile; head bob up to 5 px"
  },
  "kiru/work3/idle": {
   "state": "done",
