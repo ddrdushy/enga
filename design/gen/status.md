@@ -186,6 +186,7 @@ Reference measurements (tools: /tmp/tools/colour.py; median Lab over sampled fra
 - drifted kiru/work/idle (old): skin RGB(251,188,135) Lab(80.9,16.3,35.6); hair RGB(158,80,38) Lab(43.0,29.6,38.5)
 - Pass rule: dE2000 vs kiru-v2.png skin <= 9.0 and hair <= 9.5 (calibrated: all 10 kiru/out/* pass, max skin 8.9 / hair 9.4 on out/pack; all 43 old drifted files fail, mildest home/cook hair 10.0, work/type skin 9.2). Margins are thin for the mildest drifted files, so the frame-by-frame review is still required.
 - Method change: ChatGPT now asked for a 4x4 sprite sheet (16 real redrawn frames) with kiru-v2.png pasted in every prompt plus an explicit colour line; sheets kept in design/gen/sheets-colour/, sliced with /tmp/tools/sheet2gif.py (gutter cut, phase-correlation alignment to frame 0, bg padding above the bun). Old GIFs kept as design/gen/kiru/<outfit>-<pose>-oldcolour.gif.
+- STOPPED Nov 19 ~13:20 MYT: Mac bridge disconnected (stage failed, one retry failed). Resume at kiru/party/idle: its sheet is already on the Mac at design/gen/sheets-colour/kiru-party-idle.png (not yet sliced); kiru/party/wave was sent to ChatGPT just before the drop (check the chat / ~/Downloads for enga-sheet-kiru-party-wave.png). gym-workout.gif is converted and pushed, but its GIF (outputs/gen/kiru/gym-workout.gif in the container) was not yet copied to the Mac. On the Mac all 44 old Kiru GIFs were already renamed to *-oldcolour.gif, so the 14 pending items have no <outfit>-<pose>.gif there yet.
 
 | item | state | skin dE | hair dE | note |
 |---|---|---|---|---|
@@ -234,3 +235,16 @@ Reference measurements (tools: /tmp/tools/colour.py; median Lab over sampled fra
 | kiru/work3/idle | done | 3.5 | 2.0 | blink frames 4-9; stable framing |
 | kiru/work3/wave | done | 4.1 | 2.1 | same hand waves at the left edge (partly cut in frames 6-9); one blink |
 | dushy/out/idle | pending |  |  | old render: different face / darker than the rest of the Dushy set |
+
+### Group scenes: Kiru colour check (listed, not redone)
+
+Measured on frame 0 of each group still with colour.py on a crop around Kiru (crop can include a bit of a neighbour's hair; group scenes also use a lighter grey backdrop/lighting). Reference: skin L 64.4, hair L 19.9.
+
+- group/hello: OFF (skin) - skin dE 11.6 (L 77.7, lighter/peach); hair dE 3.2 (OK)
+- group/hug: OFF - skin dE 14.6 (L 79.0); hair dE 11.1 (L 33.6, lighter brown)
+- group/welcome-dushy: OFF - skin dE 13.4 (L 78.6); hair dE 8.5 (L 30.0, borderline)
+- group/welcome-ali: OFF (skin) - skin dE 12.8 (L 77.5); hair dE 6.4
+- group/welcome-kiru: OFF - skin dE 15.0 (L 80.1); hair dE 10.5 (L 32.9)
+- group/birthday: OFF - skin dE 11.5 (L 77.0); hair dE 13.3 (L 35.4)
+
+All six group scenes show Kiru with lighter skin than kiru-v2 (visually peach-tan, closer to the drifted set); not redone (list only).
