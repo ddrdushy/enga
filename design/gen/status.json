@@ -618,5 +618,35 @@
   "state": "done",
   "retries": 0,
   "note": ""
+ },
+ "ali/party/dance": {
+  "state": "done",
+  "retries": 0,
+  "note": "head rises with the sway; top of the hair touches the top edge in frames 6-8"
+ },
+ "ali/rain/idle": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "ali/rain/wave": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
+ },
+ "ali/rain/walk": {
+  "state": "done",
+  "retries": 0,
+  "note": "walking bob up to 6 px; free hand swings in and out at the bottom"
+ },
+ "ali/travel/idle": {
+  "state": "done",
+  "retries": 0,
+  "note": "sunglasses on the head touch the top edge"
+ },
+ "ali/travel/wave": {
+  "state": "done",
+  "retries": 0,
+  "note": ""
  }
 }

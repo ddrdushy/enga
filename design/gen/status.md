@@ -105,12 +105,12 @@ Generated in ChatGPT, checked frame by frame, converted to 256x256 animated WebP
 | ali/gym/workout | done | 0 | bounce moves the head up to 4 px (intended) |
 | ali/party/idle | done | 0 |  |
 | ali/party/wave | done | 0 |  |
-| ali/party/dance | pending | 0 |  |
-| ali/rain/idle | pending | 0 |  |
-| ali/rain/wave | pending | 0 |  |
-| ali/rain/walk | pending | 0 |  |
-| ali/travel/idle | pending | 0 |  |
-| ali/travel/wave | pending | 0 |  |
+| ali/party/dance | done | 0 | head rises with the sway; top of the hair touches the top edge in frames 6-8 |
+| ali/rain/idle | done | 0 |  |
+| ali/rain/wave | done | 0 |  |
+| ali/rain/walk | done | 0 | walking bob up to 6 px; free hand swings in and out at the bottom |
+| ali/travel/idle | done | 0 | sunglasses on the head touch the top edge |
+| ali/travel/wave | done | 0 |  |
 | ali/travel/travel | pending | 0 |  |
 | kiru/out/idle | done | 0 | provided by the user (chai-time blink, Kiru v2 look); not regenerated |
 | kiru/out/wave | done | 2 | redone in Kiru v2 look (earlier master-sheet-look versions replaced) |
