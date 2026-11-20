@@ -1,5 +1,5 @@
 // Today's places: a short list a person makes for the day, and checks in at one by one.
-import type { DayPlan, EventItem, ID, Stop } from './types.ts'
+import type { DayPlan, EventItem, ID, Stop, Trip } from './types.ts'
 import { occursOn } from './when.ts'
 
 export const MAX_STOPS = 12
@@ -172,4 +172,20 @@ export function checkInEvent(stops: Stop[], e: EventItem, at: string): Stop[] {
   const stop: Stop = { id: newId(), name: eventStopName(e), state: 'done', at, event: e.id }
   if (e.startTime) stop.time = e.startTime
   return [...stops, stop]
+}
+
+/**
+ * A one-day trip (or open plan) someone is on, as an item on their day: "KLGCC Mall", from its leaving
+ * time to its back time. Its id is 'trip:<trip id>' so a check-in there remembers which plan it was.
+ */
+export function tripAsItem(t: Trip, meId: ID): EventItem {
+  return { id: `trip:${t.id}`, ownerId: t.ownerId, title: t.place, place: '', date: t.start, link: '', createdAt: t.createdAt, startTime: t.leaveAt, endTime: t.backAt, keen: { [meId]: 'going' } }
+}
+
+/** Everything on this day that someone is going to: events marked going, and one-day trips or plans they're on. */
+export function dayItems(events: EventItem[], trips: Trip[], meId: ID, date: string): EventItem[] {
+  const onIt = (t: Trip) => t.ownerId === meId || t.rsvps[meId] === 'in'
+  const plans = trips.filter((t) => t.start === date && t.end === date && onIt(t)).map((t) => tripAsItem(t, meId))
+  return [...eventsOnDay(events, meId, date), ...plans]
+    .sort((a, b) => (a.startTime ?? '99:99').localeCompare(b.startTime ?? '99:99'))
 }

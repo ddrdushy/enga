@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { checkInEvent, eventStop, eventStopName, eventsOnDay } from './day'
-import type { EventItem, Stop } from './types'
+import { checkInEvent, dayItems, eventStop, eventStopName, eventsOnDay } from './day'
+import type { EventItem, Stop, Trip } from './types'
 import { packExtras, plansOf } from './extras'
 import { happeningNow, overnight, timeRange } from './when'
 
@@ -46,5 +46,19 @@ describe('events past midnight', () => {
     expect(happeningNow(movie, '2026-11-29', 30)).toBe(true)
     expect(happeningNow(movie, '2026-11-29', 60)).toBe(false)
     expect(happeningNow(movie, '2026-11-27', 30)).toBe(false)
+  })
+})
+
+describe('one-day plans on the day', () => {
+  const klgcc: Trip = { id: 't1', ownerId: 'a', place: 'KLGCC Mall', start: '2026-11-21', end: '2026-11-21', open: true, rsvps: { d: 'in' }, createdAt: '' }
+  it('shows a one-day plan you joined, and checks in at it', () => {
+    const items = dayItems([], [klgcc], 'd', '2026-11-21')
+    expect(items.map((x) => [x.id, x.title])).toEqual([['trip:t1', 'KLGCC Mall']])
+    expect(checkInEvent([], items[0], AT)[0]).toMatchObject({ name: 'KLGCC Mall', state: 'done', event: 'trip:t1' })
+  })
+  it('leaves out plans you have not joined and trips longer than a day', () => {
+    expect(dayItems([], [{ ...klgcc, rsvps: {} }], 'd', '2026-11-21')).toEqual([])
+    expect(dayItems([], [{ ...klgcc, end: '2026-11-23' }], 'd', '2026-11-21')).toEqual([])
+    expect(dayItems([], [klgcc], 'a', '2026-11-21')).toHaveLength(1) // the owner
   })
 })

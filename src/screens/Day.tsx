@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { Ctx } from '../ctx'
 import type { ID, Person, Stop } from '../lib/types'
 import { addDays, fmt, today } from '../lib/dates'
-import { MAX_NAME, MAX_STOPS, addStop, answerInvite, checkInAt, checkInEvent, companions, dayToday, eventStop, eventStopName, eventsOnDay, moveStop, myDayRows, removeStop, reopenStop, skipStop, upcomingInvites } from '../lib/day'
+import { MAX_NAME, MAX_STOPS, addStop, answerInvite, checkInAt, checkInEvent, companions, dayToday, dayItems, eventStop, eventStopName, moveStop, myDayRows, removeStop, reopenStop, skipStop, upcomingInvites } from '../lib/day'
 import { timeRange } from '../lib/when'
 import type { DayRow } from '../lib/day'
 import { clock, spotToday, toMin } from '../lib/work'
@@ -74,8 +74,9 @@ export function MyDay({ ctx }: { ctx: Ctx }) {
   const [sorting, setSorting] = useState(false)
   const [busy, setBusy] = useState(false)
   const done = rows.filter((r) => r.stop.state === 'done').length
-  // Events they're going to today that aren't a place on the day yet: one tap checks in there.
-  const evs = ahead ? [] : eventsOnDay(data.events, me.id, t).filter((e) => !eventStop(stops, e.id))
+  // Events they're going to and one-day plans they're on, that aren't a place on the day yet. Today one tap
+  // checks in there; on a day ahead they just show as planned.
+  const evs = dayItems(data.events, data.trips, me.id, t).filter((e) => !eventStop(stops, e.id))
   // On an office day (their work week), the office is the first place of the day: one tap checks in there,
   // the same as "at office" above. On a day ahead it just shows as planned.
   const officeDay = me.workPlan?.days[mondayIndex(t)] === 'office'
@@ -138,7 +139,7 @@ export function MyDay({ ctx }: { ctx: Ctx }) {
             : <button type="button" className="pill dark" style={small} aria-label="Check in at the office" onClick={() => setOffice(true)}>here</button>)}
         </div>
       )}
-      {rows.length === 0 && !officeDay && <div className="small">{ahead ? `Nothing planned for ${fmt(t)} yet. Add a place; add a friend to it and it shows on their day too.` : 'Going to a few places today? List them, then check in at each one. Add a friend to a place, lunch say, and it shows on their day too.'}</div>}
+      {rows.length === 0 && !officeDay && !evs.length && <div className="small">{ahead ? `Nothing planned for ${fmt(t)} yet. Add a place; add a friend to it and it shows on their day too.` : 'Going to a few places today? List them, then check in at each one. Add a friend to a place, lunch say, and it shows on their day too.'}</div>}
       {rows.map((r, i) => {
         const s = r.stop
         const line = sub(r)
@@ -181,9 +182,9 @@ export function MyDay({ ctx }: { ctx: Ctx }) {
           <span aria-hidden style={{ display: 'flex', flex: 'none', width: 34, justifyContent: 'center', color: 'var(--butter-ink)' }}><Icon.next /></span>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontWeight: 700, overflowWrap: 'anywhere' }}>{eventStopName(e)}</div>
-            <div className="small">{['event', timeRange(e.startTime, e.endTime)].filter(Boolean).join(' · ')}</div>
+            <div className="small">{[e.id.startsWith('trip:') ? (e.ownerId === me.id ? 'your plan' : `${data.people.find((p) => p.id === e.ownerId)?.name ?? 'their'}'s plan`) : 'event', timeRange(e.startTime, e.endTime)].filter(Boolean).join(' · ')}</div>
           </div>
-          <button type="button" className="pill dark" style={small} aria-label={`Check in at ${e.title}`} onClick={() => save(checkInEvent(stops, e, now()))}>here</button>
+          {!ahead && <button type="button" className="pill dark" style={small} aria-label={`Check in at ${e.title}`} onClick={() => save(checkInEvent(stops, e, now()))}>here</button>}
         </div>
       ))}
       {stops.length < MAX_STOPS && (
