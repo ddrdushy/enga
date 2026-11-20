@@ -144,7 +144,9 @@ export function digest(data: Data, meId: ID, date: string): string[] {
     else if (mine) lines.push(`You are in ${mine.place} until ${fmt(mine.end)}.`)
     else if (next && diffDays(date, next.start) === 1) {
       const hasCard = data.cards.some((c) => c.tripId === next.id && c.ownerId === meId && (c.stay || c.flightOut))
-      lines.push(`${next.place} tomorrow${timeOf(next.leaveAt) ? `, leaving ${clock(timeOf(next.leaveAt))}` : ''}.${hasCard ? '' : ' Your safety card is still empty.'}`)
+      // a one-day plan (the mall, a day out) needs no safety card
+      const oneDay = next.start === next.end
+      lines.push(`${next.place} tomorrow${timeOf(next.leaveAt) ? `, leaving ${clock(timeOf(next.leaveAt))}` : ''}.${hasCard || oneDay ? '' : ' Your safety card is still empty.'}`)
     } else if (next) lines.push(`No travel for you today. Next: ${next.place}, ${inDays(date, next.start)}.`)
     else lines.push('No travel for you today, and no trips planned yet.')
     // On an ordinary day at home base, add what the work day looks like.

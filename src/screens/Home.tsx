@@ -12,6 +12,7 @@ import { festivalLine, festivalToday } from '../lib/festivals'
 import { FestiveStrip } from './Festive'
 import type { CastPick } from '../lib/cast'
 import { MyDay, StopList } from './Day'
+import { nextUp, whenWord } from '../lib/next'
 import { checkInEvent, dayToday, eventStop } from '../lib/day'
 import { birthdayWhen, daysToBirthday, inDaysWord, isBirthday, turning, upcomingBirthdays } from '../lib/birthday'
 import { eventWhen, nextOn, occursOn, timeOf, timeRange, weekday } from '../lib/when'
@@ -70,7 +71,7 @@ export function OrbitScreen(ctx: Ctx) {
     return () => window.removeEventListener('resize', fit)
   }, [])
 
-  const spots = data.people.map((p, i) => { const w = whereIs(data, p, date, date === t ? minutes : undefined); return { p, i, w, next: w.later ?? nextTrip(data, p.id, date) } })
+  const spots = data.people.map((p, i) => { const mins = date === t ? minutes : undefined; const w = whereIs(data, p, date, mins); return { p, i, w, next: nextUp(data, p.id, date, mins) } })
   const base = spots.filter((s) => s.w.home)
   const nowOf = new Map(base.map((s) => [s.p.id, date === t ? rightNow(s.p, t, mondayIndex(t), minutes, data.events) : null]))
   // Everyone at home base who has something to say about today, and always you (so you can check in).
@@ -97,7 +98,10 @@ export function OrbitScreen(ctx: Ctx) {
   const claim = (prefs: string[]) => { const k = prefs.find((p) => !taken.has(p)) ?? prefs[0]; taken.add(k); return NEXT_SLOTS[k] }
   const mid = (home.length - 1) / 2
   const order = [...away.slice(0, 2), ...home, ...town, ...away.slice(2)].filter((s) => s.next)
-  const nexts = order.map((s) => {
+  // People going to the same next thing share one sticker: lines from each of them meet at one dot.
+  const groups = new Map<string, (typeof order)[number][]>()
+  for (const s of order) groups.set(s.next!.key, [...(groups.get(s.next!.key) ?? []), s])
+  const nexts = [...groups.values()].map((members) => members[0]).map((s) => {
     const h = home.indexOf(s)
     const a = away.indexOf(s)
     const o = town.indexOf(s)
@@ -106,7 +110,10 @@ export function OrbitScreen(ctx: Ctx) {
       : h >= 0
       ? (home.length === 1 || h < mid ? NEXT_PREFS.homeLeft : h > mid ? NEXT_PREFS.homeRight : NEXT_PREFS.homeMid)
       : a === 0 && away.length === 1 ? NEXT_PREFS.away[1] : NEXT_PREFS.away[a % 4]
-    return { ...s, from: posOf(s), to: claim(prefs) }
+    const members = groups.get(s.next!.key)!
+    // you first, then the others in circle order
+    const people = [...members].sort((a, b) => (a.p.id === me.id ? -1 : b.p.id === me.id ? 1 : a.i - b.i))
+    return { ...s, members: people, froms: members.map((m) => ({ ...posOf(m), c: LINE[m.i % LINE.length] })), to: claim(prefs) }
   })
   // A sticker hugs the outer edge of its column; it may run under the other column only when that row is free there.
   const rows = new Set([...away.map((s) => { const sl = awaySlot(s); return sl.col + sl.tag }), ...nexts.map((n) => n.to.col + n.to.tag)])
@@ -166,8 +173,8 @@ export function OrbitScreen(ctx: Ctx) {
           <div className="ring" style={{ left: 99, top: 120, width: 160, height: 160, background: 'var(--sage)', animation: 'breathe 4s ease-in-out infinite' }} />
           <svg aria-hidden="true" width="358" height="400" viewBox="0 0 358 400" fill="none" style={{ position: 'absolute', inset: 0 }}>
             {nexts.map((n) => (
-              <g key={n.p.id}>
-                <path d={`M${n.from.x} ${n.from.y} L${n.to.x} ${n.to.y}`} stroke={LINE[n.i % LINE.length]} strokeWidth="2.5" strokeDasharray="3 7" strokeLinecap="round" style={{ animation: 'march 1.4s linear infinite' }} />
+              <g key={n.next!.key}>
+                {n.froms.map((f, k) => <path key={k} d={`M${f.x} ${f.y} L${n.to.x} ${n.to.y}`} stroke={f.c} strokeWidth="2.5" strokeDasharray="3 7" strokeLinecap="round" style={{ animation: 'march 1.4s linear infinite' }} />)}
                 {!n.to.bare && <circle cx={n.to.x} cy={n.to.y} r="7" fill="var(--mist)" stroke={LINE[n.i % LINE.length]} strokeWidth="2.5" />}
               </g>
             ))}
@@ -211,10 +218,15 @@ export function OrbitScreen(ctx: Ctx) {
           })}
           {nexts.map((n) => {
             const { box, max } = boxOf(n.to)
+            const nx = n.next!
+            const who = n.members.map((m) => (m.p.id === me.id ? 'you' : m.p.name)).join(' + ')
+            const soon = diffDays(date, nx.date) <= 1
             return (
-              <div key={n.p.id} className="tagbox" style={box}>
-                <button type="button" className="sticker tag" style={{ maxWidth: max }} onClick={() => openTrip(ctx, n.next!)}>
-                  {n.p.id === me.id ? 'you' : n.p.name}: <span className="cut">{n.next!.place}</span> · {n.next!.start === t && timeOf(n.next!.leaveAt) ? clock(timeOf(n.next!.leaveAt)) : fmtShort(n.next!.start)}
+              <div key={nx.key} className="tagbox" style={box}>
+                <button type="button" className="sticker tag" style={{ maxWidth: max, background: soon ? 'var(--butter)' : undefined }}
+                  aria-label={`${who}: ${nx.title}, ${whenWord(nx.date, nx.time, date)}`}
+                  onClick={() => (nx.trip ? openTrip(ctx, nx.trip) : nx.event ? setEventId(nx.event.id) : undefined)}>
+                  {who}: <span className="cut">{nx.title}</span> · <b style={{ whiteSpace: 'nowrap' }}>{whenWord(nx.date, nx.time, date)}</b>
                 </button>
               </div>
             )

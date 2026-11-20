@@ -169,7 +169,8 @@ export function castMoment(data: Data, p: Person, env: { date: string; minutes: 
   const last = day ? dayProgress(day.stops).last : undefined
   const times = [spot?.at, last?.at].filter((x): x is string => !!x).map((x) => new Date(x).getTime()).filter((x) => !Number.isNaN(x))
   const next = w.later ?? nextTrip(data, p.id, date)
-  const tripInDays = next ? Math.max(0, diffDays(date, next.start)) : null
+  // A one-day plan (the mall, a day out) is not a trip to pack for.
+  const tripInDays = next && next.end !== next.start ? Math.max(0, diffDays(date, next.start)) : null
   const travelDay = !!w.trip && (w.trip.start === date || w.trip.end === date)
   const on = data.events.find((e) => !e.busy && e.keen[p.id] === 'going' && happeningNow(e, date, minutes))
   const event = on ? { title: on.title, evening: !!timeOf(on.startTime) && toMin(timeOf(on.startTime)) >= EVENING } : null
