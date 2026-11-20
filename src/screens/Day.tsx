@@ -5,7 +5,8 @@ import { addDays, fmt, today } from '../lib/dates'
 import { MAX_NAME, MAX_STOPS, addStop, answerInvite, checkInAt, checkInEvent, companions, dayToday, eventStop, eventStopName, eventsOnDay, moveStop, myDayRows, removeStop, reopenStop, skipStop, upcomingInvites } from '../lib/day'
 import { timeRange } from '../lib/when'
 import type { DayRow } from '../lib/day'
-import { clock } from '../lib/work'
+import { clock, spotToday, toMin } from '../lib/work'
+import { mondayIndex } from '../lib/dates'
 import { Avatar, Icon } from '../ui'
 
 const timeOf = (iso?: string) => { if (!iso) return ''; const d = new Date(iso); return clock(d.getHours() * 60 + d.getMinutes()) }
@@ -75,6 +76,15 @@ export function MyDay({ ctx }: { ctx: Ctx }) {
   const done = rows.filter((r) => r.stop.state === 'done').length
   // Events they're going to today that aren't a place on the day yet: one tap checks in there.
   const evs = ahead ? [] : eventsOnDay(data.events, me.id, t).filter((e) => !eventStop(stops, e.id))
+  // On an office day (their work week), the office is the first place of the day: one tap checks in there,
+  // the same as "at office" above. On a day ahead it just shows as planned.
+  const officeDay = me.workPlan?.days[mondayIndex(t)] === 'office'
+  const atOffice = !ahead && spotToday(me.spot, t)?.kind === 'office' ? spotToday(me.spot, t) : null
+  const setOffice = (on: boolean) => {
+    if (busy) return
+    setBusy(true)
+    void ctx.run(() => ctx.store.setSpot(on ? 'office' : null)).finally(() => setBusy(false))
+  }
   const save = (next: Stop[]) => {
     if (next === stops || busy) return
     setBusy(true)
@@ -116,7 +126,19 @@ export function MyDay({ ctx }: { ctx: Ctx }) {
           ))}
         </div>
       )}
-      {rows.length === 0 && <div className="small">{ahead ? `Nothing planned for ${fmt(t)} yet. Add a place; add a friend to it and it shows on their day too.` : 'Going to a few places today? List them, then check in at each one. Add a friend to a place, lunch say, and it shows on their day too.'}</div>}
+      {officeDay && (
+        <div className="card" style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 8px 8px 12px', borderRadius: 22, background: atOffice ? 'var(--sage)' : 'var(--card)' }}>
+          <span aria-hidden style={{ flex: 'none', width: 34, height: 34, borderRadius: 999, display: 'grid', placeItems: 'center', background: atOffice ? 'var(--ink)' : 'transparent', border: atOffice ? 'none' : '2px solid var(--ink)', color: atOffice ? '#fff' : 'var(--ink)' }}>{atOffice ? <Icon.check /> : <Icon.now />}</span>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontWeight: 700, overflowWrap: 'anywhere' }}>{['office', me.office].filter(Boolean).join(' · ')}</div>
+            <div className="small">{atOffice ? `checked in ${timeOf(atOffice.at)}` : `office day${me.workPlan?.start ? ` · from ${clock(toMin(me.workPlan.start))}` : ''}`}</div>
+          </div>
+          {!ahead && (atOffice
+            ? <button type="button" className="pill mist" style={small} aria-label="Undo office check-in" onClick={() => setOffice(false)}>undo</button>
+            : <button type="button" className="pill dark" style={small} aria-label="Check in at the office" onClick={() => setOffice(true)}>here</button>)}
+        </div>
+      )}
+      {rows.length === 0 && !officeDay && <div className="small">{ahead ? `Nothing planned for ${fmt(t)} yet. Add a place; add a friend to it and it shows on their day too.` : 'Going to a few places today? List them, then check in at each one. Add a friend to a place, lunch say, and it shows on their day too.'}</div>}
       {rows.map((r, i) => {
         const s = r.stop
         const line = sub(r)
@@ -167,7 +189,7 @@ export function MyDay({ ctx }: { ctx: Ctx }) {
       {stops.length < MAX_STOPS && (
         <form style={{ display: 'flex', flexDirection: 'column', gap: 8 }} onSubmit={(e) => { e.preventDefault(); add() }}>
           <div className="row" style={{ gap: 6 }}>
-            <input className="field plain grow" aria-label={ahead ? `Add a place for ${fmt(t)}` : 'Add a place for today'} placeholder={rows.length ? 'add another place' : ahead ? 'first place that day' : 'first place today'} maxLength={MAX_NAME} enterKeyHint="done" value={name} onChange={(e) => setName(e.target.value)} />
+            <input className="field plain grow" aria-label={ahead ? `Add a place for ${fmt(t)}` : 'Add a place for today'} placeholder={rows.length || officeDay ? 'add another place' : ahead ? 'first place that day' : 'first place today'} maxLength={MAX_NAME} enterKeyHint="done" value={name} onChange={(e) => setName(e.target.value)} />
             <button type="submit" className="pill dark" style={{ height: 48, borderRadius: 16, flex: 'none', opacity: name.trim() ? 1 : 0.4 }} disabled={!name.trim()}>add</button>
           </div>
           {name.trim() !== '' && (
