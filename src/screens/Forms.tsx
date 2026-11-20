@@ -134,7 +134,8 @@ export function AddEvent({ ctx, id, date: initial, demo }: { ctx: Ctx; id?: ID; 
   const [link, setLink] = useState(editing?.link ?? demo?.link ?? '')
   const [title, setTitle] = useState(editing?.title ?? demo?.title ?? '')
   const [place, setPlace] = useState(editing?.place ?? demo?.place ?? ctx.me.home)
-  const [date, setDate] = useState(editing?.date ?? demo?.date ?? initial ?? addDays(t, 7))
+  // New events start on today: most are a dinner or a movie tonight. Pick another day in the strip.
+  const [date, setDate] = useState(editing?.date ?? demo?.date ?? initial ?? t)
   const [keen, setKeen] = useState<Keen>(editing?.keen[ctx.me.id] ?? demo?.keen ?? 'interested')
   const [startTime, setStartTime] = useState(timeOf(editing?.startTime))
   const [endTime, setEndTime] = useState(timeOf(editing?.endTime))

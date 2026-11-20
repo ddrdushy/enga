@@ -14,7 +14,7 @@ import type { CastPick } from '../lib/cast'
 import { MyDay, StopList } from './Day'
 import { checkInEvent, dayToday, eventStop } from '../lib/day'
 import { birthdayWhen, daysToBirthday, inDaysWord, isBirthday, turning, upcomingBirthdays } from '../lib/birthday'
-import { eventWhen, occursOn, timeOf, timeRange, weekday } from '../lib/when'
+import { eventWhen, nextOn, occursOn, timeOf, timeRange, weekday } from '../lib/when'
 
 const nowMinutes = () => { const n = new Date(); return n.getHours() * 60 + n.getMinutes() }
 
@@ -451,6 +451,7 @@ function EventSheet({ ctx, event, onClose }: { ctx: Ctx; event: EventItem; onClo
       {on && (here?.state === 'done'
         ? <div className="row small" style={{ gap: 6, fontWeight: 600 }}><Icon.check /> you checked in here at {timeOfIso(here.at)}</div>
         : <button type="button" className="pill dark" style={{ alignSelf: 'flex-start' }} onClick={checkIn}>I'm here · check in</button>)}
+      {!on && event.keen[me.id] === 'going' && nextOn(event, day) && <div className="small">You can check in here on {fmt(nextOn(event, day) as string)}.</div>}
       {event.link && <a href={event.link.startsWith('http') ? event.link : `https://${event.link}`} target="_blank" rel="noreferrer" className="row" style={{ minHeight: 44, alignSelf: 'flex-start' }}><Icon.link /> open the link</a>}
       <div className="chips">
         {Object.entries(event.keen).map(([id, level]) => { const p = person(data, id); return p ? <span key={id} className="pill mist" style={{ paddingLeft: 4 }}><Avatar p={p} size={32} />{level}</span> : null })}
