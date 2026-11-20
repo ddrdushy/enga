@@ -10,11 +10,14 @@ export const timeOf = (value: unknown): string => (typeof value === 'string' && 
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 export const weekday = (date: string) => WEEKDAYS[parse(date).getDay()]
 
-/** "7:30 pm to 9:00 pm", "from 7:30 pm", "till 9:00 pm", or ''. */
+/** An end time at or before the start time means it ends the next day (a 10 pm movie till 1 am). */
+export const overnight = (start?: string, end?: string): boolean => { const a = timeOf(start); const b = timeOf(end); return !!(a && b && b <= a) }
+
+/** "7:30 pm to 9:00 pm", "10:00 pm to 1:00 am next day", "from 7:30 pm", "till 9:00 pm", or ''. */
 export function timeRange(start?: string, end?: string): string {
   const a = timeOf(start)
   const b = timeOf(end)
-  if (a && b) return `${clock(a)} to ${clock(b)}`
+  if (a && b) return `${clock(a)} to ${clock(b)}${b <= a ? ' next day' : ''}`
   if (a) return `from ${clock(a)}`
   if (b) return `till ${clock(b)}`
   return ''
@@ -40,14 +43,19 @@ export function eventWhen(e: EventItem): string {
   return [e.repeat === 'weekly' ? `every ${weekday(e.date)}` : fmt(e.date), timeRange(e.startTime, e.endTime)].filter(Boolean).join(' \u00b7 ')
 }
 
-/** Happening on `date` at `minutes` past midnight. Without an end time an event counts as two hours long. */
+/**
+ * Happening on `date` at `minutes` past midnight. Without an end time an event counts as two hours long.
+ * One that runs past midnight (end at or before start) is still on in the small hours of the next day.
+ */
 export function happeningNow(e: EventItem, date: string, minutes: number): boolean {
   const start = timeOf(e.startTime)
-  if (!start || !occursOn(e, date)) return false
+  if (!start) return false
   const from = toMin(start)
   const end = timeOf(e.endTime)
-  const till = end && toMin(end) > from ? toMin(end) : from + 120
-  return minutes >= from && minutes < till
+  const till = end ? (toMin(end) > from ? toMin(end) : toMin(end) + 1440) : from + 120
+  if (occursOn(e, date) && minutes >= from && minutes < till) return true
+  // Still going after midnight, from the day before.
+  return till > 1440 && occursOn(e, addDays(date, -1)) && minutes < till - 1440
 }
 
 /** Each event at its next date from `date` on, soonest first (by day, then by time). */

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { checkInEvent, eventStop, eventStopName, eventsOnDay } from './day'
 import type { EventItem, Stop } from './types'
 import { packExtras, plansOf } from './extras'
+import { happeningNow, overnight, timeRange } from './when'
 
 const ftn: EventItem = { id: 'ftn', ownerId: 'd', title: 'FTN', place: 'Chow kit', date: '2026-11-19', link: '', createdAt: '', startTime: '19:30', endTime: '21:00', repeat: 'weekly', keen: { d: 'going', a: 'going', k: 'interested' } }
 const AT = '2026-11-19T11:35:00.000Z'
@@ -29,5 +30,21 @@ describe('checking in at an event', () => {
     const days = [{ date: '2026-11-19', stops: checkInEvent([], ftn, AT) }]
     const back = plansOf(packExtras({ mine: true, friends: true, news: true } as never, null, days, '2026-11-19'))
     expect(back.find((d) => d.date === '2026-11-19')?.stops[0].event).toBe('ftn')
+  })
+})
+
+describe('events past midnight', () => {
+  const movie: EventItem = { id: 'm', ownerId: 'd', title: 'Movie date', place: 'KL', date: '2026-11-28', link: '', createdAt: '', startTime: '22:00', endTime: '01:00', keen: { d: 'going', a: 'going' } }
+  it('reads as ending the next day', () => {
+    expect(timeRange('22:00', '01:00')).toBe('10:00 pm to 1:00 am next day')
+    expect(timeRange('19:30', '21:00')).toBe('7:30 pm to 9:00 pm')
+    expect(overnight('22:00', '01:00')).toBe(true)
+  })
+  it('is on from the start till midnight, then into the next morning', () => {
+    expect(happeningNow(movie, '2026-11-28', 21 * 60 + 59)).toBe(false)
+    expect(happeningNow(movie, '2026-11-28', 23 * 60)).toBe(true)
+    expect(happeningNow(movie, '2026-11-29', 30)).toBe(true)
+    expect(happeningNow(movie, '2026-11-29', 60)).toBe(false)
+    expect(happeningNow(movie, '2026-11-27', 30)).toBe(false)
   })
 })

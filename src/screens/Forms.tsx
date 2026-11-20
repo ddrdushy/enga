@@ -11,7 +11,7 @@ import { addDays, diffDays, dow, fmt, fmtRange, fmtShort, inDays, parse, today }
 import { digest, isFree, placesUsed, tripPeople, tripsOf } from '../lib/logic'
 import { FESTIVALS, theirFestivals } from '../lib/festivals'
 import { Avatar, DateStrip, Dial, FaceSlider, Icon, Sheet, SlideButton, pretty } from '../ui'
-import { timeOf, tripTimes, weekday } from '../lib/when'
+import { overnight, timeOf, tripTimes, weekday } from '../lib/when'
 import { clock } from '../lib/work'
 
 const KEEN: { v: Keen; label: string }[] = [{ v: 'interested', label: 'interested' }, { v: 'maybe', label: 'maybe' }, { v: 'going', label: 'going' }]
@@ -96,6 +96,12 @@ export function AddTrip({ ctx, id, start: initial, demo }: { ctx: Ctx; id?: ID; 
 
       <div data-tour="trip-days" style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
         <DateStrip range start={start} end={end} hint="tap the first day, then the last" onChange={(s, e) => { setStart(s); setEnd(e) }} />
+        {!editing && start === end && (
+          <div className="card" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 10px 10px 14px', borderRadius: 18, background: 'var(--lav)' }}>
+            <div className="small" style={{ flex: 1, color: 'var(--ink)' }}>Just one evening, like a dinner or a movie? Add it as an event: times, who's coming, only you two can see it, and you check in there.</div>
+            <button type="button" className="pill dark" style={{ flex: 'none', height: 36 }} onClick={() => ctx.open({ k: 'event', date: start })}>make it an event</button>
+          </div>
+        )}
         <div className="chips">
           <button type="button" className="pill" onClick={weekend}>this weekend</button>
           <button type="button" className="pill" onClick={() => setLength(3)}>3 days</button>
@@ -143,7 +149,7 @@ export function AddEvent({ ctx, id, date: initial, demo }: { ctx: Ctx; id?: ID; 
   }
   const save = () => {
     if (!title.trim()) { setError('Give it a name first.'); return }
-    if (startTime && endTime && endTime <= startTime) { setError('The end time is before the start.'); return }
+    if (startTime && endTime && endTime === startTime) { setError('It starts and ends at the same time.'); return }
     if (privacy === 'with' && !withIds.length) { setError("Add who's coming first, or pick only me."); return }
     const people = privacy === 'me' ? [] : withIds
     void ctx.run(() => ctx.store.saveEvent({ id: editing?.id, title: title.trim(), place, date, link: link.trim(), keen, startTime, endTime, repeat: weekly ? 'weekly' : undefined, privacy, with: people, was })).then((ok) => ok && ctx.close())
@@ -164,7 +170,8 @@ export function AddEvent({ ctx, id, date: initial, demo }: { ctx: Ctx; id?: ID; 
         <Blank value={title} onChange={(v) => { setTitle(v); setError('') }} label="What is happening" hint="what?" bg="var(--butter)" />{' '}
         in <button type="button" className="word" style={{ background: 'var(--peach)' }} onClick={() => setPicking(true)}>{place}</button>{' '}
         {weekly ? 'every' : 'on'} <span className="nowrap"><span className="word" style={{ background: 'var(--ink)', color: 'var(--on-ink)' }}>{weekly ? weekday(date) : fmt(date)}</span>{startTime ? '' : '.'}</span>{' '}
-        {startTime && <span className="nowrap">at <span className="word" style={{ background: 'var(--ink)', color: 'var(--on-ink)' }}>{clock(startTime)}</span>.</span>}{' '}I'm{' '}
+        {startTime && <span className="nowrap">at <span className="word" style={{ background: 'var(--ink)', color: 'var(--on-ink)' }}>{clock(startTime)}</span>{endTime ? '' : '.'}</span>}{' '}
+        {startTime && endTime && <span className="nowrap">till <span className="word" style={{ background: 'var(--ink)', color: 'var(--on-ink)' }}>{clock(endTime)}{overnight(startTime, endTime) ? ' next day' : ''}</span>.</span>}{' '}I'm{' '}
         <span className="nowrap"><span className="word" style={{ background: 'var(--lav)' }}>{keen === 'interested' ? 'just interested' : keen}</span>{withIds.length ? '' : '.'}</span>
         {withIds.length > 0 && privacy !== 'me' && <>{' '}with <span className="nowrap"><span className="word" style={{ background: 'var(--sage)' }}>{names(ctx.data, withIds)}</span>.</span></>}
         {privacy && <>{' '}<span className="nowrap"><span className="word" style={{ background: 'var(--lav)' }}>{privacy === 'me' ? 'only I see it' : `only us ${withIds.length + 1} see it`}</span>.</span></>}
